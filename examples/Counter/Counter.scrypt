@@ -1,0 +1,26 @@
+contract Counter {
+  @state
+  public int count;
+
+  public function get(int retVal, SigHashPreimage txPreimage) {
+    require(this.count == retVal);
+    require(this.propagateState(txPreimage, SigHash.value(txPreimage)));
+  }
+
+  public function inc(SigHashPreimage txPreimage) {
+    this.count += 1;
+    require(this.propagateState(txPreimage, SigHash.value(txPreimage)));
+  }
+
+  public function dec(SigHashPreimage txPreimage) {
+    this.count -= 1;
+    require(this.propagateState(txPreimage, SigHash.value(txPreimage)));
+  }
+
+  function propagateState(SigHashPreimage txPreimage, int value) : bool {
+    require(Tx.checkPreimage(txPreimage));
+    bytes outputScript = this.getStateScript();
+    bytes output = Utils.buildOutput(outputScript, value);
+    return hash256(output) == SigHash.hashOutputs(txPreimage);
+  }
+}
