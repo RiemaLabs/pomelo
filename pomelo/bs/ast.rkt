@@ -8,6 +8,10 @@
 ;  - original bitcoin script postfix form, e.g., even with op::if, it doesn't take arguments
 ;  - TODO: we will have infix/prefix form added later
 
+; ======================================= ;
+; ======== data types/structures ======== ;
+; ======================================= ;
+
 ; see: https://en.bitcoin.it/wiki/BIP_0137
 (struct prvkey (x) #:mutable #:transparent #:reflection-name 'prvkey)
 (struct pubkey (pfx x) #:mutable #:transparent #:reflection-name 'pubkey)
@@ -362,8 +366,8 @@
 ; x is the name of the symbolic bool
 (struct op::symbool (x) #:mutable #:transparent #:reflection-name 'OP_SYMBOOL)
 
-; opcode ??
+; opcode 242 (0xf2)
 (struct op::assert () #:mutable #:transparent #:reflection-name 'OP_ASSERT)
 
-; opcode ??
+; opcode 243 (0xf3)
 (struct op::solve () #:mutable #:transparent #:reflection-name 'OP_SOLVE)

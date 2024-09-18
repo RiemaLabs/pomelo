@@ -1,6 +1,6 @@
 #lang rosette
 (require
-    (prefix-in parser:: "./pomelo/parser.rkt")
+    (prefix-in parser:: "./pomelo/bs/parser.rkt")
 )
 
 (define arg-str null)

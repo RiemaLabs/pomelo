@@ -1,6 +1,6 @@
 #lang rosette
 (require
-    "./utils.rkt"
+    "../utils.rkt"
     (prefix-in bs:: "./ast.rkt")
 )
 (provide (all-defined-out))
@@ -19,6 +19,9 @@
 (define (parse-token t)
     (cond
 
+        ; =========================== ;
+        ; ======== push data ======== ;
+        ; =========================== ;
         [(equal? "OP_0" t) (bs::op::0 )]
         [(equal? "OP_FALSE" t) (bs::op::false )]
         [(equal? "OP_PUSHDATA1" t) (bs::op::pushdata::x 1)]
@@ -29,23 +32,52 @@
         [(equal? "OP_1" t) (bs::op::1 )]
         [(equal? "OP_TRUE" t) (bs::op::true )]
 
+        ; ============================== ;
+        ; ======== control flow ======== ;
+        ; ============================== ;
         [(equal? "OP_NOP" t) (bs::op::nop )]
         [(equal? "OP_DUP" t) (bs::op::dup )]
 
+        ; ================================= ;
+        ; ======== stack operators ======== ;
+        ; ================================= ;
         [(equal? "OP_TOALTSTACK" t) (bs::op::toaltstack )]
         
+        ; ================================ ;
+        ; ======== strings/splice ======== ;
+        ; ================================ ;
         [(equal? "OP_CAT" t) (bs::op::cat )]
 
+        ; =============================== ;
+        ; ======== bitwise logic ======== ;
+        ; =============================== ;
         [(equal? "OP_INVERT" t) (bs::op::invert )]
 
+        ; ==================================== ;
+        ; ======== numeric/arithmetic ======== ;
+        ; ==================================== ;
         [(equal? "OP_1ADD" t) (bs::op::1add )]
         [(equal? "OP_ADD" t) (bs::op::add )]
         [(equal? "OP_NUMEQUAL" t) (bs::op::numequal )]
 
+        ; ============================== ;
+        ; ======== cryptography ======== ;
+        ; ============================== ;
         [(equal? "OP_RIPEMD160" t) (bs::op::ripemd160 )]
 
+        ; ================================ ;
+        ; ======== locktime/other ======== ;
+        ; ================================ ;
         [(equal? "OP_NOP1" t) (bs::op::nop1 )]
 
+        ; ============================== ;
+        ; ======== vacant words ======== ;
+        ; ============================== ;
+        ; no op code here 
+
+        ; ======================================= ;
+        ; ======== pomela symbolic words ======== ;
+        ; ======================================= ;
         [(string-prefix? t "OP_SYMINT_") (parse-token/symint t)]
         [(equal? "OP_SOLVE" t) (bs::op::solve )]
 

@@ -1,11 +1,13 @@
 #lang rosette
 (require rosette/lib/destruct)
 (require
-    "./utils.rkt"
-    "./config.rkt"
+    "../utils.rkt"
+    "../config.rkt"
     (prefix-in bs:: "./ast.rkt")
 )
 (provide (all-defined-out))
+
+; symbolic virtual machine
 
 ; stack is a stack, script is a FILO list
 (struct runtime (stack script) #:mutable #:transparent #:reflection-name 'runtime)
@@ -60,12 +62,30 @@
             [(bs::op::true ) (push! rt (bv 1 ::bitvector))]
             [(bs::op::x x) (push! rt (bv x ::bitvector))]
 
+            ; ============================== ;
+            ; ======== control flow ======== ;
+            ; ============================== ;
+
+            ; ================================= ;
+            ; ======== stack operators ======== ;
+            ; ================================= ;
             [(bs::op::dup )
                 (define v0 (pop! rt))
                 (push! rt v0)
                 (push! rt v0)
             ]
 
+            ; ================================ ;
+            ; ======== strings/splice ======== ;
+            ; ================================ ;
+
+            ; =============================== ;
+            ; ======== bitwise logic ======== ;
+            ; =============================== ;
+
+            ; ==================================== ;
+            ; ======== numeric/arithmetic ======== ;
+            ; ==================================== ;
             [(bs::op::add )
                 (define v1 (pop! rt))
                 (define v0 (pop! rt))
@@ -80,6 +100,22 @@
                 (push! rt r)
             ]
 
+            ; ============================== ;
+            ; ======== cryptography ======== ;
+            ; ============================== ;
+
+            ; ================================ ;
+            ; ======== locktime/other ======== ;
+            ; ================================ ;
+
+            ; ============================== ;
+            ; ======== vacant words ======== ;
+            ; ============================== ;
+            ; no op code here
+
+            ; ======================================= ;
+            ; ======== pomela symbolic words ======== ;
+            ; ======================================= ;
             [(bs::op::symint x)
                 (define id (string->symbol (format "int$~a" x)))
                 (define r (fresh-symbolic id 'int))
