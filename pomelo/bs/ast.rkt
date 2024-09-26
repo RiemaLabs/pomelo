@@ -371,3 +371,8 @@
 
 ; opcode 243 (0xf3)
 (struct op::solve () #:mutable #:transparent #:reflection-name 'OP_SOLVE)
+
+; ======================================= ;
+; ============ custom opcodes =========== ;
+; ======================================= ;
+(struct op::branch (then else) #:mutable #:transparent #:reflection-name 'OP_BRANCH)
