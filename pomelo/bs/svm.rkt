@@ -98,10 +98,10 @@
        ; =========================== ;
        ; ======== push data ======== ;
        ; =========================== ;
-       [(bs::op::0 ) (push! rt (bv 0 ::bitvector))]
-       [(bs::op::1 ) (push! rt (bv 1 ::bitvector))]
-       [(bs::op::false ) (push! rt (bv 0 ::bitvector))]
-       [(bs::op::true ) (push! rt (bv 1 ::bitvector))]
+       [(bs::op::0) (push! rt (bv 0 ::bitvector))]
+       [(bs::op::1) (push! rt (bv 1 ::bitvector))]
+       [(bs::op::false) (push! rt (bv 0 ::bitvector))]
+       [(bs::op::true) (push! rt (bv 1 ::bitvector))]
        [(bs::op::x x) (push! rt (bv x ::bitvector))]
 
        ; ============================== ;
@@ -146,7 +146,7 @@
         (pop! rt)
         ]
 
-       [(bs::op::dup )
+       [(bs::op::dup)
         (define x (pop! rt))
         (push! rt x)
         (push! rt x)
@@ -278,19 +278,134 @@
        ; ==================================== ;
        ; ======== numeric/arithmetic ======== ;
        ; ==================================== ;
-       [(bs::op::add )
-        (define v1 (pop! rt))
-        (define v0 (pop! rt))
-        (define r (bvadd v0 v1))
+       [(bs::op::1add)
+        (define v (pop! rt))
+        (push! rt (bvadd1 v))
+        ]
+
+       [(bs::op::1sub)
+        (define v (pop! rt))
+        (push! rt (bvsub1 v))
+        ]
+
+       [(bs::op::negate)
+        (define v (pop! rt))
+        (push! rt (bvneg v))
+        ]
+
+       [(bs::op::abs)
+        (define v (pop! rt))
+        (if (bvslt v (bv 0 ::bitvector))
+            (push! rt (bvneg v))
+            (push! rt v)
+            )
+        ]
+
+       [(bs::op::not)
+        (define v (pop! rt))
+        (cond
+          [(bvzero? v) (push! rt (bv 1 ::bitvector))]
+          [(bveq v (bv 1 ::bitvector)) (push! rt (bv 0 ::bitvector))]
+          [else (push! rt (bv 0 ::bitvector))]
+          )
+        ]
+
+       [(bs::op::0notequal)
+        (define v (pop! rt))
+        (if (bvzero? v)
+            (push! rt (bv 0 ::bitvector))
+            (push! rt (bv 1 ::bitvector))
+            )
+        ]
+
+       [(bs::op::add)
+        (define b (pop! rt))
+        (define a (pop! rt))
+        (define r (bvadd a b))
         (push! rt r)
         ]
 
-       [(bs::op::numequal )
-        (define v1 (pop! rt))
-        (define v0 (pop! rt))
-        (define r (bveq v0 v1))
+       [(bs::op::sub)
+        (define b (pop! rt))
+        (define a (pop! rt))
+        (define r (bvsub a b))
         (push! rt r)
         ]
+
+       [(bs::op::booland)
+        (define b (pop! rt))
+        (define a (pop! rt))
+        (if (|| (bvzero? a) (bvzero? b))
+            (push! rt (bv 0 ::bitvector))
+            (push! rt (bv 1 ::bitvector))
+            )
+        ]
+
+       [(bs::op::boolor)
+        (define b (pop! rt))
+        (define a (pop! rt))
+        (if (|| (bvzero? a) (bvzero? b))
+            (push! rt (bv 0 ::bitvector))
+            (push! rt (bv 1 ::bitvector))
+            )
+        ]
+
+       [(bs::op::numequal)
+        (define b (pop! rt))
+        (define a (pop! rt))
+        (define r (bool->bitvector (bveq a b) ::bitvector))
+        (push! rt r)
+        ]
+
+       [(bs::op::numnotequal)
+        (define b (pop! rt))
+        (define a (pop! rt))
+        (define r (bool->bitvector (! (bveq a b)) ::bitvector))
+        (push! rt r)
+        ]
+
+       [(bs::op::lessthan)
+        (define b (pop! rt))
+        (define a (pop! rt))
+        (define r (bool->bitvector (bvslt a b) ::bitvector))
+        (push! rt r)
+        ]
+
+       [(bs::op::greaterthan)
+        (define b (pop! rt))
+        (define a (pop! rt))
+        (define r (bool->bitvector (bvsgt a b) ::bitvector))
+        (push! rt r)
+        ]
+
+       [(bs::op::lessthanorequal)
+        (define b (pop! rt))
+        (define a (pop! rt))
+        (define r (bool->bitvector (bvsle a b) ::bitvector))
+        (push! rt r)
+        ]
+
+       [(bs::op::greaterthanorequal)
+        (define b (pop! rt))
+        (define a (pop! rt))
+        (define r (bool->bitvector (bvsge a b) ::bitvector))
+        (push! rt r)
+        ]
+
+       [(bs::op::min)
+        (define b (pop! rt))
+        (define a (pop! rt))
+        (define r (bvsmin a b))
+        (push! rt r)
+        ]
+
+       [(bs::op::max)
+        (define b (pop! rt))
+        (define a (pop! rt))
+        (define r (bvsmax a b))
+        (push! rt r)
+        ]
+
 
        ; ============================== ;
        ; ======== cryptography ======== ;
@@ -315,7 +430,7 @@
         ]
 
        ; OP_SOLVE doesn't push anything back to stack
-       [(bs::op::solve )
+       [(bs::op::solve)
         (define v (pop! rt))
         (define r (solve (assert v)))
         (printf "# OP_SOLVE result:\n~a\n" r)

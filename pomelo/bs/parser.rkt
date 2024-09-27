@@ -113,8 +113,23 @@
     ; ======== numeric/arithmetic ======== ;
     ; ==================================== ;
     [(equal? "OP_1ADD" t) (bs::op::1add )]
+    [(equal? "OP_1SUB" t) (bs::op::1sub )]
+    [(equal? "OP_NEGATE" t) (bs::op::negate)]
+    [(equal? "OP_ABS" t) (bs::op::abs)]
+    [(equal? "OP_NOT" t) (bs::op::not)]
+    [(equal? "OP_0NOTEQUAL" t) (bs::op::0notequal)]
     [(equal? "OP_ADD" t) (bs::op::add )]
+    [(equal? "OP_SUB" t) (bs::op::sub )]
+    [(equal? "OP_BOOLAND" t) (bs::op::booland )]
+    [(equal? "OP_BOOLOR" t) (bs::op::boolor )]
     [(equal? "OP_NUMEQUAL" t) (bs::op::numequal )]
+    [(equal? "OP_NUMNOTEQUAL" t) (bs::op::numnotequal )]
+    [(equal? "OP_LESSTHAN" t) (bs::op::lessthan )]
+    [(equal? "OP_GREATERTHAN" t) (bs::op::greaterthan )]
+    [(equal? "OP_LESSTHANOREQUAL" t) (bs::op::lessthanorequal )]
+    [(equal? "OP_GREATERTHANOREQUAL" t) (bs::op::greaterthanorequal )]
+    [(equal? "OP_MIN" t) (bs::op::min )]
+    [(equal? "OP_MAX" t) (bs::op::max )]
 
     ; ============================== ;
     ; ======== cryptography ======== ;
