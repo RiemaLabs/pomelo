@@ -46,6 +46,14 @@
 ; opcodes 82-96 (0x52-0x60) | x: 2-16
 (struct op::x (x) #:mutable #:transparent #:reflection-name 'OP_X)
 
+(define op::push?
+  (disjoin
+   op::0? op::false?
+   op::pushbytes::x op::pushdata::x
+   op::1negate? op::reserved?
+   op::1? op::true?
+   op::x?))
+
 ; ============================== ;
 ; ======== control flow ======== ;
 ; ============================== ;
@@ -79,6 +87,13 @@
 
 ; opcode 106 (0x6a)
 (struct op::return () #:mutable #:transparent #:reflection-name 'OP_RETURN)
+
+(define op::control?
+  (disjoin
+   op::nop? op::ver? op::if? op::notif?
+   op::verif? op::vernotif? op::else?
+   op::endif? op::verify? op::return?))
+
 
 ; ================================= ;
 ; ======== stack operators ======== ;
@@ -141,6 +156,15 @@
 ; opcode 125 (0x7d)
 (struct op::tuck () #:mutable #:transparent #:reflection-name 'OP_TUCK)
 
+(define op::stack?
+  (disjoin op::toaltstack? op::fromaltstack?
+           op::2drop? op::2dup? op::3dup?
+           op::2over? op::2rot? op::2swap?
+           op::ifdup? op::depth? op::drop?
+           op::dup? op::nip? op::over?
+           op::pick? op::roll? op::rot?
+           op::swap? op::tuck?))
+
 ; ================================ ;
 ; ======== strings/splice ======== ;
 ; ================================ ;
@@ -159,6 +183,10 @@
 
 ; opcode 130 (0x82)
 (struct op::size () #:mutable #:transparent #:reflection-name 'OP_SIZE)
+
+(define op::string?
+  (disjoin op::cat? op::substr? op::left?
+           op::right? op::size?))
 
 ; =============================== ;
 ; ======== bitwise logic ======== ;
@@ -187,6 +215,12 @@
 
 ; opcode 138 (0x8a)
 (struct op::reserved2 () #:mutable #:transparent #:reflection-name 'OP_RESERVED2)
+
+(define op::bitwise?
+  (disjoin op::invert? op::and? op::or?
+           op::xor? op::equal? op::equalverify?
+           op::reserved1? op::reserved2?))
+
 
 ; ==================================== ;
 ; ======== numeric/arithmetic ======== ;
@@ -273,6 +307,17 @@
 ; opcode 165 (0xa5)
 (struct op::within () #:mutable #:transparent #:reflection-name 'OP_WITHIN)
 
+(define op::arith?
+  (disjoin op::1add? op::1sub? op::2mul?
+           op::2div? op::negate? op::abs?
+           op::not? op::0notequal? op::add?
+           op::sub? op::mul? op::div?
+           op::mod? op::lshift? op::rshift?
+           op::booland? op::boolor? op::numequal?
+           op::numequalverify? op::numnotequal? op::lessthan?
+           op::greaterthan? op::lessthanorequal? op::greaterthanorequal?
+           op::min? op::max? op::within?))
+
 ; ============================== ;
 ; ======== cryptography ======== ;
 ; ============================== ;
@@ -306,6 +351,12 @@
 
 ; opcode 175 (0xaf)
 (struct op::checkmultisigverify () #:mutable #:transparent #:reflection-name 'OP_CHECKMULTISIGVERIFY)
+
+(define op::crypto?
+  (disjoin op::ripemd160? op::sha1? op::sha256?
+           op::hash160? op::hash256? op::codeseparator?
+           op::checksig? op::checksigverify?
+           op::checkmultisig? op::checkmultisigverify?))
 
 ; ================================ ;
 ; ======== locktime/other ======== ;
@@ -346,6 +397,14 @@
 ; opcode 186 (0xba)
 (struct op::checksigadd () #:mutable #:transparent #:reflection-name 'OP_CHECKSIGADD)
 
+(define op::other?
+  (disjoin op::nop1? op::checklocktimeverify?
+           op::checksequenceverify? op::nop4?
+           op::nop5? op::nop6?
+           op::nop7? op::nop8?
+           op::nop9? op::nop10?
+           op::checksigadd?))
+
 ; ============================== ;
 ; ======== vacant words ======== ;
 ; ============================== ;
@@ -372,7 +431,27 @@
 ; opcode 243 (0xf3)
 (struct op::solve () #:mutable #:transparent #:reflection-name 'OP_SOLVE)
 
+(define op::sym?
+  (disjoin op::symint? op::symbool?
+           op::assert? op::solve?))
+
 ; ======================================= ;
-; ============ custom opcodes =========== ;
+; ========== internal opcodes =========== ;
 ; ======================================= ;
 (struct op::branch (then else) #:mutable #:transparent #:reflection-name 'OP_BRANCH)
+
+(define op::internal?
+  (disjoin op::branch?))
+
+
+; ======================================= ;
+; ============= all opcodes ============= ;
+; ======================================= ;
+(define op?
+  (disjoin op::push? op::control?
+           op::stack? op::string?
+           op::bitwise? op::arith?
+           op::crypto? op::other?
+           op::sym? op::internal?))
+
+

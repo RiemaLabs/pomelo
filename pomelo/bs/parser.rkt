@@ -11,36 +11,48 @@
 ; parse bitcoin script from string
 ; returns: a list of bs language constructs
 (define (parse-str s)
-  ; token generator
-  (define tok-seq (in-list (string-split s)))
-  (for/list ([t (parse-tokens tok-seq)]) t)
+  (define tseq (in-list (string-split s)))
+  (for/list ([t (parse-tokens tseq)]) t)
   )
 
-(define (parse-tokens g)
-  (define-values (more? get) (sequence-generate g))
+; produce a sequence tokens from a sequence of strings
+(define/contract (parse-tokens tseq)
+  (-> (sequence/c string?) (sequence/c bs::op?))
+  (define-values (more? get) (sequence-generate tseq))
   (in-generator
    (let loop ()
      (when (more?)
        (yield (parse-token (get) get))
-       (loop)))
-   )
-  )
+       (loop)))))
 
-(define (parse-token/if g)
-  (println "parse-token/if")
+; parse tokens into a branching op
+(define/contract (parse-token/branch get)
+  (-> procedure? bs::op::branch?)
+  ; accumulators for then and else branches
   (define thn '())
   (define els '())
+  ; start by assuming we are in the then branch
   (let loop ([in-then? #t])
-    (define t (parse-token (g) g))
+    (define t (parse-token (get) get))
     (match t
-      [(bs::op::endif) (void)]
-      [(bs::op::else) (set! in-then? #f) (loop #f)]
-      [_ (if in-then? (set! thn (cons t thn)) (set! els (cons t els))) (loop in-then?)]))
+      [(bs::op::endif)
+       (void)]
+      [(bs::op::else)
+       ; switch to else branch
+       (set! in-then? #f) (loop #f)]
+      [_
+       ; add to either then or else branch
+       (if in-then?
+           (set! thn (cons t thn))
+           (set! els (cons t els)))
+       ; continue
+       (loop in-then?)]))
   (bs::op::branch (reverse thn) (reverse els)))
 
 
-; parse a single string token t and generator g holding the rest of the tokens
-(define (parse-token t g)
+; parse a string token t into an op, where generator g holds the rest of the tokens
+(define/contract (parse-token t g)
+  (-> string? procedure? bs::op?)
   (cond
 
     ; =========================== ;
@@ -61,7 +73,7 @@
     ; ============================== ;
     [(equal? "OP_NOP" t) (bs::op::nop )]
     [(equal? "OP_DUP" t) (bs::op::dup )]
-    [(equal? "OP_IF"  t) (parse-token/if g)]
+    [(equal? "OP_IF"  t) (parse-token/branch g)]
     [(equal? "OP_ELSE" t) (bs::op::else)]
     [(equal? "OP_ENDIF" t) (bs::op::endif)]
 
