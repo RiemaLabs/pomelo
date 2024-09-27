@@ -72,7 +72,6 @@
     ; ======== control flow ======== ;
     ; ============================== ;
     [(equal? "OP_NOP" t) (bs::op::nop )]
-    [(equal? "OP_DUP" t) (bs::op::dup )]
     [(equal? "OP_IF"  t) (parse-token/branch g)]
     [(equal? "OP_ELSE" t) (bs::op::else)]
     [(equal? "OP_ENDIF" t) (bs::op::endif)]
@@ -81,6 +80,24 @@
     ; ======== stack operators ======== ;
     ; ================================= ;
     [(equal? "OP_TOALTSTACK" t) (bs::op::toaltstack )]
+    [(equal? "OP_FROMALTSTACK" t) (bs::op::fromaltstack )]
+    [(equal? "OP_IFDUP" t) (bs::op::ifdup )]
+    [(equal? "OP_DEPTH" t) (bs::op::depth )]
+    [(equal? "OP_DROP" t) (bs::op::drop )]
+    [(equal? "OP_DUP" t) (bs::op::dup )]
+    [(equal? "OP_NIP" t) (bs::op::nip )]
+    [(equal? "OP_OVER" t) (bs::op::over )]
+    [(equal? "OP_PICK" t) (bs::op::pick )]
+    [(equal? "OP_ROLL" t) (bs::op::roll )]
+    [(equal? "OP_ROT" t) (bs::op::rot )]
+    [(equal? "OP_SWAP" t) (bs::op::swap )]
+    [(equal? "OP_TUCK" t) (bs::op::tuck )]
+    [(equal? "OP_2DROP" t) (bs::op::2drop )]
+    [(equal? "OP_2DUP" t) (bs::op::2dup )]
+    [(equal? "OP_3DUP" t) (bs::op::3dup )]
+    [(equal? "OP_2OVER" t) (bs::op::2over )]
+    [(equal? "OP_2ROT" t) (bs::op::2rot )]
+    [(equal? "OP_2SWAP" t) (bs::op::2swap )]
 
     ; ================================ ;
     ; ======== strings/splice ======== ;
