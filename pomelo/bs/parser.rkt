@@ -39,7 +39,7 @@
        (void)]
       [(bs::op::else)
        ; switch to else branch
-       (set! in-then? #f) (loop #f)]
+       (loop #f)]
       [_
        ; add to either then or else branch
        (if in-then?
