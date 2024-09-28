@@ -82,9 +82,6 @@
   )
 
 (define (interpret rt)
-  ; (printf "# stack:\n~a\n" (runtime-stack rt))
-  ; (printf "# alt:\n~a\n" (runtime-alt rt))
-
   (define-values (more? next) (sequence-generate (runtime-script rt)))
   (let loop ()
     (when (more?)
@@ -98,6 +95,8 @@
 
 (define (step rt o)
   (define unsupported (lambda (o) (error 'interpret (format "unsupported operator: ~a" o))))
+  ; (printf "# stack:\n~a\n" (runtime-stack rt))
+  ; (printf "# alt:\n~a\n" (runtime-alt rt))
   (printf "# next: ~a\n" o)
   (destruct
    o
@@ -384,6 +383,13 @@
     (push! rt r)
     ]
 
+   [(bs::op::numequalverify)
+    (define b (pop! rt))
+    (define a (pop! rt))
+    (assert (bveq a b) "numequalverify failed")
+    ]
+
+
    [(bs::op::numnotequal)
     (define b (pop! rt))
     (define a (pop! rt))
@@ -468,7 +474,7 @@
    [(bs::op::solve)
     (define v (pop! rt))
     (define r (solve (assert v)))
-    (printf "# OP_SOLVE result:\n~a\n" r)
+    (printf "# OP_SOLVE result:\n~a\n" (evaluate r v))
     ]
 
    [_ (error 'step (format "unsupported operator: ~a" o))]

@@ -153,6 +153,7 @@
     [(equal? "OP_ADD" t) (bs::op::add )]
     [(equal? "OP_SUB" t) (bs::op::sub )]
     [(equal? "OP_NUMEQUAL" t) (bs::op::numequal )]
+    [(equal? "OP_NUMEQUALVERIFY" t) (bs::op::numequalverify )]
     [(equal? "OP_NUMNOTEQUAL" t) (bs::op::numnotequal )]
     [(equal? "OP_LESSTHAN" t) (bs::op::lessthan )]
     [(equal? "OP_GREATERTHAN" t) (bs::op::greaterthan )]

@@ -41,19 +41,19 @@ racket ./parse.rkt --file <path-to-file>
 To run a bitcoin script with symbolic variable, use:
 
 ```bash
-racket ./run.rkt --str "OP_1 OP_2 OP_ADD OP_3 OP_NUMEQUAL"
+racket ./run.rkt --str "OP_1 OP_SYMINT_0 OP_ADD OP_3 OP_NUMEQUALVERIFY"
 ```
 
 and you'll see the intermediate op codes and the final stacks:
 
 ```
 # next: #(struct:OP_1)
-# next: #(struct:OP_X 2)
+# next: #(struct:OP_SYMINT 0)
 # next: #(struct:OP_ADD)
 # next: #(struct:OP_X 3)
-# next: #(struct:OP_NUMEQUAL)
+# next: #(struct:OP_NUMEQUALVERIFY)
 # result (stack):
-((bv #x00000001 32))
+()
 # result (alt):
 ()
 ```
@@ -69,16 +69,25 @@ racket ./run.rkt --file <path-to-file>
 To reason about a bitcoin script with symbolic variable, use:
 
 ```bash
-racket ./run.rkt --str "OP_1 OP_SYMINT_0 OP_ADD OP_3 OP_NUMEQUAL OP_DUP OP_SOLVE"
+racket ./run.rkt --str "OP_1 OP_SYMINT_0 OP_ADD OP_3 OP_NUMEQUALVERIFY OP_SYMINT_0 OP_SOLVE"
 ```
 
 and you'll see the resulting stack (along with any intermediate instructed outputs):
 
 ```
+# next: #(struct:OP_1)
+# next: #(struct:OP_SYMINT 0)
+# next: #(struct:OP_ADD)
+# next: #(struct:OP_X 3)
+# next: #(struct:OP_NUMEQUALVERIFY)
+# next: #(struct:OP_SYMINT 0)
+# next: #(struct:OP_SOLVE)
 # OP_SOLVE result:
 (model
- [int$0 (bv #x0000000000000000000000000000000000000000000000000000000000000002 256)])
+ [int$0 (bv #x00000002 32)])
 # result (stack):
-((bveq (bv #x0000000000000000000000000000000000000000000000000000000000000003 256) (bvadd (bv #x0000000000000000000000000000000000000000000000000000000000000001 256) int$0)))
+()
+# result (alt):
+()
 ```
 
