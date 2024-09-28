@@ -30,6 +30,12 @@ and you'll see the internal representation of the parsed script:
 (#(struct:OP_1) #(struct:OP_SYMINT 0) #(struct:OP_ADD) #(struct:OP_X 3) #(struct:OP_NUMEQUAL) #(struct:OP_DUP) #(struct:OP_SOLVE))
 ```
 
+To parse a file, use:
+
+```bash
+racket ./parse.rkt --file <path-to-file>
+```
+
 ### Running a bitcoin script
 
 To run a bitcoin script with symbolic variable, use:
@@ -38,11 +44,24 @@ To run a bitcoin script with symbolic variable, use:
 racket ./run.rkt --str "OP_1 OP_2 OP_ADD OP_3 OP_NUMEQUAL"
 ```
 
-and you'll see the resulting stack:
+and you'll see the intermediate op codes and the final stacks:
 
 ```
+# next: #(struct:OP_1)
+# next: #(struct:OP_X 2)
+# next: #(struct:OP_ADD)
+# next: #(struct:OP_X 3)
+# next: #(struct:OP_NUMEQUAL)
 # result (stack):
-(#t)
+((bv #x00000001 32))
+# result (alt):
+()
+```
+
+To run a file, use:
+
+```bash
+racket ./run.rkt --file <path-to-file>
 ```
 
 ### Reasoning about a bitcoin script

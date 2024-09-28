@@ -13,5 +13,5 @@
 
 (when (! (null? arg-str))
   (define script (parser::parse-str arg-str))
-  (printf "~a\n" script)
+  (printf "~a\n" (sequence->list script))
   )
