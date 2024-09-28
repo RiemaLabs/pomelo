@@ -1,18 +1,41 @@
 #lang rosette
 (require racket/sequence)
 (require racket/generator)
+(require file/sha1)
 (require
   "../utils.rkt"
+  "../config.rkt"
   (prefix-in bs:: "./ast.rkt")
   )
 (provide (all-defined-out))
 
 
+(define (line-generator filename)
+  (let ((in-port (open-input-file filename)))
+    (in-generator
+     (let loop ()
+       (define line (read-line in-port 'any))
+       (if (eof-object? line)
+           (begin
+             (close-input-port in-port)
+             #f) ; Return #f to signal the end of the file
+           (begin
+             (yield line)
+             (loop)))))))
+
+
 ; parse bitcoin script from string
-; returns: a list of bs language constructs
+; returns: a sequence of bs language constructs
 (define (parse-str s)
   (define tseq (in-list (string-split s)))
-  (for/list ([t (parse-tokens tseq)]) t)
+  (parse-tokens tseq)
+  )
+
+; parse bitcoin script from file
+; returns: a sequence of bs language constructs
+(define (parse-file filename)
+  (define tseq (line-generator filename))
+  (parse-tokens tseq)
   )
 
 ; produce a sequence tokens from a sequence of strings
@@ -26,7 +49,7 @@
        (loop)))))
 
 ; parse tokens into a branching op
-(define/contract (parse-token/branch get)
+(define/contract (parse-token/branch get [not? #f])
   (-> procedure? bs::op::branch?)
   ; accumulators for then and else branches
   (define thn '())
@@ -47,7 +70,10 @@
            (set! els (cons t els)))
        ; continue
        (loop in-then?)]))
-  (bs::op::branch (reverse thn) (reverse els)))
+  (if not?
+      (bs::op::branch (reverse els) (reverse thn))
+      (bs::op::branch (reverse thn) (reverse els))))
+
 
 
 ; parse a string token t into an op, where generator g holds the rest of the tokens
@@ -73,6 +99,7 @@
     ; ============================== ;
     [(equal? "OP_NOP" t) (bs::op::nop )]
     [(equal? "OP_IF"  t) (parse-token/branch g)]
+    [(equal? "OP_NOTIF"  t) (parse-token/branch g)]
     [(equal? "OP_ELSE" t) (bs::op::else)]
     [(equal? "OP_ENDIF" t) (bs::op::endif)]
 
@@ -108,6 +135,11 @@
     ; ======== bitwise logic ======== ;
     ; =============================== ;
     [(equal? "OP_INVERT" t) (bs::op::invert )]
+    [(equal? "OP_BOOLAND" t) (bs::op::booland )]
+    [(equal? "OP_BOOLOR" t) (bs::op::boolor )]
+    [(equal? "OP_XOR" t) (bs::op::xor )]
+    [(equal? "OP_EQUAL" t) (bs::op::equal )]
+    [(equal? "OP_EQUALVERIFY" t) (bs::op::equalverify )]
 
     ; ==================================== ;
     ; ======== numeric/arithmetic ======== ;
@@ -120,8 +152,6 @@
     [(equal? "OP_0NOTEQUAL" t) (bs::op::0notequal)]
     [(equal? "OP_ADD" t) (bs::op::add )]
     [(equal? "OP_SUB" t) (bs::op::sub )]
-    [(equal? "OP_BOOLAND" t) (bs::op::booland )]
-    [(equal? "OP_BOOLOR" t) (bs::op::boolor )]
     [(equal? "OP_NUMEQUAL" t) (bs::op::numequal )]
     [(equal? "OP_NUMNOTEQUAL" t) (bs::op::numnotequal )]
     [(equal? "OP_LESSTHAN" t) (bs::op::lessthan )]
@@ -130,6 +160,7 @@
     [(equal? "OP_GREATERTHANOREQUAL" t) (bs::op::greaterthanorequal )]
     [(equal? "OP_MIN" t) (bs::op::min )]
     [(equal? "OP_MAX" t) (bs::op::max )]
+    [(equal? "OP_WITHIN" t) (bs::op::within)]
 
     ; ============================== ;
     ; ======== cryptography ======== ;
@@ -153,8 +184,9 @@
     [(equal? "OP_SOLVE" t) (bs::op::solve )]
 
     ; order sensitive
-    [(string-prefix? t "OP_PUSHBYTES_") (parse-token/pushbytes t)]
-    [(string-prefix? t "OP_") (parse-token/x t)]
+    [(string-prefix? t "OP_PUSHNUM_") (parse-token/pushnum (substring t (string-length "OP_PUSHNUM_")))]
+    [(string-prefix? t "OP_PUSHBYTES_") (parse-token/pushbytes (substring t (string-length "OP_PUSHBYTES_")) g)]
+    [(string-prefix? t "OP_") (parse-token/x (substring t (string-length "OP_")))]
 
     [else (error 'parse-token (format "unsupported token: ~a" t))]
     )
@@ -162,25 +194,41 @@
 
 
 ; parse string token starting with OP_PUSHBYTES_
-(define (parse-token/pushbytes t)
-  (let ([ns (substring t 13)])
-    ; convert to number, it's decimal (weird but true, not hex)
-    (define n (string->number ns))
-    (assert (integer? n) (format "OP_PUSHBYTES_ argument should be integer, got: ~a" ns))
-    (assert (&& (<= 1 n) (<= n 75)) (format "OP_PUSHBYTES_ argument range is invalid, got: ~a" n))
-    (bs::op::pushbytes::x n)
-    )
+(define (parse-token/pushbytes n-str g)
+  (define n-bytes (string->number n-str))
+  (define n-bits (* 8 n-bytes))
+  (define t (g))
+  (assert (= (string-length t) (* 2 n-bytes))
+          (format "OP_PUSHBYTES_~a: data length mismatch, got: ~a" n-bytes t))
+  (assert (<= n-bits ::bvsize)
+          (format "OP_PUSHBYTES_~a: does not fit in bv ~a" n-bytes ::bvsize))
+  (define bytes (hex-string->bytes t))
+  (define bits #f)
+  (for ([byte (in-bytes bytes)])
+    (if (not bits)
+        (set! bits (bv byte 8))
+        (set! bits (concat bits (bv byte 8)))))
+  (define bits-padded
+    (if (= n-bits ::bvsize)
+        bits
+        (concat (bv 0 (- ::bvsize n-bits)) bits)))
+  (bs::op::pushbits bits-padded)
   )
 
+; parse string token starting with OP_PUSHNUM_
+(define (parse-token/pushnum n-str)
+  (define n (string->number n-str))
+  (bs::op::pushbits (integer->bitvector n ::bitvector))
+  )
+
+
 ; parse string token starting with OP_
-(define (parse-token/x t)
-  (let ([ns (substring t 3)])
-    ; convert to number, it's decimal (weird but true, not hex)
-    (define n (string->number ns))
-    (assert (integer? n) (format "OP_ argument should be integer, got: ~a" ns))
-    (assert (&& (<= 2 n) (<= n 16)) (format "OP_ argument range is invalid, got: ~a" n))
-    (bs::op::x n)
-    )
+(define (parse-token/x ns)
+  ; convert to number, it's decimal (weird but true, not hex)
+  (define n (string->number ns))
+  (assert (integer? n) (format "OP_ argument should be integer, got: ~a" ns))
+  (assert (&& (<= 2 n) (<= n 16)) (format "OP_ argument range is invalid, got: ~a" n))
+  (bs::op::x n)
   )
 
 ; parse string token starting with OP_SYMINT_

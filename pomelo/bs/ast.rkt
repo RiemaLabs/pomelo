@@ -438,10 +438,12 @@
 ; ======================================= ;
 ; ========== internal opcodes =========== ;
 ; ======================================= ;
+
 (struct op::branch (then else) #:mutable #:transparent #:reflection-name 'OP_BRANCH)
+(struct op::pushbits (bits) #:mutable #:transparent #:reflection-name 'OP_PUSHBITS)
 
 (define op::internal?
-  (disjoin op::branch?))
+  (disjoin op::branch? op::pushbits))
 
 
 ; ======================================= ;
