@@ -84,6 +84,7 @@
     ; =========================== ;
     ; ======== push data ======== ;
     ; =========================== ;
+    ; Push Data (97), opcodes 0x0-0x60
     [(equal? "OP_0" t) (bs::op::0 )]
     [(equal? "OP_FALSE" t) (bs::op::false )]
     [(equal? "OP_PUSHDATA1" t) (bs::op::pushdata::x 1)]
@@ -97,17 +98,30 @@
     ; ============================== ;
     ; ======== control flow ======== ;
     ; ============================== ;
+    ; Control Flow (10), opcodes 0x61-0x6a
     [(equal? "OP_NOP" t) (bs::op::nop )]
-    [(equal? "OP_IF"  t) (parse-token/branch g)]
-    [(equal? "OP_NOTIF"  t) (parse-token/branch g)]
-    [(equal? "OP_ELSE" t) (bs::op::else)]
-    [(equal? "OP_ENDIF" t) (bs::op::endif)]
+    [(equal? "OP_VER" t) (bs::op::ver )]
+    [(equal? "OP_IF" t) (parse-token/branch g )]
+    [(equal? "OP_NOTIF" t) (parse-token/branch g )]
+    [(equal? "OP_VERIF" t) (bs::op::verif )]
+    [(equal? "OP_VERNOTIF" t) (bs::op::vernotif )]
+    [(equal? "OP_ELSE" t) (bs::op::else )]
+    [(equal? "OP_ENDIF" t) (bs::op::endif )]
+    [(equal? "OP_VERIFY" t) (bs::op::verify )]
+    [(equal? "OP_RETURN" t) (bs::op::return )]
 
     ; ================================= ;
     ; ======== stack operators ======== ;
     ; ================================= ;
+    ; Stack Operation (19), opcodes 0x6a-0x7d
     [(equal? "OP_TOALTSTACK" t) (bs::op::toaltstack )]
     [(equal? "OP_FROMALTSTACK" t) (bs::op::fromaltstack )]
+    [(equal? "OP_2DROP" t) (bs::op::2drop )]
+    [(equal? "OP_2DUP" t) (bs::op::2dup )]
+    [(equal? "OP_3DUP" t) (bs::op::3dup )]
+    [(equal? "OP_2OVER" t) (bs::op::2over )]
+    [(equal? "OP_2ROT" t) (bs::op::2rot )]
+    [(equal? "OP_2SWAP" t) (bs::op::2swap )]
     [(equal? "OP_IFDUP" t) (bs::op::ifdup )]
     [(equal? "OP_DEPTH" t) (bs::op::depth )]
     [(equal? "OP_DROP" t) (bs::op::drop )]
@@ -119,39 +133,36 @@
     [(equal? "OP_ROT" t) (bs::op::rot )]
     [(equal? "OP_SWAP" t) (bs::op::swap )]
     [(equal? "OP_TUCK" t) (bs::op::tuck )]
-    [(equal? "OP_2DROP" t) (bs::op::2drop )]
-    [(equal? "OP_2DUP" t) (bs::op::2dup )]
-    [(equal? "OP_3DUP" t) (bs::op::3dup )]
-    [(equal? "OP_2OVER" t) (bs::op::2over )]
-    [(equal? "OP_2ROT" t) (bs::op::2rot )]
-    [(equal? "OP_2SWAP" t) (bs::op::2swap )]
 
     ; ================================ ;
     ; ======== strings/splice ======== ;
     ; ================================ ;
-    [(equal? "OP_CAT" t) (bs::op::cat )]
+    ; Strings (5), opcodes 0x7e-0x82
+    [(equal? "OP_SIZE" t) (bs::op::size )]
 
     ; =============================== ;
     ; ======== bitwise logic ======== ;
     ; =============================== ;
-    [(equal? "OP_INVERT" t) (bs::op::invert )]
-    [(equal? "OP_BOOLAND" t) (bs::op::booland )]
-    [(equal? "OP_BOOLOR" t) (bs::op::boolor )]
-    [(equal? "OP_XOR" t) (bs::op::xor )]
+    ; Bitwise Logic (8), opcodes 0x83-0x8a
     [(equal? "OP_EQUAL" t) (bs::op::equal )]
     [(equal? "OP_EQUALVERIFY" t) (bs::op::equalverify )]
+    [(equal? "OP_RESERVED1" t) (bs::op::reserved1 )]
+    [(equal? "OP_RESERVED2" t) (bs::op::reserved2 )]
 
     ; ==================================== ;
     ; ======== numeric/arithmetic ======== ;
     ; ==================================== ;
+    ; Numeric (27), opcodes 0x8b-0xa5
     [(equal? "OP_1ADD" t) (bs::op::1add )]
     [(equal? "OP_1SUB" t) (bs::op::1sub )]
-    [(equal? "OP_NEGATE" t) (bs::op::negate)]
-    [(equal? "OP_ABS" t) (bs::op::abs)]
-    [(equal? "OP_NOT" t) (bs::op::not)]
-    [(equal? "OP_0NOTEQUAL" t) (bs::op::0notequal)]
+    [(equal? "OP_NEGATE" t) (bs::op::negate )]
+    [(equal? "OP_ABS" t) (bs::op::abs )]
+    [(equal? "OP_NOT" t) (bs::op::not )]
+    [(equal? "OP_0NOTEQUAL" t) (bs::op::0notequal )]
     [(equal? "OP_ADD" t) (bs::op::add )]
     [(equal? "OP_SUB" t) (bs::op::sub )]
+    [(equal? "OP_BOOLAND" t) (bs::op::booland )]
+    [(equal? "OP_BOOLOR" t) (bs::op::boolor )]
     [(equal? "OP_NUMEQUAL" t) (bs::op::numequal )]
     [(equal? "OP_NUMEQUALVERIFY" t) (bs::op::numequalverify )]
     [(equal? "OP_NUMNOTEQUAL" t) (bs::op::numnotequal )]
@@ -161,17 +172,38 @@
     [(equal? "OP_GREATERTHANOREQUAL" t) (bs::op::greaterthanorequal )]
     [(equal? "OP_MIN" t) (bs::op::min )]
     [(equal? "OP_MAX" t) (bs::op::max )]
-    [(equal? "OP_WITHIN" t) (bs::op::within)]
+    [(equal? "OP_WITHIN" t) (bs::op::within )]
 
     ; ============================== ;
     ; ======== cryptography ======== ;
     ; ============================== ;
+    ; Cryptography (10), opcodes 0xa6-0xaf
     [(equal? "OP_RIPEMD160" t) (bs::op::ripemd160 )]
+    [(equal? "OP_SHA1" t) (bs::op::sha1 )]
+    [(equal? "OP_SHA256" t) (bs::op::sha256 )]
+    [(equal? "OP_HASH160" t) (bs::op::hash160 )]
+    [(equal? "OP_HASH256" t) (bs::op::hash256 )]
+    [(equal? "OP_CODESEPARATOR" t) (bs::op::codeseparator )]
+    [(equal? "OP_CHECKSIG" t) (bs::op::checksig )]
+    [(equal? "OP_CHECKSIGVERIFY" t) (bs::op::checksigverify )]
+    [(equal? "OP_CHECKMULTISIG" t) (bs::op::checkmultisig )]
+    [(equal? "OP_CHECKMULTISIGVERIFY" t) (bs::op::checkmultisigverify )]
 
     ; ================================ ;
     ; ======== locktime/other ======== ;
     ; ================================ ;
     [(equal? "OP_NOP1" t) (bs::op::nop1 )]
+    [(equal? "OP_CHECKLOCKTIMEVERIFY" t) (bs::op::checklocktimeverify )]
+    [(equal? "OP_CHECKSEQUENCEVERIFY" t) (bs::op::checksequenceverify )]
+    [(equal? "OP_CHECKSEQUENCEVERIFY" t) (bs::op::checksequenceverify )]
+    [(equal? "OP_NOP4" t) (bs::op::nop4 )]
+    [(equal? "OP_NOP5" t) (bs::op::nop5 )]
+    [(equal? "OP_NOP6" t) (bs::op::nop6 )]
+    [(equal? "OP_NOP7" t) (bs::op::nop7 )]
+    [(equal? "OP_NOP8" t) (bs::op::nop8 )]
+    [(equal? "OP_NOP9" t) (bs::op::nop9 )]
+    [(equal? "OP_NOP10" t) (bs::op::nop10 )]
+    [(equal? "OP_CHECKSIGADD" t) (bs::op::checksigadd )]
 
     ; ============================== ;
     ; ======== vacant words ======== ;
