@@ -18,8 +18,7 @@
 
 (when (! (null? arg-str))
   (define script (parser::parse-str arg-str))
-  (define init-stack (if arg-auto-init #f '()))
-  (define rt (svm::interpret-script script #:init-stack init-stack))
+  (define rt (svm::interpret-script script #:auto-init arg-auto-init))
   (printf "# result (stack):\n~a\n" (svm::runtime-stack rt))
   (printf "# result (alt):\n~a\n" (svm::runtime-alt rt))
   )

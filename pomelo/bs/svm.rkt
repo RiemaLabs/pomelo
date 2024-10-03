@@ -93,21 +93,27 @@
     )
   )
 
-(define (interpret-script script #:init-stack [init-stack #f])
+(define (interpret-script script #:auto-init [auto-init #f])
   (define rt
-    (if init-stack
-        (runtime init-stack '() script)
+    (if auto-init
         (begin
           (define script-list (sequence->list script))
-          (printf "# script:\n~a\n" script-list)
           (define n (in-stack-size script-list))
           (define stack
             (for/list ([i (in-range n)])
               (define id (string->symbol (format "int$~a" i)))
               (define r (fresh-symbolic id 'int))
               r))
-          (runtime stack '() (in-list script-list)))))
-  (printf "# init stack:\n~a\n" (runtime-stack rt))
+          (define m (in-alt-size script-list))
+          (define alt
+            (for/list ([i (in-range m)])
+              (define id (string->symbol (format "int$~a" i)))
+              (define r (fresh-symbolic id 'int))
+              r))
+          (runtime stack alt (in-list script-list)))
+        (runtime '() '() script)))
+  (printf "# init (stack):\n~a\n" (runtime-stack rt))
+  (printf "# init (alt):\n~a\n" (runtime-alt rt))
   (interpret rt)
   rt
   )
@@ -123,6 +129,25 @@
     (match-define (cons in out) (stack-delta/op o p))
     (values (+ (max n out) (- in out)))
     )
+  )
+
+(define (in-alt-size script)
+  ; a list of op, prev op
+  (for/fold ([n 0])
+            ([o (reverse script)])
+    (match-define (cons in out) (alt-delta/op o))
+    (values (+ (max n out) (- in out)))
+    )
+  )
+
+(define (alt-delta/op o)
+  (-> bs::op? bs::op? (cons/c integer? integer?))
+  (destruct
+   o
+   [(bs::op::toaltstack) (cons 0 1)]
+   [(bs::op::fromaltstack) (cons 1 0)]
+   [_ (cons 0 0)]
+   )
   )
 
 ; return the maximum number of input items that must be on stack for the given op
