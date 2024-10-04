@@ -1,7 +1,7 @@
 #lang rosette
 (require rosette/lib/destruct)
 (require racket/generator)
-(require rosette/lib/synthax)  ; 确保这行在文件顶部
+(require rosette/lib/synthax)
 (require
   "../utils.rkt"
   "../config.rkt"
@@ -113,8 +113,10 @@
               r))
           (runtime stack alt (in-list script-list) '()))
         (runtime '() '() script '())))
-  (printf "# init (stack):\n~a\n" (runtime-stack rt))
-  (printf "# init (alt):\n~a\n" (runtime-alt rt))
+  (print-stack (runtime-stack rt) "init (stack)")
+  (printf "\n")
+  (print-stack (runtime-alt rt) "init (alt stack)")
+  (printf "\n")
   (interpret rt)
   rt
   )
@@ -621,18 +623,20 @@
    [(bs::op::solve)
     (define v (pop! rt))
     (define r (solve (assert v)))
-    (printf "# OP_SOLVE result:\n~a\n" (evaluate r v))
-    ]
+    (printf "# OP_SOLVE result:\n~a\n" (evaluate r v))]
 
-    [(bs::op::assert expr)
-     (printf "# OP_ASSERT:\n")
-     (define verify-result (verify (assert (evaluate-expr rt expr))))
-     (printf "  Verify result: ~a\n" verify-result)
-     (if (unsat? verify-result)
-         (printf "  Result: \033[1;32mVerified\033[0m\n")
-         (begin
-           (printf "  Result: \033[1;31mFailed\033[0m\n")
-           (printf "  Counter-example: ~a\n" (evaluate expr (model verify-result)))))]
+   [(bs::op::assert name expr)
+    (printf "# ASSERT")
+    (when name
+      (printf " (~a)" name))
+    (printf ":\n")
+    (define verify-result (verify (assert (evaluate-expr rt expr))))
+    (printf "  Verify result: ~a\n" verify-result)
+    (if (unsat? verify-result)
+        (printf "  Result: \033[1;32mVerified\033[0m\n\n")
+        (begin
+          (printf "  Result: \033[1;31mFailed\033[0m\n")
+          (printf "  Counter-example: ~a\n\n" (evaluate expr (model verify-result)))))]
 
    [_ (error 'step (format "unsupported operator: ~a" o))]
    )

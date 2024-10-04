@@ -93,22 +93,6 @@
 (define/contract (parse-token t g)
   (-> string? procedure? bs::op?)
   (case t
-    [("OP_ASSERT") 
-     (define next-token (g))
-     (unless (equal? next-token "{")
-       (error 'parse-token "Expected '{' after OP_ASSERT, got: ~a" next-token))
-     (define expr-string 
-       (let loop ([content ""] [paren-count 1])
-         (define token (g))
-         (cond
-           [(equal? token "{") (loop (string-append content " " token) (add1 paren-count))]
-           [(equal? token "}") 
-            (if (= paren-count 1)
-                content
-                (loop (string-append content " " token) (sub1 paren-count)))]
-           [else (loop (string-append content " " token) paren-count)])))
-     (let ([expr (parse-assert-expr (string-trim expr-string))])
-       (bs::op::assert expr))]
     [("OP_SOLVE") (bs::op::solve)]
     [else
      (cond
@@ -252,6 +236,27 @@
        [(string-prefix? t "OP_PUSHBYTES_") 
         (parse-token/pushbytes (substring t (string-length "OP_PUSHBYTES_")) g)]
        [(string-prefix? t "OP_") (parse-token/x (substring t (string-length "OP_")))]
+       [(string-prefix? t "ASSERT") 
+ (define parts (string-split t "_"))
+ (define name 
+   (if (>= (length parts) 2)
+       (string-join (drop parts 1) "_")
+       #f))
+ (define next-token (g))
+ (unless (equal? next-token "{")
+   (error 'parse-token "Expected '{' after ASSERT, got: ~a" next-token))
+ (define expr-string 
+   (let loop ([content ""] [paren-count 1])
+     (define token (g))
+     (cond
+       [(equal? token "{") (loop (string-append content " " token) (add1 paren-count))]
+       [(equal? token "}") 
+        (if (= paren-count 1)
+            content
+            (loop (string-append content " " token) (sub1 paren-count)))]
+       [else (loop (string-append content " " token) paren-count)])))
+ (let ([expr (parse-assert-expr (string-trim expr-string))])
+   (bs::op::assert name expr))]
 
        [else (error 'parse-token (format "unsupported token: ~a" t))]
        )

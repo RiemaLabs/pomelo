@@ -2,6 +2,8 @@
 (require
   (prefix-in parser:: "./pomelo/bs/parser.rkt")
   (prefix-in svm:: "./pomelo/bs/svm.rkt")
+  (prefix-in utils:: "./pomelo/utils.rkt")
+  racket/string
   )
 
 (define arg-str null)
@@ -19,6 +21,8 @@
 (when (! (null? arg-str))
   (define script (parser::parse-str arg-str))
   (define rt (svm::interpret-script script #:auto-init arg-auto-init))
-  (printf "# result (stack):\n~a\n" (svm::runtime-stack rt))
-  (printf "# result (alt):\n~a\n" (svm::runtime-alt rt))
+  (utils::print-stack (svm::runtime-stack rt) "result (stack)")
+  (printf "\n")
+  (utils::print-stack (svm::runtime-alt rt) "result (alt stack)")
+  (printf "\n")
   )
