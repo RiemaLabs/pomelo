@@ -123,7 +123,6 @@
    [(bs::op::max) (cons 2 1)]
    [(bs::op::within) (cons 3 1)]
    [(bs::op::symint _) (cons 0 1)]
-   [(bs::op::symbv _ _) (cons 0 1)]
    [(bs::op::solve) (cons 1 0)]
    [(bs::op::pushbits _) (cons 0 1)]
    [(bs::op::pushbytes::x _) (cons 0 1)]

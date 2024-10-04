@@ -81,3 +81,33 @@
     )
     #t ; return true when done
 )
+
+; ================================ ;
+; ======== formatting utils ====== ;
+; ================================ ;
+
+(define (print-stack stack name)
+  (printf "# ~a:\n" name)
+  (if (null? stack)
+      (printf "+-------+\n| empty |\n+-------+\n")
+      (let* ([max-index-width (string-length (number->string (sub1 (length stack))))]
+             [max-item-width (apply max (map (compose string-length ~a) stack))]
+             [total-width (+ max-index-width max-item-width 5)])  ; 5 for "| | |"
+        (printf "+~a+\n" (make-string total-width #\-))
+        (for ([item (reverse stack)] [i (in-naturals)])
+          (printf "| ~a | ~a |\n" 
+                  (string-pad-left (~a i) max-index-width) 
+                  (string-pad-right (~a item) max-item-width)))
+        (printf "+~a+\n" (make-string total-width #\-)))))
+
+(define (string-pad-left s n [c #\space])
+  (define l (string-length s))
+  (if (< l n)
+      (string-append (make-string (- n l) c) s)
+      s))
+
+(define (string-pad-right s n [c #\space])
+  (define l (string-length s))
+  (if (< l n)
+      (string-append s (make-string (- n l) c))
+      s))

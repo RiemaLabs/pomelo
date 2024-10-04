@@ -1,6 +1,7 @@
 #lang rosette
 (require racket/sequence)
 (require racket/generator)
+(require racket/string)
 (require file/sha1)
 (require
   "../utils.rkt"
@@ -8,6 +9,7 @@
   (prefix-in bs:: "./ast.rkt")
   )
 (provide (all-defined-out))
+(provide parse-assert-expr)
 
 
 (define (line-generator filename)
@@ -23,13 +25,23 @@
              (yield line)
              (loop)))))))
 
+(define (preprocess-input input-string)
+  (define (add-spaces-around-braces str)
+    (define (process-char c)
+      (case c
+        [(#\{) " { "]
+        [(#\}) " } "]
+        [else (string c)]))
+    (string-join (map process-char (string->list str)) ""))
+  
+  (add-spaces-around-braces input-string))
 
 ; parse bitcoin script from string
 ; returns: a sequence of bs language constructs
 (define (parse-str s)
-  (define tseq (in-list (string-split s)))
-  (parse-tokens tseq)
-  )
+  (define s1 (preprocess-input s))
+  (define tseq (in-list (string-split s1)))
+  (parse-tokens tseq))
 
 ; parse bitcoin script from file
 ; returns: a sequence of bs language constructs
@@ -81,9 +93,6 @@
 (define/contract (parse-token t g)
   (-> string? procedure? bs::op?)
   (case t
-    [("OP_ASSERT") 
-     (define expr (parse-assert-expr g))
-     (bs::op::assert expr)]
     [("OP_SOLVE") (bs::op::solve)]
     [else
      (cond
@@ -221,16 +230,33 @@
        ; ======== pomelo symbolic words ======== ;
        ; ======================================= ;
        [(string-prefix? t "OP_SYMINT_") (parse-token/symint t)]
-       [(string-prefix? t "OP_SYMBV_") (parse-token/symbv t)]
 
        ; Handle OP_PUSHNUM_ and OP_PUSHBYTES_
        [(string-prefix? t "OP_PUSHNUM_") (parse-token/pushnum (substring t (string-length "OP_PUSHNUM_")))]
        [(string-prefix? t "OP_PUSHBYTES_") 
-        (let ([next (g)])
-          (if (string-prefix? next "OP_SYMBV_")
-              (bs::op::pushbytes::x (parse-token/symbv next))
-              (parse-token/pushbytes (substring t (string-length "OP_PUSHBYTES_")) g)))]
+        (parse-token/pushbytes (substring t (string-length "OP_PUSHBYTES_")) g)]
        [(string-prefix? t "OP_") (parse-token/x (substring t (string-length "OP_")))]
+       [(string-prefix? t "ASSERT") 
+ (define parts (string-split t "_"))
+ (define name 
+   (if (>= (length parts) 2)
+       (string-join (drop parts 1) "_")
+       #f))
+ (define next-token (g))
+ (unless (equal? next-token "{")
+   (error 'parse-token "Expected '{' after ASSERT, got: ~a" next-token))
+ (define expr-string 
+   (let loop ([content ""] [paren-count 1])
+     (define token (g))
+     (cond
+       [(equal? token "{") (loop (string-append content " " token) (add1 paren-count))]
+       [(equal? token "}") 
+        (if (= paren-count 1)
+            content
+            (loop (string-append content " " token) (sub1 paren-count)))]
+       [else (loop (string-append content " " token) paren-count)])))
+ (let ([expr (parse-assert-expr (string-trim expr-string))])
+   (bs::op::assert name expr))]
 
        [else (error 'parse-token (format "unsupported token: ~a" t))]
        )
@@ -243,8 +269,8 @@
   (define n-bytes (string->number n-str))
   (define n-bits (* 8 n-bytes))
   (define t (g))
-  (if (string-prefix? t "OP_SYMBV_")
-      (bs::op::pushbytes::x (parse-token/symbv t))
+  (if (string-prefix? t "OP_SYMINT_")
+      (bs::op::pushbytes::x (parse-token/symint t))
       (begin
         (assert (= (string-length t) (* 2 n-bytes))
                 (format "OP_PUSHBYTES_~a: data length mismatch, got: ~a" n-bytes t))
@@ -277,20 +303,7 @@
     (define n (string->number ns))
     (assert (integer? n) (format "OP_SYMINT_ argument should be integer, got: ~a" ns))
     (assert (>= n 0) (format "OP_SYMINT_ argument should be non-negative, got: ~a" n))
-    (bs::op::symint n)
-    )
-  )
-
-; parse string token starting with OP_SYMBV_
-(define (parse-token/symbv t)
-  (define parts (string-split (substring t (string-length "OP_SYMBV_")) "_"))
-  (when (not (= (length parts) 2))
-    (error 'parse-token/symbv "Invalid OP_SYMBV format. Expected OP_SYMBV_name_size"))
-  (define name (string->symbol (first parts)))
-  (define size (string->number (second parts)))
-  (when (or (not size) (not (integer? size)) (<= size 0))
-    (error 'parse-token/symbv "Invalid size for OP_SYMBV. Must be a positive integer"))
-  (bs::op::symbv name size))
+    (bs::op::symint n)))
 
 
 (define unget-token-stack '())
@@ -305,71 +318,153 @@
           (set! unget-token-stack (cdr unget-token-stack))
           token))))
 
-(define (parse-assert-expr g)
-  (expect-token! g "(")
-  (define result (parse-postfix-expr g))
-  (define next-token (g))
-  (if (equal? next-token ")")
-      (begin
-        ;;; (printf "Parsed assert expression: ~a\n" result)
-        result)
-      (begin
-        (unget-token! g next-token)
-        ;;; (printf "Parsed assert expression (without closing paren): ~a\n" result)
-        result)))
+;;; Parse logical expr
 
-(define (parse-postfix-expr g)
-  (define (parse-expr-token token)
-    (case token
-      [("(") (parse-postfix-expr g)]
-      [("eq") 'eq]
-      [("ite") 'ite]
-      [else (parse-value token)]))
+; Token structure
+(struct Token (type value) #:transparent)
 
-  (define (parse-value token)
+; Tokenizer function for expressions
+(define (tokenize-expr input-string)
+  (define (tokenize-helper input tokens)
+    (define (consume-whitespace str)
+      (cond
+        [(equal? str "") str]
+        [(char-whitespace? (string-ref str 0))
+         (consume-whitespace (substring str 1))]
+        [else str]))
+    
+    (define input-trimmed (consume-whitespace input))
+    
     (cond
-      [(equal? token "x") (bs::expr::var 'x)]
-      [(equal? token "stack-top") (bs::expr::stack-top)]
-      [(string->number token) => (bs::expr::bv (string->number token) 32)]
-      [else (error 'parse-value "Unknown value: ~a" token)]))
-
-  (define (apply-op op args)
-    (case op
-      [(eq) (bs::expr::eq (cadr args) (car args))]
-      [(ite) (bs::expr::ite (caddr args) (cadr args) (car args))]
-      [else (error 'apply-op "Unknown operator: ~a" op)]))
-
-  (let loop ([stack '()] [ops '()])
-    (define token (g))
-    (cond
-      [(equal? token ")") 
-       (if (null? ops)
-           (if (= (length stack) 1)
-               (car stack)
-               (error 'parse-postfix-expr "Invalid final state, stack: ~a" stack))
-           (error 'parse-postfix-expr "Unused operators remaining: ~a" ops))]
-      [(not token)
-       (error 'parse-postfix-expr "Unexpected end of input")]
+      [(equal? input-trimmed "") (reverse tokens)]
       [else
-       (let ([parsed (parse-expr-token token)])
+       (let ([first-char (string-ref input-trimmed 0)])
          (cond
-           [(or (eq? parsed 'eq) (eq? parsed 'ite))
-            (loop stack (cons parsed ops))]
-           [else
-            (define new-stack (cons parsed stack))
-            (define (try-apply-ops s o)
-              (if (or (null? o) 
-                      (and (eq? (car o) 'eq) (< (length s) 2))
-                      (and (eq? (car o) 'ite) (< (length s) 3)))
-                  (values s o)
-                  (let* ([op (car o)]
-                         [arity (if (eq? op 'eq) 2 3)]
-                         [args (take s arity)]
-                         [rest (drop s arity)]
-                         [result (apply-op op args)])
-                    (try-apply-ops (cons result rest) (cdr o)))))
-            (define-values (new-stack2 new-ops) (try-apply-ops new-stack ops))
-            (loop new-stack2 new-ops)]))])))
+           [(char-numeric? first-char)
+            (define-values (num rest) (parse-number input-trimmed))
+            (tokenize-helper rest (cons (Token 'NUMBER num) tokens))]
+           [(char-alphabetic? first-char)
+            (define-values (id rest) (parse-identifier input-trimmed))
+            (tokenize-helper rest 
+                             (cons (cond
+                                     [(equal? id "if") (Token 'IF "if")]
+                                     [(equal? id "then") (Token 'THEN "then")]
+                                     [(equal? id "else") (Token 'ELSE "else")]
+                                     [else (Token 'IDENTIFIER id)])
+                                   tokens))]
+           [(char=? first-char #\()
+            (tokenize-helper (substring input-trimmed 1) (cons (Token 'LPAREN "(") tokens))]
+           [(char=? first-char #\))
+            (tokenize-helper (substring input-trimmed 1) (cons (Token 'RPAREN ")") tokens))]
+           [(char=? first-char #\,)
+            (tokenize-helper (substring input-trimmed 1) (cons (Token 'COMMA ",") tokens))]
+           [(char=? first-char #\[)
+            (tokenize-helper (substring input-trimmed 1) (cons (Token 'LBRACKET "[") tokens))]
+           [(char=? first-char #\])
+            (tokenize-helper (substring input-trimmed 1) (cons (Token 'RBRACKET "]") tokens))]
+           [(and (>= (string-length input-trimmed) 2) (string=? (substring input-trimmed 0 2) "=="))
+            (tokenize-helper (substring input-trimmed 2) (cons (Token 'EQUAL "==") tokens))]
+           [else (error 'tokenize (format "Unexpected character: ~a" first-char))]))]))
+  
+  (tokenize-helper input-string '()))
+
+; Helper functions for tokenizer
+(define (parse-number input)
+  (define num-str (list->string (take-while char-numeric? (string->list input))))
+  (values (string->number num-str) (substring input (string-length num-str))))
+
+(define (parse-identifier input)
+  (define id-str (list->string (take-while char-identifier? (string->list input))))
+  (values id-str (substring input (string-length id-str))))
+
+(define (char-identifier? c)
+  (or (char-alphabetic? c) (char-numeric? c) (equal? c #\_)))
+
+(define (take-while pred lst)
+  (if (and (not (null? lst)) (pred (car lst)))
+      (cons (car lst) (take-while pred (cdr lst)))
+      '()))
+
+; Expr parser
+(define (parse-expr tokens)
+  (if (null? tokens)
+      (error 'parse-expr "Unexpected end of input")
+      (let-values ([(left rest) (parse-term tokens)])
+        (if (and (not (null? rest)) (equal? (Token-type (car rest)) 'EQUAL))
+            (let-values ([(right new-rest) (parse-expr (cdr rest))])
+              (values (bs::expr::eq left right) new-rest))
+            (values left rest)))))
+
+(define (parse-term tokens)
+  (if (null? tokens)
+      (error 'parse-term "Unexpected end of input")
+      (match (car tokens)
+        [(Token 'IF _) (parse-if-expr tokens)]
+        [(Token 'IDENTIFIER "stack") (parse-stack-access tokens)]
+        [(Token 'IDENTIFIER id) 
+         (if (string-prefix? id "v")
+             (values (bs::expr::var (string->number (substring id 1))) (cdr tokens))
+             (error 'parse-term (format "Unexpected identifier: ~a" id)))]
+        [(Token 'NUMBER n) (values (bs::expr::bv n 32) (cdr tokens))]
+        [(Token 'LPAREN _) (parse-parenthesized-expr tokens)]
+        [else (error 'parse-term (format "Unexpected token: ~a" (car tokens)))])))
+
+(define (parse-parenthesized-expr tokens)
+  (match tokens
+    [(list (Token 'LPAREN _) rest ...)
+     (if (null? rest)
+         (error 'parse-parenthesized-expr "Unexpected end of input after opening parenthesis")
+         (let-values ([(expr rest1) (parse-expr rest)])
+           (if (null? rest1)
+               (error 'parse-parenthesized-expr "Missing closing parenthesis")
+               (match rest1
+                 [(list (Token 'RPAREN _) rest2 ...)
+                  (values expr rest2)]
+                 [else (error 'parse-parenthesized-expr "Expected closing parenthesis")]))))]
+    [else (error 'parse-parenthesized-expr "Expected opening parenthesis")]))
+
+(define (parse-if-expr tokens)
+  (match tokens
+    [(list (Token 'IF _) rest ...)
+     (if (null? rest)
+         (error 'parse-if-expr "Unexpected end of input in if expression")
+         (let-values ([(condition rest1) (parse-expr rest)])
+           (match rest1
+             [(list (Token 'THEN _) rest2 ...)
+              (if (null? rest2)
+                  (error 'parse-if-expr "Unexpected end of input after 'then' in if expression")
+                  (let-values ([(then-expr rest3) (parse-expr rest2)])
+                    (match rest3
+                      [(list (Token 'ELSE _) rest4 ...)
+                       (if (null? rest4)
+                           (error 'parse-if-expr "Unexpected end of input after 'else' in if expression")
+                           (let-values ([(else-expr rest5) (parse-expr rest4)])
+                             (values (bs::expr::ite condition then-expr else-expr) rest5)))]
+                      [else (error 'parse-if-expr "Expected 'else' in if expression")])))]
+             [else (error 'parse-if-expr "Expected 'then' after condition in if expression")])))]
+    [else (error 'parse-if-expr "Invalid if expression syntax")]))
+
+(define (parse-stack-access tokens)
+  (match tokens
+    [(list (Token 'IDENTIFIER "stack") (Token 'LBRACKET _) rest ...)
+     (if (null? rest)
+         (error 'parse-stack-access "Unexpected end of input after opening bracket")
+         (match rest
+           [(list (Token 'NUMBER n) (Token 'RBRACKET _) rest2 ...)
+            (values (bs::expr::stack-nth n) rest2)]
+           [_ (error 'parse-stack-access "Invalid stack access syntax")]))]
+    [_ (error 'parse-stack-access "Invalid stack access syntax")]))
+
+; Main parser for assert expressions
+(define (parse-assert-expr expr-string)
+  (define tokens (tokenize-expr expr-string))
+  ;;; (printf "Tokens: ~a\n" tokens)
+  (if (null? tokens)
+      (error 'parse-assert-expr "Empty expression")
+      (let-values ([(result rest) (parse-expr tokens)])
+        (if (null? rest)
+            result
+            (error 'parse-assert-expr (format "Unexpected tokens: ~a" rest))))))
 
 (define (expect-token! g expected)
   (define token (g))

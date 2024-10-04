@@ -109,8 +109,10 @@
           (runtime stack alt (in-list script-list) '()))
         ; if auto-init is #f (the case for large scripts), initial stack and alt are empty
         (runtime '() '() script '())))
-  (printf "# init (stack):\n~a\n" (runtime-stack rt))
-  (printf "# init (alt):\n~a\n" (runtime-alt rt))
+  (print-stack (runtime-stack rt) "init (stack)")
+  (printf "\n")
+  (print-stack (runtime-alt rt) "init (alt stack)")
+  (printf "\n")
   (interpret rt)
   rt)
 
@@ -121,7 +123,6 @@
   ; (printf "# next: ~a\n" o)
   (destruct
    o
-
    ; =========================== ;
    ; ======== push data ======== ;
    ; =========================== ;
@@ -133,9 +134,9 @@
    [(bs::op::pushbits bs) (push! rt bs)]
    [(bs::op::pushbytes::x x)
     (match x
-      [(bs::op::symbv name size)
-       (define-symbolic* r (bitvector size))
-       (set-runtime-symvars! rt (cons (cons name r) (runtime-symvars rt)))
+      [(bs::op::symint n)
+       (define r (fresh-symbolic* n 'int))
+       (set-runtime-symvars! rt (cons (cons n r) (runtime-symvars rt)))
        (push! rt r)]
       [_
        (if (bitvector? x)
@@ -497,31 +498,28 @@
    ; ======================================= ;
    [(bs::op::symint x)
     (define id (string->symbol (format "int$~a" x)))
-    (define r (fresh-symbolic id 'int))
-    (push! rt r)
-    ]
-
-   [(bs::op::symbv name size)
-    (define-symbolic* r (bitvector size))
-    (set-runtime-symvars! rt (cons (cons name r) (runtime-symvars rt)))
+    (define r (fresh-symbolic* id 'int))
+    (set-runtime-symvars! rt (cons (cons id r) (runtime-symvars rt)))
     (push! rt r)]
 
    ; OP_SOLVE doesn't push anything back to stack
    [(bs::op::solve)
     (define v (pop! rt))
     (define r (solve (assert v)))
-    (printf "# OP_SOLVE result:\n~a\n" (evaluate r v))
-    ]
+    (printf "# OP_SOLVE result:\n~a\n" (evaluate r v))]
 
-   [(bs::op::assert expr)
-    (printf "# OP_ASSERT:\n")
+   [(bs::op::assert name expr)
+    (printf "# ASSERT")
+    (when name
+      (printf " (~a)" name))
+    (printf ":\n")
     (define verify-result (verify (assert (evaluate-expr rt expr))))
     (printf "  Verify result: ~a\n" verify-result)
     (if (unsat? verify-result)
-        (printf "  Result: \033[1;32mVerified\033[0m\n")
+        (printf "  Result: \033[1;32mVerified\033[0m\n\n")
         (begin
           (printf "  Result: \033[1;31mFailed\033[0m\n")
-          (printf "  Counter-example: ~a\n" (evaluate expr (model verify-result)))))]
+          (printf "  Counter-example: ~a\n\n" (evaluate expr (model verify-result)))))]
 
    [_ (error 'step (format "unsupported operator: ~a" o))]
    )
@@ -540,8 +538,8 @@
     (bv value size)]
    [(bs::expr::var name)
     (get-variable rt name)]
-   [(bs::expr::stack-top)
-    (car (runtime-stack rt))]
+   [(bs::expr::stack-nth n)
+    (list-ref (runtime-stack rt) n)]
    [_ (error 'evaluate-expr (format "Unsupported expression: ~a" expr))]))
 
 (define (get-variable rt name)
