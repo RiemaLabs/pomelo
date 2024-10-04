@@ -430,7 +430,7 @@
 (struct op::symbool (x) #:mutable #:transparent #:reflection-name 'OP_SYMBOOL)
 
 ; opcode 242 (0xf2)
-(struct op::assert () #:mutable #:transparent #:reflection-name 'OP_ASSERT)
+(struct op::assert (expr) #:transparent)
 
 ; opcode 243 (0xf3)
 (struct op::solve () #:mutable #:transparent #:reflection-name 'OP_SOLVE)
@@ -459,3 +459,13 @@
            op::bitwise? op::arith?
            op::crypto? op::other?
            op::sym? op::internal?))
+
+; ======================================= ;
+; ============= expressions ============= ;
+; ======================================= ;
+
+(struct expr::eq (left right) #:transparent)
+(struct expr::ite (condition then-expr else-expr) #:transparent)
+(struct expr::bv (value size) #:transparent)
+(struct expr::var (name) #:transparent)
+(struct expr::stack-top () #:transparent)

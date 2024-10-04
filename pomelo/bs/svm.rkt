@@ -12,7 +12,7 @@
 ; symbolic virtual machine
 
 ; stack is a stack, alt is a stack, script is a FILO list
-(struct runtime (stack alt script) #:mutable #:transparent #:reflection-name 'runtime)
+(struct runtime (stack alt script symvars) #:mutable #:transparent #:reflection-name 'runtime)
 
 ; tells whether a runtime script is terminated
 (define (terminated? rt) (null? (runtime-script rt)))
@@ -103,16 +103,16 @@
           (define stack
             (for/list ([i (in-range n)])
               (define id (string->symbol (format "int$~a" i)))
-              (define r (fresh-symbolic id 'int))
+              (define r (fresh-symbolic id (bitvector 32)))
               r))
           (define m (in-alt-size script-list))
           (define alt
             (for/list ([i (in-range m)])
               (define id (string->symbol (format "int$~a" i)))
-              (define r (fresh-symbolic id 'int))
+              (define r (fresh-symbolic id (bitvector 32)))
               r))
-          (runtime stack alt (in-list script-list)))
-        (runtime '() '() script)))
+          (runtime stack alt (in-list script-list) '()))
+        (runtime '() '() script '())))
   (printf "# init (stack):\n~a\n" (runtime-stack rt))
   (printf "# init (alt):\n~a\n" (runtime-alt rt))
   (interpret rt)
@@ -253,6 +253,7 @@
     (match x
       [(bs::op::symbv name size)
        (define-symbolic* r (bitvector size))
+       (set-runtime-symvars! rt (cons (cons name r) (runtime-symvars rt)))
        (push! rt r)]
       [_ 
        (if (bitvector? x)
@@ -620,6 +621,7 @@
 
    [(bs::op::symbv name size)
     (define-symbolic* r (bitvector size))
+    (set-runtime-symvars! rt (cons (cons name r) (runtime-symvars rt)))
     (push! rt r)]
 
    ; OP_SOLVE doesn't push anything back to stack
@@ -629,8 +631,33 @@
     (printf "# OP_SOLVE result:\n~a\n" (evaluate r v))
     ]
 
+   [(bs::op::assert expr)
+    (define result (evaluate-expr rt expr))
+    (assert result (format "Assertion failed: ~a" expr))]
+
    [_ (error 'step (format "unsupported operator: ~a" o))]
    )
   )
 
+(define (evaluate-expr rt expr)
+  (destruct
+   expr
+   [(bs::expr::eq left right)
+    (bveq (evaluate-expr rt left) (evaluate-expr rt right))]
+   [(bs::expr::ite condition then-expr else-expr)
+    (if (evaluate-expr rt condition)
+        (evaluate-expr rt then-expr)
+        (evaluate-expr rt else-expr))]
+   [(bs::expr::bv value size)
+    (bv value size)]
+   [(bs::expr::var name)
+    (get-variable rt name)]
+   [(bs::expr::stack-top)
+    (car (runtime-stack rt))]
+   [_ (error 'evaluate-expr (format "Unsupported expression: ~a" expr))]))
 
+(define (get-variable rt name)
+  (let ([var (assoc name (runtime-symvars rt))])
+    (if var
+        (cdr var)
+        (error 'get-variable (format "Variable not found: ~a" name)))))
