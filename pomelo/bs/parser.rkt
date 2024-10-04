@@ -311,11 +311,11 @@
   (define next-token (g))
   (if (equal? next-token ")")
       (begin
-        (printf "Parsed assert expression: ~a\n" result)  ; 调试输出
+        ;;; (printf "Parsed assert expression: ~a\n" result)
         result)
       (begin
         (unget-token! g next-token)
-        (printf "Parsed assert expression (without closing paren): ~a\n" result)  ; 调试输出
+        ;;; (printf "Parsed assert expression (without closing paren): ~a\n" result)
         result)))
 
 (define (parse-postfix-expr g)

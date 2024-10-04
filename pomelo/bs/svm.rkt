@@ -234,9 +234,9 @@
 
 (define (step rt o)
   (define unsupported (lambda (o) (error 'interpret (format "unsupported operator: ~a" o))))
-  (printf "# stack:\n~a\n" (runtime-stack rt))
-  (printf "# alt:\n~a\n" (runtime-alt rt))
-  (printf "# next: ~a\n" o)
+  ;;; (printf "# stack:\n~a\n" (runtime-stack rt))
+  ;;; (printf "# alt:\n~a\n" (runtime-alt rt))
+  ;;; (printf "# next: ~a\n" o)
   (destruct
    o
 
@@ -631,9 +631,15 @@
     (printf "# OP_SOLVE result:\n~a\n" (evaluate r v))
     ]
 
-   [(bs::op::assert expr)
-    (define result (evaluate-expr rt expr))
-    (assert result (format "Assertion failed: ~a" expr))]
+    [(bs::op::assert expr)
+     (printf "# OP_ASSERT:\n")
+     (define verify-result (verify (assert (evaluate-expr rt expr))))
+     (printf "  Verify result: ~a\n" verify-result)
+     (if (unsat? verify-result)
+         (printf "  Result: \033[1;32mVerified\033[0m\n")
+         (begin
+           (printf "  Result: \033[1;31mFailed\033[0m\n")
+           (printf "  Counter-example: ~a\n" (evaluate expr (model verify-result)))))]
 
    [_ (error 'step (format "unsupported operator: ~a" o))]
    )
