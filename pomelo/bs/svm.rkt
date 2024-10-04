@@ -1,6 +1,7 @@
 #lang rosette
 (require rosette/lib/destruct)
 (require racket/generator)
+(require rosette/lib/synthax)  ; 确保这行在文件顶部
 (require
   "../utils.rkt"
   "../config.rkt"
@@ -54,7 +55,7 @@
 ; inplace operation
 (define (alt/push! rt v)
   (let ([s (runtime-alt rt)])
-    (set-runtime-alt! rt (cons v s))
+    (set-runtime-stack! rt (cons v s))
     )
   )
 
@@ -222,8 +223,10 @@
    [(bs::op::max) (cons 2 1)]
    [(bs::op::within) (cons 3 1)]
    [(bs::op::symint _) (cons 0 1)]
+   [(bs::op::symbv _ _) (cons 0 1)]
    [(bs::op::solve) (cons 1 0)]
    [(bs::op::pushbits _) (cons 0 1)]
+   [(bs::op::pushbytes::x _) (cons 0 1)]
    [_ (error 'stack-delta/op (format "unknown op: ~a" o))]
    )
   )
@@ -246,6 +249,15 @@
    [(bs::op::true) (push! rt (bv 1 ::bitvector))]
    [(bs::op::x x) (push! rt (bv x ::bitvector))]
    [(bs::op::pushbits bs) (push! rt bs)]
+   [(bs::op::pushbytes::x x) 
+    (match x
+      [(bs::op::symbv name size)
+       (define-symbolic* r (bitvector size))
+       (push! rt r)]
+      [_ 
+       (if (bitvector? x)
+           (push! rt x)
+           (error 'step (format "Invalid type for OP_PUSHBYTES_X: ~a" x)))])]
 
    ; ============================== ;
    ; ======== control flow ======== ;
@@ -605,6 +617,10 @@
     (define r (fresh-symbolic id 'int))
     (push! rt r)
     ]
+
+   [(bs::op::symbv name size)
+    (define-symbolic* r (bitvector size))
+    (push! rt r)]
 
    ; OP_SOLVE doesn't push anything back to stack
    [(bs::op::solve)

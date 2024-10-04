@@ -46,13 +46,17 @@
 ; opcodes 82-96 (0x52-0x60) | x: 2-16
 (struct op::x (x) #:mutable #:transparent #:reflection-name 'OP_X)
 
+; opcode 244 (0xf4)
+; x is the name of the symbolic bitvector, size is the size of the bitvector
+(struct op::symbv (x size) #:mutable #:transparent #:reflection-name 'OP_SYMBV)
+
 (define op::push?
   (disjoin
    op::0? op::false?
-   op::pushbytes::x op::pushdata::x
+   op::pushbytes::x? op::pushdata::x?
    op::1negate? op::reserved?
    op::1? op::true?
-   op::x?))
+   op::x? op::symbv?))
 
 ; ============================== ;
 ; ======== control flow ======== ;
@@ -432,7 +436,7 @@
 (struct op::solve () #:mutable #:transparent #:reflection-name 'OP_SOLVE)
 
 (define op::sym?
-  (disjoin op::symint? op::symbool?
+  (disjoin op::symint? op::symbool? op::symbv?
            op::assert? op::solve?))
 
 ; ======================================= ;
@@ -455,5 +459,3 @@
            op::bitwise? op::arith?
            op::crypto? op::other?
            op::sym? op::internal?))
-
-

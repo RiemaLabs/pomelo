@@ -211,14 +211,19 @@
     ; no op code here
 
     ; ======================================= ;
-    ; ======== pomela symbolic words ======== ;
+    ; ======== pomelo symbolic words ======== ;
     ; ======================================= ;
     [(string-prefix? t "OP_SYMINT_") (parse-token/symint t)]
+    [(string-prefix? t "OP_SYMBV_") (parse-token/symbv t)]
     [(equal? "OP_SOLVE" t) (bs::op::solve )]
 
     ; order sensitive
     [(string-prefix? t "OP_PUSHNUM_") (parse-token/pushnum (substring t (string-length "OP_PUSHNUM_")))]
-    [(string-prefix? t "OP_PUSHBYTES_") (parse-token/pushbytes (substring t (string-length "OP_PUSHBYTES_")) g)]
+    [(string-prefix? t "OP_PUSHBYTES_") 
+     (let ([next (g)])
+       (if (string-prefix? next "OP_SYMBV_")
+           (bs::op::pushbytes::x (parse-token/symbv next))
+           (parse-token/pushbytes (substring t (string-length "OP_PUSHBYTES_")) g)))]
     [(string-prefix? t "OP_") (parse-token/x (substring t (string-length "OP_")))]
 
     [else (error 'parse-token (format "unsupported token: ~a" t))]
@@ -231,22 +236,16 @@
   (define n-bytes (string->number n-str))
   (define n-bits (* 8 n-bytes))
   (define t (g))
-  (assert (= (string-length t) (* 2 n-bytes))
-          (format "OP_PUSHBYTES_~a: data length mismatch, got: ~a" n-bytes t))
-  (assert (<= n-bits ::bvsize)
-          (format "OP_PUSHBYTES_~a: does not fit in bv ~a" n-bytes ::bvsize))
-  (define bytes (hex-string->bytes t))
-  (define bits #f)
-  (for ([byte (in-bytes bytes)])
-    (if (not bits)
-        (set! bits (bv byte 8))
-        (set! bits (concat bits (bv byte 8)))))
-  (define bits-padded
-    (if (= n-bits ::bvsize)
-        bits
-        (concat (bv 0 (- ::bvsize n-bits)) bits)))
-  (bs::op::pushbits bits-padded)
-  )
+  (if (string-prefix? t "OP_SYMBV_")
+      (bs::op::pushbytes::x (parse-token/symbv t))
+      (begin
+        (assert (= (string-length t) (* 2 n-bytes))
+                (format "OP_PUSHBYTES_~a: data length mismatch, got: ~a" n-bytes t))
+        (assert (<= n-bits ::bvsize)
+                (format "OP_PUSHBYTES_~a: does not fit in bv ~a" n-bytes ::bvsize))
+        (define bytes (hex-string->bytes t))
+        (define bits (apply bv (append (bytes->list bytes) (make-list (- ::bvsize n-bits) 0))))
+        (bs::op::pushbytes::x bits))))
 
 ; parse string token starting with OP_PUSHNUM_
 (define (parse-token/pushnum n-str)
@@ -274,3 +273,14 @@
     (bs::op::symint n)
     )
   )
+
+; parse string token starting with OP_SYMBV_
+(define (parse-token/symbv t)
+  (define parts (string-split (substring t (string-length "OP_SYMBV_")) "_"))
+  (when (not (= (length parts) 2))
+    (error 'parse-token/symbv "Invalid OP_SYMBV format. Expected OP_SYMBV_name_size"))
+  (define name (first parts))
+  (define size (string->number (second parts)))
+  (when (or (not size) (not (integer? size)) (<= size 0))
+    (error 'parse-token/symbv "Invalid size for OP_SYMBV. Must be a positive integer"))
+  (bs::op::symbv name size))
