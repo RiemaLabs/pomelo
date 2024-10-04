@@ -1,6 +1,7 @@
 #lang rosette
 (require rosette/lib/destruct)
 (require racket/generator)
+(require rosette/lib/synthax)  ; 确保这行在文件顶部
 (require
   "../utils.rkt"
   "../config.rkt"
@@ -11,7 +12,7 @@
 ; symbolic virtual machine
 
 ; stack is a stack, alt is a stack, script is a FILO list
-(struct runtime (stack alt script) #:mutable #:transparent #:reflection-name 'runtime)
+(struct runtime (stack alt script symvars) #:mutable #:transparent #:reflection-name 'runtime)
 
 ; tells whether a runtime script is terminated
 (define (terminated? rt) (null? (runtime-script rt)))
@@ -110,8 +111,8 @@
               (define id (string->symbol (format "int$~a" i)))
               (define r (fresh-symbolic id 'int))
               r))
-          (runtime stack alt (in-list script-list)))
-        (runtime '() '() script)))
+          (runtime stack alt (in-list script-list) '()))
+        (runtime '() '() script '())))
   (printf "# init (stack):\n~a\n" (runtime-stack rt))
   (printf "# init (alt):\n~a\n" (runtime-alt rt))
   (interpret rt)
@@ -222,8 +223,10 @@
    [(bs::op::max) (cons 2 1)]
    [(bs::op::within) (cons 3 1)]
    [(bs::op::symint _) (cons 0 1)]
+   [(bs::op::symbv _ _) (cons 0 1)]
    [(bs::op::solve) (cons 1 0)]
    [(bs::op::pushbits _) (cons 0 1)]
+   [(bs::op::pushbytes::x _) (cons 0 1)]
    [_ (error 'stack-delta/op (format "unknown op: ~a" o))]
    )
   )
@@ -231,9 +234,9 @@
 
 (define (step rt o)
   (define unsupported (lambda (o) (error 'interpret (format "unsupported operator: ~a" o))))
-  (printf "# stack:\n~a\n" (runtime-stack rt))
-  (printf "# alt:\n~a\n" (runtime-alt rt))
-  (printf "# next: ~a\n" o)
+  ;;; (printf "# stack:\n~a\n" (runtime-stack rt))
+  ;;; (printf "# alt:\n~a\n" (runtime-alt rt))
+  ;;; (printf "# next: ~a\n" o)
   (destruct
    o
 
@@ -246,6 +249,16 @@
    [(bs::op::true) (push! rt (bv 1 ::bitvector))]
    [(bs::op::x x) (push! rt (bv x ::bitvector))]
    [(bs::op::pushbits bs) (push! rt bs)]
+   [(bs::op::pushbytes::x x) 
+    (match x
+      [(bs::op::symbv name size)
+       (define-symbolic* r (bitvector size))
+       (set-runtime-symvars! rt (cons (cons name r) (runtime-symvars rt)))
+       (push! rt r)]
+      [_ 
+       (if (bitvector? x)
+           (push! rt x)
+           (error 'step (format "Invalid type for OP_PUSHBYTES_X: ~a" x)))])]
 
    ; ============================== ;
    ; ======== control flow ======== ;
@@ -606,6 +619,11 @@
     (push! rt r)
     ]
 
+   [(bs::op::symbv name size)
+    (define-symbolic* r (bitvector size))
+    (set-runtime-symvars! rt (cons (cons name r) (runtime-symvars rt)))
+    (push! rt r)]
+
    ; OP_SOLVE doesn't push anything back to stack
    [(bs::op::solve)
     (define v (pop! rt))
@@ -613,8 +631,39 @@
     (printf "# OP_SOLVE result:\n~a\n" (evaluate r v))
     ]
 
+    [(bs::op::assert expr)
+     (printf "# OP_ASSERT:\n")
+     (define verify-result (verify (assert (evaluate-expr rt expr))))
+     (printf "  Verify result: ~a\n" verify-result)
+     (if (unsat? verify-result)
+         (printf "  Result: \033[1;32mVerified\033[0m\n")
+         (begin
+           (printf "  Result: \033[1;31mFailed\033[0m\n")
+           (printf "  Counter-example: ~a\n" (evaluate expr (model verify-result)))))]
+
    [_ (error 'step (format "unsupported operator: ~a" o))]
    )
   )
 
+(define (evaluate-expr rt expr)
+  (destruct
+   expr
+   [(bs::expr::eq left right)
+    (bveq (evaluate-expr rt left) (evaluate-expr rt right))]
+   [(bs::expr::ite condition then-expr else-expr)
+    (if (evaluate-expr rt condition)
+        (evaluate-expr rt then-expr)
+        (evaluate-expr rt else-expr))]
+   [(bs::expr::bv value size)
+    (bv value size)]
+   [(bs::expr::var name)
+    (get-variable rt name)]
+   [(bs::expr::stack-top)
+    (car (runtime-stack rt))]
+   [_ (error 'evaluate-expr (format "Unsupported expression: ~a" expr))]))
 
+(define (get-variable rt name)
+  (let ([var (assoc name (runtime-symvars rt))])
+    (if var
+        (cdr var)
+        (error 'get-variable (format "Variable not found: ~a" name)))))
