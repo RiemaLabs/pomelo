@@ -311,12 +311,16 @@
 
   (define (parse-value token)
     (cond
-      [(equal? token "stack-top") (bs::expr::stack-top)]
+      [(string-prefix? token "stack-")
+       (let ([n (string->number (substring token 6))])
+         (if n
+             (bs::expr::stack-nth n)
+             (error 'parse-value "Invalid stack access: ~a" token)))]
       [(string-prefix? token "v")
-     (let ([n (string->number (substring token 1))])
-       (if n
-            (bs::expr::var n)
-           (error 'parse-value "Invalid variable name: ~a" token)))]
+       (let ([n (string->number (substring token 1))])
+         (if n
+             (bs::expr::var n)
+             (error 'parse-value "Invalid variable name: ~a" token)))]
       [(string->number token) => (bs::expr::bv (string->number token) 32)]
       [else (error 'parse-value "Unknown value: ~a" token)]))
 

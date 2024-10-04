@@ -651,8 +651,8 @@
     (bv value size)]
    [(bs::expr::var name)
     (get-variable rt name)]
-   [(bs::expr::stack-top)
-    (car (runtime-stack rt))]
+   [(bs::expr::stack-nth n)
+    (list-ref (runtime-stack rt) n)]
    [_ (error 'evaluate-expr (format "Unsupported expression: ~a" expr))]))
 
 (define (get-variable rt name)

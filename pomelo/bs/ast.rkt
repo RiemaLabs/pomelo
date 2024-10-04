@@ -463,4 +463,4 @@
 (struct expr::ite (condition then-expr else-expr) #:transparent)
 (struct expr::bv (value size) #:transparent)
 (struct expr::var (name) #:transparent)
-(struct expr::stack-top () #:transparent)
+(struct expr::stack-nth (n) #:transparent)
