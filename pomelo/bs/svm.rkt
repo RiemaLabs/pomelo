@@ -103,13 +103,13 @@
           (define stack
             (for/list ([i (in-range n)])
               (define id (string->symbol (format "int$~a" i)))
-              (define r (fresh-symbolic id (bitvector 32)))
+              (define r (fresh-symbolic id 'int))
               r))
           (define m (in-alt-size script-list))
           (define alt
             (for/list ([i (in-range m)])
               (define id (string->symbol (format "int$~a" i)))
-              (define r (fresh-symbolic id (bitvector 32)))
+              (define r (fresh-symbolic id 'int))
               r))
           (runtime stack alt (in-list script-list) '()))
         (runtime '() '() script '())))
