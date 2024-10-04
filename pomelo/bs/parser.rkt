@@ -83,11 +83,21 @@
   (-> string? procedure? bs::op?)
   (case t
     [("OP_ASSERT") 
-     (define expr-string (g))
-     (if (string? expr-string)
-         (let ([expr (parse-assert-expr expr-string)])
-           (bs::op::assert expr))
-         (error 'parse-token "Expected string after OP_ASSERT, got: ~a" expr-string))]
+     (define next-token (g))
+     (unless (equal? next-token "(")
+       (error 'parse-token "Expected '(' after OP_ASSERT, got: ~a" next-token))
+     (define expr-string 
+       (let loop ([content ""] [paren-count 1])
+         (define token (g))
+         (cond
+           [(equal? token "(") (loop (string-append content " " token) (add1 paren-count))]
+           [(equal? token ")") 
+            (if (= paren-count 1)
+                content
+                (loop (string-append content " " token) (sub1 paren-count)))]
+           [else (loop (string-append content " " token) paren-count)])))
+     (let ([expr (parse-assert-expr (string-trim expr-string))])
+       (bs::op::assert expr))]
     [("OP_SOLVE") (bs::op::solve)]
     [else
      (cond
@@ -299,34 +309,42 @@
 
 ; Tokenizer function for expressions
 (define (tokenize-expr input-string)
-  (if (equal? input-string "")
-      '()
-      (let tokenize-helper ([input input-string] [tokens '()])
-        (cond
-          [(equal? input "") (reverse tokens)]
-          [(char-whitespace? (string-ref input 0))
-           (tokenize-helper (string-trim input #:left? #t) tokens)]
-          [else
-           (cond
-             [(char-numeric? (string-ref input 0))
-              (define-values (num rest) (parse-number input))
-              (tokenize-helper rest (cons (Token 'NUMBER num) tokens))]
-             [(char-alphabetic? (string-ref input 0))
-              (define-values (id rest) (parse-identifier input))
-              (tokenize-helper rest (cons (Token 'IDENTIFIER id) tokens))]
-             [(equal? (string-ref input 0) #\()
-              (tokenize-helper (substring input 1) (cons (Token 'LPAREN "(") tokens))]
-             [(equal? (string-ref input 0) #\))
-              (tokenize-helper (substring input 1) (cons (Token 'RPAREN ")") tokens))]
-             [(equal? (string-ref input 0) #\,)
-              (tokenize-helper (substring input 1) (cons (Token 'COMMA ",") tokens))]
-             [(equal? (string-ref input 0) #\[)
-              (tokenize-helper (substring input 1) (cons (Token 'LBRACKET "[") tokens))]
-             [(equal? (string-ref input 0) #\])
-              (tokenize-helper (substring input 1) (cons (Token 'RBRACKET "]") tokens))]
-             [(and (equal? (string-ref input 0) #\=) (equal? (string-ref input 1) #\=))
-              (tokenize-helper (substring input 2) (cons (Token 'EQUAL "==") tokens))]
-             [else (error 'tokenize (format "Unexpected character: ~a" (string-ref input 0)))])]))))
+  (define (tokenize-helper input tokens)
+    (define (consume-whitespace str)
+  (cond
+    [(equal? str "") str]
+    [(char-whitespace? (string-ref str 0))
+     (consume-whitespace (substring str 1))]
+    [else str]))
+    
+    (define input-trimmed (consume-whitespace input))
+    
+    (cond
+      [(equal? input-trimmed "") (reverse tokens)]
+      [else
+       (let ([first-char (string-ref input-trimmed 0)])
+         (cond
+           [(char-numeric? first-char)
+            (define-values (num rest) (parse-number input-trimmed))
+            (tokenize-helper rest (cons (Token 'NUMBER num) tokens))]
+           [(char-alphabetic? first-char)
+            (define-values (id rest) (parse-identifier input-trimmed))
+            (tokenize-helper rest (cons (Token 'IDENTIFIER id) tokens))]
+           [(char=? first-char #\()
+            (tokenize-helper (substring input-trimmed 1) (cons (Token 'LPAREN "(") tokens))]
+           [(char=? first-char #\))
+            (tokenize-helper (substring input-trimmed 1) (cons (Token 'RPAREN ")") tokens))]
+           [(char=? first-char #\,)
+            (tokenize-helper (substring input-trimmed 1) (cons (Token 'COMMA ",") tokens))]
+           [(char=? first-char #\[)
+            (tokenize-helper (substring input-trimmed 1) (cons (Token 'LBRACKET "[") tokens))]
+           [(char=? first-char #\])
+            (tokenize-helper (substring input-trimmed 1) (cons (Token 'RBRACKET "]") tokens))]
+           [(and (>= (string-length input-trimmed) 2) (string=? (substring input-trimmed 0 2) "=="))
+            (tokenize-helper (substring input-trimmed 2) (cons (Token 'EQUAL "==") tokens))]
+           [else (error 'tokenize (format "Unexpected character: ~a" first-char))]))]))
+  
+  (tokenize-helper input-string '()))
 
 ; Helper functions for tokenizer
 (define (parse-number input)
@@ -350,13 +368,10 @@
   (if (null? tokens)
       (error 'parse-expr "Unexpected end of input")
       (let-values ([(left rest) (parse-term tokens)])
-        (cond
-          [(and (not (null? rest)) (equal? (Token-type (car rest)) 'EQUAL))
-           (let-values ([(right new-rest) (parse-expr (cdr rest))])
-             (values (bs::expr::eq left right) new-rest))]
-          [(and (not (null? rest)) (equal? (Token-type (car rest)) 'IDENTIFIER) (equal? (Token-value (car rest)) "if"))
-           (parse-if-expr rest)]
-          [else (values left rest)]))))
+        (if (and (not (null? rest)) (equal? (Token-type (car rest)) 'EQUAL))
+            (let-values ([(right new-rest) (parse-expr (cdr rest))])
+              (values (bs::expr::eq left right) new-rest))
+            (values left rest)))))
 
 (define (parse-term tokens)
   (if (null? tokens)
@@ -424,16 +439,13 @@
 ; Main parser for assert expressions
 (define (parse-assert-expr expr-string)
   (define tokens (tokenize-expr expr-string))
-  ;;; (printf "Tokens: ~a\n" tokens) 
+  (printf "Tokens: ~a\n" tokens)
   (if (null? tokens)
       (error 'parse-assert-expr "Empty expression")
-      (match tokens
-        [(list (Token 'LPAREN _) rest ...)
-         (let-values ([(result rest1) (parse-expr rest)])
-           (if (and (not (null? rest1)) (equal? (Token-type (car rest1)) 'RPAREN))
-               result
-               (error 'parse-assert-expr "Missing closing parenthesis or unexpected tokens")))]
-        [else (error 'parse-assert-expr "Expected opening parenthesis")])))
+      (let-values ([(result rest) (parse-expr tokens)])
+        (if (null? rest)
+            result
+            (error 'parse-assert-expr (format "Unexpected tokens: ~a" rest))))))
 
 (define (expect-token! g expected)
   (define token (g))
