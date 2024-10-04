@@ -1,6 +1,7 @@
 #lang rosette
 (require racket/sequence)
 (require racket/generator)
+(require racket/string)
 (require file/sha1)
 (require
   "../utils.rkt"
@@ -24,13 +25,23 @@
              (yield line)
              (loop)))))))
 
+(define (preprocess-input input-string)
+  (define (add-spaces-around-braces str)
+    (define (process-char c)
+      (case c
+        [(#\{) " { "]
+        [(#\}) " } "]
+        [else (string c)]))
+    (string-join (map process-char (string->list str)) ""))
+  
+  (add-spaces-around-braces input-string))
 
 ; parse bitcoin script from string
 ; returns: a sequence of bs language constructs
 (define (parse-str s)
-  (define tseq (in-list (string-split s)))
-  (parse-tokens tseq)
-  )
+  (define s1 (preprocess-input s))
+  (define tseq (in-list (string-split s1)))
+  (parse-tokens tseq))
 
 ; parse bitcoin script from file
 ; returns: a sequence of bs language constructs
@@ -84,14 +95,14 @@
   (case t
     [("OP_ASSERT") 
      (define next-token (g))
-     (unless (equal? next-token "(")
-       (error 'parse-token "Expected '(' after OP_ASSERT, got: ~a" next-token))
+     (unless (equal? next-token "{")
+       (error 'parse-token "Expected '{' after OP_ASSERT, got: ~a" next-token))
      (define expr-string 
        (let loop ([content ""] [paren-count 1])
          (define token (g))
          (cond
-           [(equal? token "(") (loop (string-append content " " token) (add1 paren-count))]
-           [(equal? token ")") 
+           [(equal? token "{") (loop (string-append content " " token) (add1 paren-count))]
+           [(equal? token "}") 
             (if (= paren-count 1)
                 content
                 (loop (string-append content " " token) (sub1 paren-count)))]
@@ -311,11 +322,11 @@
 (define (tokenize-expr input-string)
   (define (tokenize-helper input tokens)
     (define (consume-whitespace str)
-  (cond
-    [(equal? str "") str]
-    [(char-whitespace? (string-ref str 0))
-     (consume-whitespace (substring str 1))]
-    [else str]))
+      (cond
+        [(equal? str "") str]
+        [(char-whitespace? (string-ref str 0))
+         (consume-whitespace (substring str 1))]
+        [else str]))
     
     (define input-trimmed (consume-whitespace input))
     
@@ -329,7 +340,13 @@
             (tokenize-helper rest (cons (Token 'NUMBER num) tokens))]
            [(char-alphabetic? first-char)
             (define-values (id rest) (parse-identifier input-trimmed))
-            (tokenize-helper rest (cons (Token 'IDENTIFIER id) tokens))]
+            (tokenize-helper rest 
+                             (cons (cond
+                                     [(equal? id "if") (Token 'IF "if")]
+                                     [(equal? id "then") (Token 'THEN "then")]
+                                     [(equal? id "else") (Token 'ELSE "else")]
+                                     [else (Token 'IDENTIFIER id)])
+                                   tokens))]
            [(char=? first-char #\()
             (tokenize-helper (substring input-trimmed 1) (cons (Token 'LPAREN "(") tokens))]
            [(char=? first-char #\))
@@ -377,7 +394,7 @@
   (if (null? tokens)
       (error 'parse-term "Unexpected end of input")
       (match (car tokens)
-        [(Token 'IDENTIFIER "if") (parse-if-expr tokens)]
+        [(Token 'IF _) (parse-if-expr tokens)]
         [(Token 'IDENTIFIER "stack") (parse-stack-access tokens)]
         [(Token 'IDENTIFIER id) 
          (if (string-prefix? id "v")
@@ -403,26 +420,23 @@
 
 (define (parse-if-expr tokens)
   (match tokens
-    [(list (Token 'IDENTIFIER "if") (Token 'LPAREN _) rest ...)
+    [(list (Token 'IF _) rest ...)
      (if (null? rest)
          (error 'parse-if-expr "Unexpected end of input in if expression")
          (let-values ([(condition rest1) (parse-expr rest)])
            (match rest1
-             [(list (Token 'COMMA _) rest2 ...)
+             [(list (Token 'THEN _) rest2 ...)
               (if (null? rest2)
-                  (error 'parse-if-expr "Unexpected end of input after comma in if expression")
+                  (error 'parse-if-expr "Unexpected end of input after 'then' in if expression")
                   (let-values ([(then-expr rest3) (parse-expr rest2)])
                     (match rest3
-                      [(list (Token 'COMMA _) rest4 ...)
+                      [(list (Token 'ELSE _) rest4 ...)
                        (if (null? rest4)
-                           (error 'parse-if-expr "Unexpected end of input after second comma in if expression")
+                           (error 'parse-if-expr "Unexpected end of input after 'else' in if expression")
                            (let-values ([(else-expr rest5) (parse-expr rest4)])
-                             (match rest5
-                               [(list (Token 'RPAREN _) rest6 ...)
-                                (values (bs::expr::ite condition then-expr else-expr) rest6)]
-                               [else (error 'parse-if-expr "Expected closing parenthesis")])))]
-                      [else (error 'parse-if-expr "Expected comma after then expression")])))]
-             [else (error 'parse-if-expr "Expected comma after condition")])))]
+                             (values (bs::expr::ite condition then-expr else-expr) rest5)))]
+                      [else (error 'parse-if-expr "Expected 'else' in if expression")])))]
+             [else (error 'parse-if-expr "Expected 'then' after condition in if expression")])))]
     [else (error 'parse-if-expr "Invalid if expression syntax")]))
 
 (define (parse-stack-access tokens)
