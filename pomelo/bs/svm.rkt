@@ -55,7 +55,7 @@
 ; inplace operation
 (define (alt/push! rt v)
   (let ([s (runtime-alt rt)])
-    (set-runtime-stack! rt (cons v s))
+    (set-runtime-alt! rt (cons v s))
     )
   )
 
