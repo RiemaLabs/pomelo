@@ -453,7 +453,7 @@
 ; Main parser for assert expressions
 (define (parse-assert-expr expr-string)
   (define tokens (tokenize-expr expr-string))
-  (printf "Tokens: ~a\n" tokens)
+  ;;; (printf "Tokens: ~a\n" tokens)
   (if (null? tokens)
       (error 'parse-assert-expr "Empty expression")
       (let-values ([(result rest) (parse-expr tokens)])
