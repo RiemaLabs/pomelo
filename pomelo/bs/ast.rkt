@@ -45,10 +45,9 @@
 
 ; opcodes 82-96 (0x52-0x60) | x: 2-16
 (struct op::x (x) #:mutable #:transparent #:reflection-name 'OP_X)
-
-; opcode 244 (0xf4)
-; x is the name of the symbolic bitvector, size is the size of the bitvector
-(struct op::symbv (x size) #:mutable #:transparent #:reflection-name 'OP_SYMBV)
+; opcode 240 (0xf0) | x: non-negative integer
+; x is the name of the symbolic int
+(struct op::symint (x) #:mutable #:transparent #:reflection-name 'OP_SYMINT)
 
 (define op::push?
   (disjoin
@@ -56,7 +55,7 @@
    op::pushbytes::x? op::pushdata::x?
    op::1negate? op::reserved?
    op::1? op::true?
-   op::x? op::symbv?))
+   op::x? op::symint?))
 
 ; ============================== ;
 ; ======== control flow ======== ;
@@ -421,9 +420,6 @@
 ; ======== pomela symbolic words ======== ;
 ; ======================================= ;
 
-; opcode 240 (0xf0) | x: non-negative integer
-; x is the name of the symbolic int
-(struct op::symint (x) #:mutable #:transparent #:reflection-name 'OP_SYMINT)
 
 ; opcode 241 (0xf1) | x: non-negative integer
 ; x is the name of the symbolic bool
@@ -436,8 +432,7 @@
 (struct op::solve () #:mutable #:transparent #:reflection-name 'OP_SOLVE)
 
 (define op::sym?
-  (disjoin op::symint? op::symbool? op::symbv?
-           op::assert? op::solve?))
+  (disjoin op::symint? op::symbool? op::assert? op::solve?))
 
 ; ======================================= ;
 ; ========== internal opcodes =========== ;

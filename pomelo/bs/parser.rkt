@@ -221,15 +221,11 @@
        ; ======== pomelo symbolic words ======== ;
        ; ======================================= ;
        [(string-prefix? t "OP_SYMINT_") (parse-token/symint t)]
-       [(string-prefix? t "OP_SYMBV_") (parse-token/symbv t)]
 
        ; Handle OP_PUSHNUM_ and OP_PUSHBYTES_
        [(string-prefix? t "OP_PUSHNUM_") (parse-token/pushnum (substring t (string-length "OP_PUSHNUM_")))]
        [(string-prefix? t "OP_PUSHBYTES_") 
-        (let ([next (g)])
-          (if (string-prefix? next "OP_SYMBV_")
-              (bs::op::pushbytes::x (parse-token/symbv next))
-              (parse-token/pushbytes (substring t (string-length "OP_PUSHBYTES_")) g)))]
+        (parse-token/pushbytes (substring t (string-length "OP_PUSHBYTES_")) g)]
        [(string-prefix? t "OP_") (parse-token/x (substring t (string-length "OP_")))]
 
        [else (error 'parse-token (format "unsupported token: ~a" t))]
@@ -243,8 +239,8 @@
   (define n-bytes (string->number n-str))
   (define n-bits (* 8 n-bytes))
   (define t (g))
-  (if (string-prefix? t "OP_SYMBV_")
-      (bs::op::pushbytes::x (parse-token/symbv t))
+  (if (string-prefix? t "OP_SYMINT_")
+      (bs::op::pushbytes::x (parse-token/symint t))
       (begin
         (assert (= (string-length t) (* 2 n-bytes))
                 (format "OP_PUSHBYTES_~a: data length mismatch, got: ~a" n-bytes t))
@@ -277,20 +273,7 @@
     (define n (string->number ns))
     (assert (integer? n) (format "OP_SYMINT_ argument should be integer, got: ~a" ns))
     (assert (>= n 0) (format "OP_SYMINT_ argument should be non-negative, got: ~a" n))
-    (bs::op::symint n)
-    )
-  )
-
-; parse string token starting with OP_SYMBV_
-(define (parse-token/symbv t)
-  (define parts (string-split (substring t (string-length "OP_SYMBV_")) "_"))
-  (when (not (= (length parts) 2))
-    (error 'parse-token/symbv "Invalid OP_SYMBV format. Expected OP_SYMBV_name_size"))
-  (define name (string->symbol (first parts)))
-  (define size (string->number (second parts)))
-  (when (or (not size) (not (integer? size)) (<= size 0))
-    (error 'parse-token/symbv "Invalid size for OP_SYMBV. Must be a positive integer"))
-  (bs::op::symbv name size))
+    (bs::op::symint n)))
 
 
 (define unget-token-stack '())
@@ -328,8 +311,12 @@
 
   (define (parse-value token)
     (cond
-      [(equal? token "x") (bs::expr::var 'x)]
       [(equal? token "stack-top") (bs::expr::stack-top)]
+      [(string-prefix? token "v")
+     (let ([n (string->number (substring token 1))])
+       (if n
+            (bs::expr::var n)
+           (error 'parse-value "Invalid variable name: ~a" token)))]
       [(string->number token) => (bs::expr::bv (string->number token) 32)]
       [else (error 'parse-value "Unknown value: ~a" token)]))
 

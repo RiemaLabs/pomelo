@@ -223,8 +223,6 @@
    [(bs::op::max) (cons 2 1)]
    [(bs::op::within) (cons 3 1)]
    [(bs::op::symint _) (cons 0 1)]
-   [(bs::op::symbv _ _) (cons 0 1)]
-   [(bs::op::solve) (cons 1 0)]
    [(bs::op::pushbits _) (cons 0 1)]
    [(bs::op::pushbytes::x _) (cons 0 1)]
    [_ (error 'stack-delta/op (format "unknown op: ~a" o))]
@@ -249,16 +247,16 @@
    [(bs::op::true) (push! rt (bv 1 ::bitvector))]
    [(bs::op::x x) (push! rt (bv x ::bitvector))]
    [(bs::op::pushbits bs) (push! rt bs)]
-   [(bs::op::pushbytes::x x) 
-    (match x
-      [(bs::op::symbv name size)
-       (define-symbolic* r (bitvector size))
-       (set-runtime-symvars! rt (cons (cons name r) (runtime-symvars rt)))
-       (push! rt r)]
-      [_ 
-       (if (bitvector? x)
-           (push! rt x)
-           (error 'step (format "Invalid type for OP_PUSHBYTES_X: ~a" x)))])]
+  [(bs::op::pushbytes::x x)
+   (match x
+     [(bs::op::symint n)
+      (define r (fresh-symbolic* n 'int))
+      (set-runtime-symvars! rt (cons (cons n r) (runtime-symvars rt)))
+      (push! rt r)]
+     [_
+      (if (bitvector? x)
+          (push! rt x)
+          (error 'step (format "Invalid type for OP_PUSHBYTES_X: ~a" x)))])]
 
    ; ============================== ;
    ; ======== control flow ======== ;
@@ -615,13 +613,8 @@
    ; ======================================= ;
    [(bs::op::symint x)
     (define id (string->symbol (format "int$~a" x)))
-    (define r (fresh-symbolic id 'int))
-    (push! rt r)
-    ]
-
-   [(bs::op::symbv name size)
-    (define-symbolic* r (bitvector size))
-    (set-runtime-symvars! rt (cons (cons name r) (runtime-symvars rt)))
+    (define r (fresh-symbolic* id 'int))
+    (set-runtime-symvars! rt (cons (cons id r) (runtime-symvars rt)))
     (push! rt r)]
 
    ; OP_SOLVE doesn't push anything back to stack
