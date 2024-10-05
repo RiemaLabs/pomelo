@@ -118,9 +118,9 @@
 
 (define (step rt o)
   (define unsupported (lambda (o) (error 'interpret (format "unsupported operator: ~a" o))))
-  ; (printf "# stack:\n~a\n" (runtime-stack rt))
-  ; (printf "# alt:\n~a\n" (runtime-alt rt))
-  ; (printf "# next: ~a\n" o)
+  (printf "# stack:\n~a\n" (runtime-stack rt))
+  (printf "# alt:\n~a\n" (runtime-alt rt))
+  (printf "# next: ~a\n" o)
   (destruct
    o
    ; =========================== ;
@@ -497,9 +497,8 @@
    ; ======== pomela symbolic words ======== ;
    ; ======================================= ;
    [(bs::op::symint x)
-    (define id (string->symbol (format "int$~a" x)))
-    (define r (fresh-symbolic* id 'int))
-    (set-runtime-symvars! rt (cons (cons id r) (runtime-symvars rt)))
+    (define r (fresh-symbolic* x 'int))
+    (set-runtime-symvars! rt (cons (cons x r) (runtime-symvars rt)))
     (push! rt r)]
 
    ; OP_SOLVE doesn't push anything back to stack
