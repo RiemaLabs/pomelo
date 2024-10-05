@@ -94,7 +94,7 @@
              [max-item-width (apply max (map (compose string-length ~a) stack))]
              [total-width (+ max-index-width max-item-width 5)])  ; 5 for "| | |"
         (printf "+~a+\n" (make-string total-width #\-))
-        (for ([item (reverse stack)] [i (in-naturals)])
+        (for ([item stack] [i (in-range (length stack))])
           (printf "| ~a | ~a |\n" 
                   (string-pad-left (~a i) max-index-width) 
                   (string-pad-right (~a item) max-item-width)))
