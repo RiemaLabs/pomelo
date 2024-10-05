@@ -69,10 +69,10 @@ racket ./run.rkt --file <path-to-file>
 To reason about a bitcoin script with symbolic variable, use:
 
 ```bash
-racket ./run.rkt --str "OP_1 OP_SYMINT_0 OP_ADD OP_3 OP_NUMEQUALVERIFY OP_SYMINT_0 OP_SOLVE"
+racket ./run.rkt --str "OP_1 OP_SYMINT_0 OP_ADD OP_3 OP_NUMEQUALVERIFY OP_SYMINT_0 OP_SOLVE" --debug
 ```
 
-and you'll see the resulting stack (along with any intermediate instructed outputs):
+and you'll see the resulting stack (along with any intermediate instructed outputs if --debug is enabled):
 
 ```
 # next: #(struct:OP_1)
@@ -91,3 +91,30 @@ and you'll see the resulting stack (along with any intermediate instructed outpu
 ()
 ```
 
+### Debug Mode
+
+To enable debug output for detailed execution tracing, use the `--debug` flag:
+
+```bash
+racket ./run.rkt --file <path-to-file> --debug
+```
+
+This will provide detailed information about the stack and alt stack at each step of execution, as well as the final state of both stacks.
+
+### Auto-initialization
+
+To automatically initialize the stack, use the `--auto-init` flag:
+
+```bash
+racket ./run.rkt --file <path-to-file> --auto-init
+```
+
+### Assertions
+
+Pomelo supports assertions for formal verification. Use the `ASSERT_X` opcode followed by a condition in curly braces. For example:
+
+```
+ASSERT_1 {stack[0] == (if v0 == 0 then 0 else 1)}
+```
+
+This assertion checks if the top stack item is 0 when v0 is 0, and 1 otherwise.
