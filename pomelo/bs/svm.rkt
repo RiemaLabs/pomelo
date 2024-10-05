@@ -532,6 +532,10 @@
    expr
    [(bs::expr::eq left right)
     (bveq (evaluate-expr rt left) (evaluate-expr rt right))]
+   [(bs::expr::lt left right)
+    (bvslt (evaluate-expr rt left) (evaluate-expr rt right))]
+   [(bs::expr::lte left right)
+    (bvsle (evaluate-expr rt left) (evaluate-expr rt right))]
    [(bs::expr::ite condition then-expr else-expr)
     (if (evaluate-expr rt condition)
         (evaluate-expr rt then-expr)

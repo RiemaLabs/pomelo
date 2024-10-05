@@ -460,6 +460,8 @@
 ; ======================================= ;
 
 (struct expr::eq (left right) #:transparent)
+(struct expr::lt (left right) #:transparent)
+(struct expr::lte (left right) #:transparent)
 (struct expr::ite (condition then-expr else-expr) #:transparent)
 (struct expr::bv (value size) #:transparent)
 (struct expr::var (name) #:transparent)

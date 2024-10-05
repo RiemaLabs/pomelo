@@ -374,6 +374,10 @@
             (tokenize-helper (substring input-trimmed 1) (cons (Token 'RBRACKET "]") tokens))]
            [(and (>= (string-length input-trimmed) 2) (string=? (substring input-trimmed 0 2) "=="))
             (tokenize-helper (substring input-trimmed 2) (cons (Token 'EQUAL "==") tokens))]
+           [(and (>= (string-length input-trimmed) 2) (string=? (substring input-trimmed 0 2) "<="))
+            (tokenize-helper (substring input-trimmed 2) (cons (Token 'LTE "<=") tokens))]
+           [(char=? first-char #\<)
+            (tokenize-helper (substring input-trimmed 1) (cons (Token 'LT "<") tokens))]
            [else (error 'tokenize (format "Unexpected character: ~a" first-char))]))]))
   
   (tokenize-helper input-string '()))
@@ -400,10 +404,17 @@
   (if (null? tokens)
       (error 'parse-expr "Unexpected end of input")
       (let-values ([(left rest) (parse-term tokens)])
-        (if (and (not (null? rest)) (equal? (Token-type (car rest)) 'EQUAL))
-            (let-values ([(right new-rest) (parse-expr (cdr rest))])
-              (values (bs::expr::eq left right) new-rest))
-            (values left rest)))))
+        (cond
+          [(and (not (null? rest)) (equal? (Token-type (car rest)) 'EQUAL))
+           (let-values ([(right new-rest) (parse-expr (cdr rest))])
+             (values (bs::expr::eq left right) new-rest))]
+          [(and (not (null? rest)) (equal? (Token-type (car rest)) 'LT))
+           (let-values ([(right new-rest) (parse-expr (cdr rest))])
+             (values (bs::expr::lt left right) new-rest))]
+          [(and (not (null? rest)) (equal? (Token-type (car rest)) 'LTE))
+           (let-values ([(right new-rest) (parse-expr (cdr rest))])
+             (values (bs::expr::lte left right) new-rest))]
+          [else (values left rest)]))))
 
 (define (parse-term tokens)
   (if (null? tokens)
