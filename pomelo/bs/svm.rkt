@@ -326,7 +326,7 @@
    [(bs::op::booland)
     (define x2 (pop! rt))
     (define x1 (pop! rt))
-    (if (|| (bvzero? x1) (bvzero? x2))
+    (if (&& (bvzero? x1) (bvzero? x2))
         (push! rt (bv 0 ::bitvector))
         (push! rt (bv 1 ::bitvector))
         )
