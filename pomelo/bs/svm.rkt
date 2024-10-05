@@ -10,6 +10,9 @@
 
 ; symbolic virtual machine
 
+; 在文件顶部添加一个全局变量
+(define debug-output #f)
+
 ; stack is a stack, alt is a stack, script is a FILO list
 (struct runtime (stack alt script symvars) #:mutable #:transparent #:reflection-name 'runtime)
 
@@ -96,31 +99,31 @@
         (step rt o)
         (interpret* rt (cdr script-list)))))
 
-(define (interpret-script script #:auto-init [auto-init #f])
+(define (interpret-script script #:auto-init [auto-init #f] #:debug [debug #f])
+  (set! debug-output debug)
   (define rt
     (if auto-init
         (begin
-          ; convert to list, since we need to traverse it more than once
-          ; this is fine, since auto-init is only expected to be used for small scripts
           (define script-list (sequence->list script))
-          ; run analysis to get initial symbolic stack and alt
           (define stack (analysis::auto-init/stack script-list))
           (define alt (analysis::auto-init/alt script-list))
           (runtime stack alt (in-list script-list) '()))
-        ; if auto-init is #f (the case for large scripts), initial stack and alt are empty
         (runtime '() '() script '())))
-  (print-stack (runtime-stack rt) "init (stack)")
-  (printf "\n")
-  (print-stack (runtime-alt rt) "init (alt stack)")
-  (printf "\n")
+  (when debug-output
+    (print-stack (runtime-stack rt) "init (stack)")
+    (printf "\n")
+    (print-stack (runtime-alt rt) "init (alt stack)")
+    (printf "\n"))
   (interpret rt)
   rt)
 
+; 修改 step 函数
 (define (step rt o)
+  (when debug-output
+    (printf "# stack:\n~a\n" (runtime-stack rt))
+    (printf "# alt:\n~a\n" (runtime-alt rt))
+    (printf "# next: ~a\n" o))
   (define unsupported (lambda (o) (error 'interpret (format "unsupported operator: ~a" o))))
-  (printf "# stack:\n~a\n" (runtime-stack rt))
-  (printf "# alt:\n~a\n" (runtime-alt rt))
-  (printf "# next: ~a\n" o)
   (destruct
    o
    ; =========================== ;
