@@ -45,6 +45,17 @@
 
 ; opcodes 82-96 (0x52-0x60) | x: 2-16
 (struct op::x (x) #:mutable #:transparent #:reflection-name 'OP_X)
+; opcode 240 (0xf0) | x: non-negative integer
+; x is the name of the symbolic int
+(struct op::symint (x) #:mutable #:transparent #:reflection-name 'OP_SYMINT)
+
+(define op::push?
+  (disjoin
+   op::0? op::false?
+   op::pushbytes::x? op::pushdata::x?
+   op::1negate? op::reserved?
+   op::1? op::true?
+   op::x? op::symint?))
 
 ; ============================== ;
 ; ======== control flow ======== ;
@@ -79,6 +90,13 @@
 
 ; opcode 106 (0x6a)
 (struct op::return () #:mutable #:transparent #:reflection-name 'OP_RETURN)
+
+(define op::control?
+  (disjoin
+   op::nop? op::ver? op::if? op::notif?
+   op::verif? op::vernotif? op::else?
+   op::endif? op::verify? op::return?))
+
 
 ; ================================= ;
 ; ======== stack operators ======== ;
@@ -141,6 +159,15 @@
 ; opcode 125 (0x7d)
 (struct op::tuck () #:mutable #:transparent #:reflection-name 'OP_TUCK)
 
+(define op::stack?
+  (disjoin op::toaltstack? op::fromaltstack?
+           op::2drop? op::2dup? op::3dup?
+           op::2over? op::2rot? op::2swap?
+           op::ifdup? op::depth? op::drop?
+           op::dup? op::nip? op::over?
+           op::pick? op::roll? op::rot?
+           op::swap? op::tuck?))
+
 ; ================================ ;
 ; ======== strings/splice ======== ;
 ; ================================ ;
@@ -159,6 +186,10 @@
 
 ; opcode 130 (0x82)
 (struct op::size () #:mutable #:transparent #:reflection-name 'OP_SIZE)
+
+(define op::string?
+  (disjoin op::cat? op::substr? op::left?
+           op::right? op::size?))
 
 ; =============================== ;
 ; ======== bitwise logic ======== ;
@@ -187,6 +218,12 @@
 
 ; opcode 138 (0x8a)
 (struct op::reserved2 () #:mutable #:transparent #:reflection-name 'OP_RESERVED2)
+
+(define op::bitwise?
+  (disjoin op::invert? op::and? op::or?
+           op::xor? op::equal? op::equalverify?
+           op::reserved1? op::reserved2?))
+
 
 ; ==================================== ;
 ; ======== numeric/arithmetic ======== ;
@@ -273,6 +310,17 @@
 ; opcode 165 (0xa5)
 (struct op::within () #:mutable #:transparent #:reflection-name 'OP_WITHIN)
 
+(define op::arith?
+  (disjoin op::1add? op::1sub? op::2mul?
+           op::2div? op::negate? op::abs?
+           op::not? op::0notequal? op::add?
+           op::sub? op::mul? op::div?
+           op::mod? op::lshift? op::rshift?
+           op::booland? op::boolor? op::numequal?
+           op::numequalverify? op::numnotequal? op::lessthan?
+           op::greaterthan? op::lessthanorequal? op::greaterthanorequal?
+           op::min? op::max? op::within?))
+
 ; ============================== ;
 ; ======== cryptography ======== ;
 ; ============================== ;
@@ -306,6 +354,12 @@
 
 ; opcode 175 (0xaf)
 (struct op::checkmultisigverify () #:mutable #:transparent #:reflection-name 'OP_CHECKMULTISIGVERIFY)
+
+(define op::crypto?
+  (disjoin op::ripemd160? op::sha1? op::sha256?
+           op::hash160? op::hash256? op::codeseparator?
+           op::checksig? op::checksigverify?
+           op::checkmultisig? op::checkmultisigverify?))
 
 ; ================================ ;
 ; ======== locktime/other ======== ;
@@ -346,6 +400,14 @@
 ; opcode 186 (0xba)
 (struct op::checksigadd () #:mutable #:transparent #:reflection-name 'OP_CHECKSIGADD)
 
+(define op::other?
+  (disjoin op::nop1? op::checklocktimeverify?
+           op::checksequenceverify? op::nop4?
+           op::nop5? op::nop6?
+           op::nop7? op::nop8?
+           op::nop9? op::nop10?
+           op::checksigadd?))
+
 ; ============================== ;
 ; ======== vacant words ======== ;
 ; ============================== ;
@@ -358,16 +420,49 @@
 ; ======== pomela symbolic words ======== ;
 ; ======================================= ;
 
-; opcode 240 (0xf0) | x: non-negative integer
-; x is the name of the symbolic int
-(struct op::symint (x) #:mutable #:transparent #:reflection-name 'OP_SYMINT)
 
 ; opcode 241 (0xf1) | x: non-negative integer
 ; x is the name of the symbolic bool
 (struct op::symbool (x) #:mutable #:transparent #:reflection-name 'OP_SYMBOOL)
 
 ; opcode 242 (0xf2)
-(struct op::assert () #:mutable #:transparent #:reflection-name 'OP_ASSERT)
+(struct op::assert (name expr) #:transparent)
 
 ; opcode 243 (0xf3)
 (struct op::solve () #:mutable #:transparent #:reflection-name 'OP_SOLVE)
+
+(define op::sym?
+  (disjoin op::symint? op::symbool? op::assert? op::solve?))
+
+; ======================================= ;
+; ========== internal opcodes =========== ;
+; ======================================= ;
+
+(struct op::branch (then else) #:mutable #:transparent #:reflection-name 'OP_BRANCH)
+(struct op::pushbits (bits) #:mutable #:transparent #:reflection-name 'OP_PUSHBITS)
+
+(define op::internal?
+  (disjoin op::branch? op::pushbits))
+
+
+; ======================================= ;
+; ============= all opcodes ============= ;
+; ======================================= ;
+(define op?
+  (disjoin op::push? op::control?
+           op::stack? op::string?
+           op::bitwise? op::arith?
+           op::crypto? op::other?
+           op::sym? op::internal?))
+
+; ======================================= ;
+; ============= expressions ============= ;
+; ======================================= ;
+
+(struct expr::eq (left right) #:transparent)
+(struct expr::lt (left right) #:transparent)
+(struct expr::lte (left right) #:transparent)
+(struct expr::ite (condition then-expr else-expr) #:transparent)
+(struct expr::bv (value size) #:transparent)
+(struct expr::var (name) #:transparent)
+(struct expr::stack-nth (n) #:transparent)
