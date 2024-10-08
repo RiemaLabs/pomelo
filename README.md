@@ -254,7 +254,7 @@ This script compares two symbolic BigInt variables `v0` and `v1` to determine if
 | `dup_zip.bs`  | Yes                    | Yes                     |
 | `zip.bs`      | Yes                    | Yes                     |
 
-### BigInt Scripts from [`bitvm/src/bigint/cmp.rs`]((https://github.com/BitVM/BitVM/blob/1ffef096e29a6e120e7ce43e7f042743e8591c7a/src/bigint/cmp.rs))
+### BigInt Scripts from [`bitvm/src/bigint/cmp.rs`](https://github.com/BitVM/BitVM/blob/1ffef096e29a6e120e7ce43e7f042743e8591c7a/src/bigint/cmp.rs)
 
 | Script                    | Specification? | Verification? |
 |---------------------------|------------------------|-------------------------|
