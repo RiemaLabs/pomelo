@@ -10,7 +10,6 @@
 
 ; symbolic virtual machine
 
-; 在文件顶部添加一个全局变量
 (define debug-output #f)
 
 ; stack is a stack, alt is a stack, script is a FILO list
