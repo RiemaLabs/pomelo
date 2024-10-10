@@ -230,6 +230,12 @@
        ; ======== pomelo symbolic words ======== ;
        ; ======================================= ;
        [(string-prefix? t "OP_SYMINT_") (parse-token/symint t)]
+       [(equal? "PUSH_BIGINT" t)
+        (define nbits (string->number (g)))
+        (define limb_size (string->number (g)))
+        (define limbs_name (g))
+        (define var_name (string->number (g)))
+        (bs::op::push_bigint nbits limb_size limbs_name var_name)]
 
        ; Handle OP_PUSHNUM_ and OP_PUSHBYTES_
        [(string-prefix? t "OP_PUSHNUM_") (parse-token/pushnum (substring t (string-length "OP_PUSHNUM_")))]
@@ -257,7 +263,6 @@
        [else (loop (string-append content " " token) paren-count)])))
  (let ([expr (parse-assert-expr (string-trim expr-string))])
    (bs::op::assert name expr))]
-
        [else (error 'parse-token (format "unsupported token: ~a" t))]
        )
      ]
@@ -426,7 +431,7 @@
          (if (string-prefix? id "v")
              (values (bs::expr::var (string->number (substring id 1))) (cdr tokens))
              (error 'parse-term (format "Unexpected identifier: ~a" id)))]
-        [(Token 'NUMBER n) (values (bs::expr::bv n 32) (cdr tokens))]
+        [(Token 'NUMBER n) (values (bs::expr::bv n) (cdr tokens))]
         [(Token 'LPAREN _) (parse-parenthesized-expr tokens)]
         [else (error 'parse-term (format "Unexpected token: ~a" (car tokens)))])))
 

@@ -49,13 +49,20 @@
 ; x is the name of the symbolic int
 (struct op::symint (x) #:mutable #:transparent #:reflection-name 'OP_SYMINT)
 
+; ======================================= ;
+; ============= bigint symbolic ============= ;
+; ======================================= ;
+
+(struct op::push_bigint (nbits limb_size limbs_name var_name) #:mutable #:transparent #:reflection-name 'OP_PUSH_BIGINT)
+
 (define op::push?
   (disjoin
    op::0? op::false?
    op::pushbytes::x? op::pushdata::x?
    op::1negate? op::reserved?
    op::1? op::true?
-   op::x? op::symint?))
+   op::x? op::symint?
+   op::push_bigint?))  ; 添加此行
 
 ; ============================== ;
 ; ======== control flow ======== ;
@@ -453,7 +460,7 @@
            op::stack? op::string?
            op::bitwise? op::arith?
            op::crypto? op::other?
-           op::sym? op::internal?))
+           op::sym? op::internal? op::push_bigint?))
 
 ; ======================================= ;
 ; ============= expressions ============= ;
@@ -463,6 +470,6 @@
 (struct expr::lt (left right) #:transparent)
 (struct expr::lte (left right) #:transparent)
 (struct expr::ite (condition then-expr else-expr) #:transparent)
-(struct expr::bv (value size) #:transparent)
+(struct expr::bv (value) #:transparent)
 (struct expr::var (name) #:transparent)
 (struct expr::stack-nth (n) #:transparent)

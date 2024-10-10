@@ -325,7 +325,7 @@
    [(bs::op::booland)
     (define x2 (pop! rt))
     (define x1 (pop! rt))
-    (if (&& (bvzero? x1) (bvzero? x2))
+    (if (|| (bvzero? x1) (bvzero? x2))
         (push! rt (bv 0 ::bitvector))
         (push! rt (bv 1 ::bitvector))
         )
@@ -334,7 +334,7 @@
    [(bs::op::boolor)
     (define x2 (pop! rt))
     (define x1 (pop! rt))
-    (if (|| (bvzero? x1) (bvzero? x2))
+    (if (&& (bvzero? x1) (bvzero? x2))
         (push! rt (bv 0 ::bitvector))
         (push! rt (bv 1 ::bitvector))
         )
@@ -381,11 +381,7 @@
 
    [(bs::op::not)
     (define v (pop! rt))
-    (cond
-      [(bvzero? v) (push! rt (bv 1 ::bitvector))]
-      [(bveq v (bv 1 ::bitvector)) (push! rt (bv 0 ::bitvector))]
-      [else (push! rt (bv 0 ::bitvector))]
-      )
+    (if (bvzero? v) (push! rt (bv 1 ::bitvector)) (push! rt (bv 0 ::bitvector)))
     ]
 
    [(bs::op::0notequal)
@@ -515,12 +511,71 @@
       (printf " (~a)" name))
     (printf ":\n")
     (define verify-result (verify (assert (evaluate-expr rt expr))))
-    (printf "  Verify result: ~a\n" verify-result)
     (if (unsat? verify-result)
         (printf "  Result: \033[1;32mVerified\033[0m\n\n")
         (begin
           (printf "  Result: \033[1;31mFailed\033[0m\n")
-          (printf "  Counter-example: ~a\n\n" (evaluate expr (model verify-result)))))]
+          (printf "  Model: ~a\n" (format "~a" (model verify-result)))))]
+
+   ; Modify the handling of PUSH_BIGINT
+   [(bs::op::push_bigint nbits limb_size limbs_name var_name)
+    (define n_limbs (ceiling (/ nbits limb_size)))
+    (define highest_limb_size (- nbits (* (sub1 n_limbs) limb_size)))
+
+    ;; Define the limbs list, ordered from least significant to most significant
+    (define limbs
+      (append
+        ;; Lower limbs, there are n_limbs - 1, each with a width of limb_size
+        (for/list ([i (in-range (sub1 n_limbs))])
+          (define limb-name (format "~a_~a" limbs_name i))
+          (fresh-symbolic (list limb-name limb_size) 'bitvector))
+        ;; Most significant limb, with a width of highest_limb_size
+        (list 
+         (let ([highest-limb-name (format "~a_~a" limbs_name (sub1 n_limbs))])
+           (fresh-symbolic (list highest-limb-name highest_limb_size) 'bitvector)))))
+
+    ;; Reconstruct the large integer x_reconstructed
+    (define x_reconstructed
+      (apply bvadd
+             (for/list ([i (in-range n_limbs)]
+                        [limb limbs])
+               ;; Extend limb to nbits width
+               (define extended_limb (zero-extend limb (bitvector nbits)))
+               ;; Convert shift amount to a bitvector of nbits width
+               (define shift_amount (bv (* i limb_size) nbits))
+               ;; Perform left shift operation
+               (bvshl extended_limb shift_amount))))
+    ;;; (printf "  nbits: ~a\n" nbits)
+    ;;; (printf "  limb_size: ~a\n" limb_size)
+    ;;; (printf "  limbs_name: ~a\n" limbs_name)
+    ;;; (printf "  var_name: ~a\n" var_name)
+    ;;; (for ([i (in-range n_limbs)]
+    ;;;       [limb limbs])
+    ;;;   (printf "    ~a_~a: ~a\n" limbs_name i limb))
+    ;;; (printf "  x_reconstructed: ~a\n\n" x_reconstructed)
+
+    ;; Define the symbolic variable x_symbol with a width of nbits
+    ;;; (define x_symbol (bitvector nbits))
+    ;; Use fresh-symbolic to define the symbolic variable x_symbol with a width of nbits
+    (define id (string->symbol (format "int$~a" var_name)))
+    (define x_symbol (fresh-symbolic (list id nbits) 'bitvector))
+    ; Print x_symbol
+    ;; Apply constraint: x_symbol == x_reconstructed
+    (assume (bveq x_reconstructed x_symbol))
+
+    ;; Push all elements of limbs onto the stack in reverse order
+    ;; Since the stack is LIFO, push in reverse order
+    (for ([limb (reverse limbs)])
+      (push! rt limb))
+
+    ;; Update the symbolic variable mapping
+    (set-runtime-symvars! rt
+                          (append (runtime-symvars rt)
+                                  (list (cons var_name x_symbol))
+                                  ;; Create name mapping for limbs
+                                  (for/list ([i (in-range n_limbs)]
+                                             [limb limbs])
+                                    (cons (format "~a_~a" limbs_name i) limb))))]
 
    [_ (error 'step (format "unsupported operator: ~a" o))]
    )
@@ -539,8 +594,8 @@
     (if (evaluate-expr rt condition)
         (evaluate-expr rt then-expr)
         (evaluate-expr rt else-expr))]
-   [(bs::expr::bv value size)
-    (bv value size)]
+   [(bs::expr::bv value)
+    (bv value ::bitvector)]
    [(bs::expr::var name)
     (get-variable rt name)]
    [(bs::expr::stack-nth n)
@@ -549,6 +604,7 @@
 
 (define (get-variable rt name)
   (let ([var (assoc name (runtime-symvars rt))])
+    ;;; (printf "var ~a: ~a\n" name var)
     (if var
         (cdr var)
         (error 'get-variable (format "Variable not found: ~a" name)))))

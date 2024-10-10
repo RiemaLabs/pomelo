@@ -18,6 +18,12 @@
         [(equal? 'bool type)
             (constant (list id) boolean?)
         ]
+        [(equal? 'bitvector type)
+            (define size (if (list? id)
+                             (cadr id)
+                             (error "unknown bitvector type, got: ~a" id)))
+            (constant (list (if (list? id) (car id) id)) (bitvector size))
+        ]
         [else (error "unknown symbolic type, got: ~a" type)]
     )
 )
