@@ -230,12 +230,12 @@
        ; ======== pomelo symbolic words ======== ;
        ; ======================================= ;
        [(string-prefix? t "OP_SYMINT_") (parse-token/symint t)]
-       [(equal? "PUSH_BIGINT" t)
+       [(string-prefix? t "PUSH_BIGINT_")
+        (define n (string->number (substring t (string-length "PUSH_BIGINT_"))))
         (define nbits (string->number (g)))
         (define limb_size (string->number (g)))
         (define limbs_name (g))
-        (define var_name (string->number (g)))
-        (bs::op::push_bigint nbits limb_size limbs_name var_name)]
+        (bs::op::push_bigint nbits limb_size limbs_name n)]
 
        ; Handle OP_PUSHNUM_ and OP_PUSHBYTES_
        [(string-prefix? t "OP_PUSHNUM_") (parse-token/pushnum (substring t (string-length "OP_PUSHNUM_")))]
