@@ -343,14 +343,18 @@
    [(bs::op::equal)
     (define x2 (pop! rt))
     (define x1 (pop! rt))
-    (define r (bool->bitvector (bveq x1 x2) ::bitvector))
+    (define x1-extended (zero-extend x1 ::bitvector))
+    (define x2-extended (zero-extend x2 ::bitvector))
+    (define r (bool->bitvector (bveq x1-extended x2-extended) ::bitvector))
     (push! rt r)
     ]
 
    [(bs::op::equalverify)
     (define x2 (pop! rt))
     (define x1 (pop! rt))
-    (assert (bveq x1 x2) "equalverify failed")
+    (define x1-extended (zero-extend x1 ::bitvector))
+    (define x2-extended (zero-extend x2 ::bitvector))
+    (assert (bveq x1-extended x2-extended) "equalverify failed")
     ]
 
    ; ==================================== ;
