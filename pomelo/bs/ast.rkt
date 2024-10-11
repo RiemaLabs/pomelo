@@ -472,10 +472,13 @@
 (struct expr::ite (condition then-expr else-expr) #:transparent)
 (struct expr::bv (value) #:transparent)
 (struct expr::var (name) #:transparent)
-(struct expr::stack-nth (n) #:transparent)
+
 (struct expr::gt (left right) #:transparent)
 (struct expr::gte (left right) #:transparent)
 (struct expr::neq (left right) #:transparent)
 (struct expr::not (expr) #:transparent)
 (struct expr::and (left right) #:transparent)
 (struct expr::or (left right) #:transparent)
+
+(struct expr::stack-nth (n) #:transparent)
+(struct expr::altstack-nth (n) #:transparent)

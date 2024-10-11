@@ -626,6 +626,8 @@
     (get-variable rt name)]
    [(bs::expr::stack-nth n)
     (list-ref (runtime-stack rt) n)]
+   [(bs::expr::altstack-nth n)
+    (list-ref (runtime-alt rt) n)]
    [(bs::expr::gt left right)
     (bvugt (evaluate-expr rt left) (evaluate-expr rt right))]
    [(bs::expr::gte left right)
@@ -686,6 +688,9 @@
      (get-variable-type rt name)]
 
     [(bs::expr::stack-nth n)
+     TYPE-INT] ; Assume all stack elements are integers
+
+    [(bs::expr::altstack-nth n)
      TYPE-INT] ; Assume all stack elements are integers
 
     [(bs::expr::neq left right)

@@ -461,6 +461,7 @@
          (let-values ([(expr rest) (parse-term (cdr tokens))])
            (values (bs::expr::not expr) rest))]
         [(Token 'IDENTIFIER "stack") (parse-stack-access tokens)]
+        [(Token 'IDENTIFIER "altstack") (parse-altstack-access tokens)]
         [(Token 'IDENTIFIER id) 
          (values (bs::expr::var id) (cdr tokens))]
         [(Token 'NUMBER n) (values (bs::expr::bv n) (cdr tokens))]
@@ -512,6 +513,17 @@
             (values (bs::expr::stack-nth n) rest2)]
            [_ (error 'parse-stack-access "Invalid stack access syntax")]))]
     [_ (error 'parse-stack-access "Invalid stack access syntax")]))
+
+(define (parse-altstack-access tokens)
+  (match tokens
+    [(list (Token 'IDENTIFIER "altstack") (Token 'LBRACKET _) rest ...)
+     (if (null? rest)
+         (error 'parse-altstack-access "Unexpected end of input after opening bracket")
+         (match rest
+           [(list (Token 'NUMBER n) (Token 'RBRACKET _) rest2 ...)
+            (values (bs::expr::altstack-nth n) rest2)]
+           [_ (error 'parse-altstack-access "Invalid altstack access syntax")]))]
+    [_ (error 'parse-altstack-access "Invalid altstack access syntax")]))
 
 ; Main parser for assert expressions
 (define (parse-assert-expr expr-string)
