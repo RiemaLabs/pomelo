@@ -56,7 +56,7 @@
 ; inplace operation
 (define (alt/push! rt v)
   (let ([s (runtime-alt rt)])
-    (set-runtime-stack! rt (cons v s))
+    (set-runtime-alt! rt (cons v s))
     )
   )
 
@@ -354,7 +354,7 @@
     (define x1 (pop! rt))
     (define x1-extended (zero-extend x1 ::bitvector))
     (define x2-extended (zero-extend x2 ::bitvector))
-    (assert (bveq x1-extended x2-extended) "equalverify failed")
+    (assume (bveq x1-extended x2-extended) "equalverify failed")
     ]
 
    ; ==================================== ;
@@ -420,7 +420,7 @@
    [(bs::op::numequalverify)
     (define b (pop! rt))
     (define a (pop! rt))
-    (assert (bveq a b) "numequalverify failed")
+    (assume (bveq a b) "numequalverify failed")
     ]
 
 
@@ -434,28 +434,36 @@
    [(bs::op::lessthan)
     (define b (pop! rt))
     (define a (pop! rt))
-    (define r (bool->bitvector (bvslt a b) ::bitvector))
+    (define b-extended (zero-extend b ::bitvector))
+    (define a-extended (zero-extend a ::bitvector))
+    (define r (bool->bitvector (bvslt a-extended b-extended) ::bitvector))
     (push! rt r)
     ]
 
    [(bs::op::greaterthan)
     (define b (pop! rt))
     (define a (pop! rt))
-    (define r (bool->bitvector (bvsgt a b) ::bitvector))
+    (define b-extended (zero-extend b ::bitvector))
+    (define a-extended (zero-extend a ::bitvector))
+    (define r (bool->bitvector (bvsgt a-extended b-extended) ::bitvector))
     (push! rt r)
     ]
 
    [(bs::op::lessthanorequal)
     (define b (pop! rt))
     (define a (pop! rt))
-    (define r (bool->bitvector (bvsle a b) ::bitvector))
+    (define b-extended (zero-extend b ::bitvector))
+    (define a-extended (zero-extend a ::bitvector))
+    (define r (bool->bitvector (bvsle a-extended b-extended) ::bitvector))
     (push! rt r)
     ]
 
    [(bs::op::greaterthanorequal)
     (define b (pop! rt))
     (define a (pop! rt))
-    (define r (bool->bitvector (bvsge a b) ::bitvector))
+    (define b-extended (zero-extend b ::bitvector))
+    (define a-extended (zero-extend a ::bitvector))
+    (define r (bool->bitvector (bvsge a-extended b-extended) ::bitvector))
     (push! rt r)
     ]
 
@@ -738,7 +746,5 @@
 (define (get-variable-type rt name)
   (let ([var (assoc name (runtime-symvars rt))])
     (if var
-        (if (bitvector? (cdr var))
-            TYPE-INT
-            TYPE-BOOL)
+        TYPE-INT
         (error 'get-variable-type (format "Variable not found: ~a" name)))))
