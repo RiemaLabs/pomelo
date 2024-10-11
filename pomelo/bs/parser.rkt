@@ -383,6 +383,18 @@
             (tokenize-helper (substring input-trimmed 2) (cons (Token 'LTE "<=") tokens))]
            [(char=? first-char #\<)
             (tokenize-helper (substring input-trimmed 1) (cons (Token 'LT "<") tokens))]
+           [(and (>= (string-length input-trimmed) 2) (string=? (substring input-trimmed 0 2) ">="))
+            (tokenize-helper (substring input-trimmed 2) (cons (Token 'GTE ">=") tokens))]
+           [(and (>= (string-length input-trimmed) 2) (string=? (substring input-trimmed 0 2) "!="))
+            (tokenize-helper (substring input-trimmed 2) (cons (Token 'NEQ "!=") tokens))]
+           [(char=? first-char #\>)
+            (tokenize-helper (substring input-trimmed 1) (cons (Token 'GT ">") tokens))]
+           [(char=? first-char #\!)
+            (tokenize-helper (substring input-trimmed 1) (cons (Token 'NOT "!") tokens))]
+           [(and (>= (string-length input-trimmed) 2) (string=? (substring input-trimmed 0 2) "&&"))
+            (tokenize-helper (substring input-trimmed 2) (cons (Token 'AND "&&") tokens))]
+           [(and (>= (string-length input-trimmed) 2) (string=? (substring input-trimmed 0 2) "||"))
+            (tokenize-helper (substring input-trimmed 2) (cons (Token 'OR "||") tokens))]
            [else (error 'tokenize (format "Unexpected character: ~a" first-char))]))]))
   
   (tokenize-helper input-string '()))
@@ -408,17 +420,36 @@
 (define (parse-expr tokens)
   (if (null? tokens)
       (error 'parse-expr "Unexpected end of input")
-      (let-values ([(left rest) (parse-term tokens)])
-        (cond
-          [(and (not (null? rest)) (equal? (Token-type (car rest)) 'EQUAL))
-           (let-values ([(right new-rest) (parse-expr (cdr rest))])
-             (values (bs::expr::eq left right) new-rest))]
-          [(and (not (null? rest)) (equal? (Token-type (car rest)) 'LT))
-           (let-values ([(right new-rest) (parse-expr (cdr rest))])
-             (values (bs::expr::lt left right) new-rest))]
-          [(and (not (null? rest)) (equal? (Token-type (car rest)) 'LTE))
-           (let-values ([(right new-rest) (parse-expr (cdr rest))])
-             (values (bs::expr::lte left right) new-rest))]
+      (let-values ([(left rest) (parse-and-expr tokens)])
+        (if (and (not (null? rest)) (equal? (Token-type (car rest)) 'OR))
+            (let-values ([(right new-rest) (parse-expr (cdr rest))])
+              (values (bs::expr::or left right) new-rest))
+            (values left rest)))))
+
+(define (parse-and-expr tokens)
+  (let-values ([(left rest) (parse-comparison tokens)])
+    (if (and (not (null? rest)) (equal? (Token-type (car rest)) 'AND))
+        (let-values ([(right new-rest) (parse-and-expr (cdr rest))])
+          (values (bs::expr::and left right) new-rest))
+        (values left rest))))
+
+(define (parse-comparison tokens)
+  (let-values ([(left rest) (parse-term tokens)])
+    (if (null? rest)
+        (values left rest)
+        (case (Token-type (car rest))
+          [(EQUAL) (let-values ([(right new-rest) (parse-comparison (cdr rest))])
+                     (values (bs::expr::eq left right) new-rest))]
+          [(LT) (let-values ([(right new-rest) (parse-comparison (cdr rest))])
+                  (values (bs::expr::lt left right) new-rest))]
+          [(LTE) (let-values ([(right new-rest) (parse-comparison (cdr rest))])
+                   (values (bs::expr::lte left right) new-rest))]
+          [(GT) (let-values ([(right new-rest) (parse-comparison (cdr rest))])
+                  (values (bs::expr::gt left right) new-rest))]
+          [(GTE) (let-values ([(right new-rest) (parse-comparison (cdr rest))])
+                   (values (bs::expr::gte left right) new-rest))]
+          [(NEQ) (let-values ([(right new-rest) (parse-comparison (cdr rest))])
+                   (values (bs::expr::neq left right) new-rest))]
           [else (values left rest)]))))
 
 (define (parse-term tokens)
@@ -426,6 +457,9 @@
       (error 'parse-term "Unexpected end of input")
       (match (car tokens)
         [(Token 'IF _) (parse-if-expr tokens)]
+        [(Token 'NOT _) 
+         (let-values ([(expr rest) (parse-term (cdr tokens))])
+           (values (bs::expr::not expr) rest))]
         [(Token 'IDENTIFIER "stack") (parse-stack-access tokens)]
         [(Token 'IDENTIFIER id) 
          (if (string-prefix? id "v")

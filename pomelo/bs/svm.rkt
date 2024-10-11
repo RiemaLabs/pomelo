@@ -56,7 +56,7 @@
 ; inplace operation
 (define (alt/push! rt v)
   (let ([s (runtime-alt rt)])
-    (set-runtime-alt! rt (cons v s))
+    (set-runtime-stack! rt (cons v s))
     )
   )
 
@@ -514,6 +514,8 @@
     (when name
       (printf " (~a)" name))
     (printf ":\n")
+    (define type-check-result (type-check-expr rt expr))
+    (printf "  Type Check: ~a\n" type-check-result)
     (define verify-result (verify (assert (evaluate-expr rt expr))))
     (if (unsat? verify-result)
         (printf "  Result: \033[1;32mVerified\033[0m\n\n")
@@ -522,8 +524,8 @@
           (let ([model (model verify-result)])
             (printf "Model:\n")
             (hash-for-each model
-              (lambda (key value)
-                (printf "  ~a: ~a\n" key value))))))]
+                           (lambda (key value)
+                             (printf "  ~a: ~a\n" key value))))))]
 
    ; Modify the handling of PUSH_BIGINT
    [(bs::op::push_bigint nbits limb_size limbs_name var_name)
@@ -533,14 +535,14 @@
     ;; Define the limbs list, ordered from least significant to most significant
     (define limbs
       (append
-        ;; Lower limbs, there are n_limbs - 1, each with a width of limb_size + 1 for the sign bit
-        (for/list ([i (in-range (sub1 n_limbs))])
-          (define limb-name (format "~a_~a" limbs_name i))
-          (fresh-symbolic (list limb-name (+ limb_size 1)) 'bitvector))
-        ;; Most significant limb, with a width of highest_limb_size + 1 for the sign bit
-        (list 
-         (let ([highest-limb-name (format "~a_~a" limbs_name (sub1 n_limbs))])
-           (fresh-symbolic (list highest-limb-name (+ highest_limb_size 1)) 'bitvector)))))
+       ;; Lower limbs, there are n_limbs - 1, each with a width of limb_size + 1 for the sign bit
+       (for/list ([i (in-range (sub1 n_limbs))])
+         (define limb-name (format "~a_~a" limbs_name i))
+         (fresh-symbolic (list limb-name (+ limb_size 1)) 'bitvector))
+       ;; Most significant limb, with a width of highest_limb_size + 1 for the sign bit
+       (list
+        (let ([highest-limb-name (format "~a_~a" limbs_name (sub1 n_limbs))])
+          (fresh-symbolic (list highest-limb-name (+ highest_limb_size 1)) 'bitvector)))))
 
     ;; Assume all limbs are positive >=0
     ;; Assume that in all bigints (a bigint = an array of n numbers), each number is positive (the highest bit of each number is 0), assuming all are positive by default
@@ -616,6 +618,22 @@
     (get-variable rt name)]
    [(bs::expr::stack-nth n)
     (list-ref (runtime-stack rt) n)]
+   [(bs::expr::gt left right)
+    (bvugt (evaluate-expr rt left) (evaluate-expr rt right))]
+   [(bs::expr::gte left right)
+    (bvuge (evaluate-expr rt left) (evaluate-expr rt right))]
+   [(bs::expr::neq left right)
+    (!(bveq (evaluate-expr rt left) (evaluate-expr rt right)))]
+   [(bs::expr::not expr)
+    (!(evaluate-expr rt expr))]
+   [(bs::expr::and left right)
+    (define x1 (evaluate-expr rt left))
+    (define x2 (evaluate-expr rt right))
+    (&& x1 x2)]
+   [(bs::expr::or left right)
+    (define x1 (evaluate-expr rt left))
+    (define x2 (evaluate-expr rt right))
+    (|| x1 x2)]
    [_ (error 'evaluate-expr (format "Unsupported expression: ~a" expr))]))
 
 (define (get-variable rt name)
@@ -624,3 +642,103 @@
     (if var
         (cdr var)
         (error 'get-variable (format "Variable not found: ~a" name)))))
+
+
+;;; Type Checker
+
+; Define type enums
+(define TYPE-BOOL 'bool)
+(define TYPE-INT 'int)
+
+; Main type checking function
+(define (type-check-expr rt expr)
+  (match expr
+    [(bs::expr::eq left right)
+     (check-equality rt 'eq left right)]
+
+    [(bs::expr::lt left right)
+     (check-numeric-comparison rt 'lt left right)]
+
+    [(bs::expr::lte left right)
+     (check-numeric-comparison rt 'lte left right)]
+
+    [(bs::expr::gt left right)
+     (check-numeric-comparison rt 'gt left right)]
+
+    [(bs::expr::gte left right)
+     (check-numeric-comparison rt 'gte left right)]
+
+    [(bs::expr::ite condition then-expr else-expr)
+     (check-if-then-else rt condition then-expr else-expr)]
+
+    [(bs::expr::bv value)
+     TYPE-INT]
+
+    [(bs::expr::var name)
+     (get-variable-type rt name)]
+
+    [(bs::expr::stack-nth n)
+     TYPE-INT] ; Assume all stack elements are integers
+
+    [(bs::expr::neq left right)
+     (check-equality rt 'neq left right)]
+
+    [(bs::expr::not expr)
+     (check-not rt expr)]
+
+    [(bs::expr::and left right)
+     (check-boolean-operation rt 'and left right)]
+
+    [(bs::expr::or left right)
+     (check-boolean-operation rt 'or left right)]
+
+    [_ (error 'type-check-expr (format "Unsupported expression: ~a" expr))]))
+
+; Helper function: Check equality operations
+(define (check-equality rt op left right)
+  (define left-type (type-check-expr rt left))
+  (define right-type (type-check-expr rt right))
+  (unless (equal? left-type right-type)
+    (error 'type-check "Type mismatch in ~a: ~a and ~a" op left-type right-type))
+  TYPE-BOOL)
+
+; Helper function: Check numeric comparison operations
+(define (check-numeric-comparison rt op left right)
+  (define left-type (type-check-expr rt left))
+  (define right-type (type-check-expr rt right))
+  (unless (and (equal? left-type TYPE-INT) (equal? right-type TYPE-INT))
+    (error 'type-check "Both operands of ~a must be integers" op))
+  TYPE-BOOL)
+
+; Helper function: Check if-then-else expression
+(define (check-if-then-else rt condition then-expr else-expr)
+  (unless (equal? (type-check-expr rt condition) TYPE-BOOL)
+    (error 'type-check "Condition must be boolean in if-then-else"))
+  (define then-type (type-check-expr rt then-expr))
+  (define else-type (type-check-expr rt else-expr))
+  (unless (equal? then-type else-type)
+    (error 'type-check "Branches of if-then-else must have same type"))
+  then-type)
+
+; Helper function: Check not operation
+(define (check-not rt expr)
+  (unless (equal? (type-check-expr rt expr) TYPE-BOOL)
+    (error 'type-check "Argument of 'not' must be boolean"))
+  TYPE-BOOL)
+
+; Helper function: Check boolean operations
+(define (check-boolean-operation rt op left right)
+  (define left-type (type-check-expr rt left))
+  (define right-type (type-check-expr rt right))
+  (unless (and (equal? left-type TYPE-BOOL) (equal? right-type TYPE-BOOL))
+    (error 'type-check "Both operands of ~a must be boolean" op))
+  TYPE-BOOL)
+
+; Get variable type
+(define (get-variable-type rt name)
+  (let ([var (assoc name (runtime-symvars rt))])
+    (if var
+        (if (bitvector? (cdr var))
+            TYPE-INT
+            TYPE-BOOL)
+        (error 'get-variable-type (format "Variable not found: ~a" name)))))
