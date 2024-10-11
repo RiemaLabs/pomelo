@@ -137,8 +137,8 @@
    [(bs::op::pushbytes::x x)
     (match x
       [(bs::op::symint n)
-       (define r (fresh-symbolic* n 'int))
-       (set-runtime-symvars! rt (cons (cons n r) (runtime-symvars rt)))
+       (define r (fresh-symbolic* (format "v~a" n) 'int))
+       (set-runtime-symvars! rt (cons (cons (format "v~a" n) r) (runtime-symvars rt)))
        (push! rt r)]
       [_
        (if (bitvector? x)
@@ -507,8 +507,8 @@
    ; ======== pomela symbolic words ======== ;
    ; ======================================= ;
    [(bs::op::symint x)
-    (define r (fresh-symbolic* x 'int))
-    (set-runtime-symvars! rt (cons (cons x r) (runtime-symvars rt)))
+    (define r (fresh-symbolic* (format "v~a" x) 'int))
+    (set-runtime-symvars! rt (cons (cons (format "v~a" x) r) (runtime-symvars rt)))
     (push! rt r)]
 
    ; OP_SOLVE doesn't push anything back to stack
@@ -545,11 +545,11 @@
       (append
        ;; Lower limbs, there are n_limbs - 1, each with a width of limb_size + 1 for the sign bit
        (for/list ([i (in-range (sub1 n_limbs))])
-         (define limb-name (format "~a_~a" limbs_name i))
+         (define limb-name (format "~a[~a]" limbs_name i))
          (fresh-symbolic (list limb-name (+ limb_size 1)) 'bitvector))
        ;; Most significant limb, with a width of highest_limb_size + 1 for the sign bit
        (list
-        (let ([highest-limb-name (format "~a_~a" limbs_name (sub1 n_limbs))])
+        (let ([highest-limb-name (format "~a[~a]" limbs_name (sub1 n_limbs))])
           (fresh-symbolic (list highest-limb-name (+ highest_limb_size 1)) 'bitvector)))))
 
     ;; Assume all limbs are positive >=0
@@ -583,7 +583,7 @@
     ;; Define the symbolic variable x_symbol with a width of nbits
     ;;; (define x_symbol (bitvector nbits))
     ;; Use fresh-symbolic to define the symbolic variable x_symbol with a width of nbits
-    (define id (string->symbol (format "int$~a" var_name)))
+    (define id (string->symbol (format "v~a" var_name)))
     (define x_symbol (fresh-symbolic (list id nbits) 'bitvector))
     ; Print x_symbol
     ;; Apply constraint: x_symbol == x_reconstructed
@@ -597,11 +597,11 @@
     ;; Update the symbolic variable mapping
     (set-runtime-symvars! rt
                           (append (runtime-symvars rt)
-                                  (list (cons var_name x_symbol))
+                                  (list (cons (format "v~a" var_name) x_symbol))
                                   ;; Create name mapping for limbs
                                   (for/list ([i (in-range n_limbs)]
                                              [limb limbs])
-                                    (cons (format "~a_~a" limbs_name i) limb))))]
+                                    (cons (format "~a[~a]" limbs_name i) limb))))]
 
    [_ (error 'step (format "unsupported operator: ~a" o))]
    )

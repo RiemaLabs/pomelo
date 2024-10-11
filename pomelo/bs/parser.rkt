@@ -462,9 +462,7 @@
            (values (bs::expr::not expr) rest))]
         [(Token 'IDENTIFIER "stack") (parse-stack-access tokens)]
         [(Token 'IDENTIFIER id) 
-         (if (string-prefix? id "v")
-             (values (bs::expr::var (string->number (substring id 1))) (cdr tokens))
-             (error 'parse-term (format "Unexpected identifier: ~a" id)))]
+         (values (bs::expr::var id) (cdr tokens))]
         [(Token 'NUMBER n) (values (bs::expr::bv n) (cdr tokens))]
         [(Token 'LPAREN _) (parse-parenthesized-expr tokens)]
         [else (error 'parse-term (format "Unexpected token: ~a" (car tokens)))])))

@@ -105,7 +105,7 @@
         (for ([item stack] [i (in-range (length stack))])
           (printf "| ~a | ~a |\n" 
                   (string-pad-left (~a i) max-index-width) 
-                  (string-pad-right (convert item) max-item-width))) ; 使用 convert 函数
+                  (string-pad-right (~a item) max-item-width))) ; 使用 convert 函数
         (printf "+~a+\n" (make-string total-width #\-)))))
 
 (define (convert obj)
