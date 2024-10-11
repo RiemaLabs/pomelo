@@ -65,7 +65,7 @@
 (define (nth rt n)
   (define s (runtime-stack rt))
   (define msg (format "nth!: index ~a >= depth ~a" n (length-bv s ::bitvector)))
-  (assert (bvult n (length-bv s ::bitvector))
+  (assert (bvslt n (length-bv s ::bitvector))
           msg
           ; "index out of range")
           )
@@ -519,7 +519,11 @@
         (printf "  Result: \033[1;32mVerified\033[0m\n\n")
         (begin
           (printf "  Result: \033[1;31mFailed\033[0m\n")
-          (printf "  Model: ~a\n" (format "~a" (model verify-result)))))]
+          (let ([model (model verify-result)])
+            (printf "Model:\n")
+            (hash-for-each model
+              (lambda (key value)
+                (printf "  ~a: ~a\n" key value))))))]
 
    ; Modify the handling of PUSH_BIGINT
    [(bs::op::push_bigint nbits limb_size limbs_name var_name)
@@ -529,14 +533,22 @@
     ;; Define the limbs list, ordered from least significant to most significant
     (define limbs
       (append
-        ;; Lower limbs, there are n_limbs - 1, each with a width of limb_size
+        ;; Lower limbs, there are n_limbs - 1, each with a width of limb_size + 1 for the sign bit
         (for/list ([i (in-range (sub1 n_limbs))])
           (define limb-name (format "~a_~a" limbs_name i))
-          (fresh-symbolic (list limb-name limb_size) 'bitvector))
-        ;; Most significant limb, with a width of highest_limb_size
+          (fresh-symbolic (list limb-name (+ limb_size 1)) 'bitvector))
+        ;; Most significant limb, with a width of highest_limb_size + 1 for the sign bit
         (list 
          (let ([highest-limb-name (format "~a_~a" limbs_name (sub1 n_limbs))])
-           (fresh-symbolic (list highest-limb-name highest_limb_size) 'bitvector)))))
+           (fresh-symbolic (list highest-limb-name (+ highest_limb_size 1)) 'bitvector)))))
+
+    ;; Assume all limbs are positive >=0
+    ;; Assume that in all bigints (a bigint = an array of n numbers), each number is positive (the highest bit of each number is 0), assuming all are positive by default
+    (for ([limb limbs]
+          [i (in-naturals)])
+      (if (= i (sub1 n_limbs))
+          (assume (bvzero? (extract (sub1 (+ highest_limb_size 1)) (sub1 (+ highest_limb_size 1)) limb)))
+          (assume (bvzero? (extract (sub1 (+ limb_size 1)) (sub1 (+ limb_size 1)) limb)))))
 
     ;; Reconstruct the large integer x_reconstructed
     (define x_reconstructed
@@ -591,9 +603,9 @@
    [(bs::expr::eq left right)
     (bveq (evaluate-expr rt left) (evaluate-expr rt right))]
    [(bs::expr::lt left right)
-    (bvslt (evaluate-expr rt left) (evaluate-expr rt right))]
+    (bvult (evaluate-expr rt left) (evaluate-expr rt right))]
    [(bs::expr::lte left right)
-    (bvsle (evaluate-expr rt left) (evaluate-expr rt right))]
+    (bvule (evaluate-expr rt left) (evaluate-expr rt right))]
    [(bs::expr::ite condition then-expr else-expr)
     (if (evaluate-expr rt condition)
         (evaluate-expr rt then-expr)

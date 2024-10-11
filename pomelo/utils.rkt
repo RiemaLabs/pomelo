@@ -4,6 +4,7 @@
     (prefix-in ext:: "./extensions.rkt")
 )
 (provide (all-defined-out))
+(require racket/pretty)
 
 ; ================================ ;
 ; ======== symbolic utils ======== ;
@@ -94,6 +95,7 @@
 
 (define (print-stack stack name)
   (printf "# ~a:\n" name)
+;;;   (error-print-width 100000)
   (if (null? stack)
       (printf "+-------+\n| empty |\n+-------+\n")
       (let* ([max-index-width (string-length (number->string (sub1 (length stack))))]
@@ -103,8 +105,11 @@
         (for ([item stack] [i (in-range (length stack))])
           (printf "| ~a | ~a |\n" 
                   (string-pad-left (~a i) max-index-width) 
-                  (string-pad-right (~a item) max-item-width)))
+                  (string-pad-right (convert item) max-item-width))) ; 使用 convert 函数
         (printf "+~a+\n" (make-string total-width #\-)))))
+
+(define (convert obj)
+  (pretty-format (read (open-input-string (~a obj)))))
 
 (define (string-pad-left s n [c #\space])
   (define l (string-length s))
