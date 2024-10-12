@@ -240,30 +240,3 @@ ASSERT_1 {stack[0] == (if v0 < v1 then 1 else 0)}
 **Explanation**:
 
 This script compares two symbolic BigInt variables `v0` and `v1` to determine if `v0` is less than `v1`. The assertion verifies that `stack[0]` correctly reflects the comparison result, being `1` if `v0` is less than `v1`, and `0` otherwise.
-
-
-## BitVM Verification Summary
-
-### BigInt Scripts from [`bitvm/src/bigint/std.rs`](https://github.com/BitVM/BitVM/blob/1ffef096e29a6e120e7ce43e7f042743e8591c7a/src/bigint/std.rs)
-
-| Script        | Specification? | Verification? |
-|---------------|------------------------|-------------------------|
-| `roll.bs`     | Yes                    | Yes                     |
-| `copy.bs`     | Yes                    | Yes                     |
-| `copy_zip.bs` | Yes                    | Yes                     |
-| `dup_zip.bs`  | Yes                    | Yes                     |
-| `zip.bs`      | Yes                    | Yes                     |
-
-### BigInt Scripts from [`bitvm/src/bigint/cmp.rs`](https://github.com/BitVM/BitVM/blob/1ffef096e29a6e120e7ce43e7f042743e8591c7a/src/bigint/cmp.rs)
-
-| Script                    | Specification? | Verification? |
-|---------------------------|------------------------|-------------------------|
-| `is_zero.bs`              | Yes                    | Yes                     |
-| `is_zero_keep_element.bs` | Yes                    | Yes                     |
-| `is_one.bs`               | Yes                    | Yes                     |
-| `is_one_keep_element.bs`  | Yes                    | Yes                     |
-| `equal.bs`                | Yes                    | Yes                     |
-| `lessthan.bs`             | Yes                    | Yes                     |
-| `lessthanorequal.bs`             | TBD                    | TBD                     |
-| `greaterthan.bs`             | TBD                    | TBD                     |
-| `greaterthanorequal.bs`             | TBD                    | TBD                     |
