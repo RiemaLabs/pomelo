@@ -18,4 +18,4 @@ OP_EQUALVERIFY
 OP_EQUALVERIFY
 OP_EQUALVERIFY
 OP_EQUALVERIFY
-ASSERT_0 { (stack[0] == (if (v0 == v1) then 1 else 0)) }
+ASSERT_0 { v0 == v1 }
