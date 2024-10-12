@@ -1,40 +1,31 @@
 PUSH_BIGINT_0 254 29 limbs0
 PUSH_BIGINT_1 254 29 limbs1
-OP_PUSHBYTES_1 11 OP_ROLL OP_PUSHNUM_9 OP_ROLL
-OP_PUSHBYTES_1 11 OP_ROLL OP_PUSHNUM_10 OP_ROLL
-OP_PUSHBYTES_1 11 OP_ROLL OP_PUSHNUM_11 OP_ROLL
-OP_PUSHBYTES_1 11 OP_ROLL OP_PUSHNUM_12 OP_ROLL
-OP_PUSHBYTES_1 11 OP_ROLL OP_PUSHNUM_13 OP_ROLL
-OP_PUSHBYTES_1 11 OP_ROLL OP_PUSHNUM_14 OP_ROLL
-OP_PUSHBYTES_1 11 OP_ROLL OP_PUSHNUM_15 OP_ROLL
-OP_PUSHBYTES_1 11 OP_ROLL OP_PUSHNUM_16 OP_ROLL
-OP_PUSHBYTES_1 11 OP_ROLL OP_PUSHBYTES_1 11 OP_ROLL
-OP_PUSHBYTES_4 00000020
-OP_ROT OP_ROT OP_ADD OP_2DUP OP_LESSTHANOREQUAL OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_SUB OP_ENDIF
+OP_PUSHNUM_9 OP_PICK OP_ADD OP_PUSHBYTES_4 00000020 OP_SWAP
+OP_2DUP OP_LESSTHANOREQUAL OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_SUB OP_ENDIF
 OP_TOALTSTACK
-OP_ROT OP_ADD OP_SWAP
-OP_ROT OP_ROT OP_ADD OP_2DUP OP_LESSTHANOREQUAL OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_SUB OP_ENDIF
+OP_ROT OP_PUSHNUM_11 OP_PICK OP_ADD OP_ADD
+OP_2DUP OP_LESSTHANOREQUAL OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_SUB OP_ENDIF
 OP_TOALTSTACK
-OP_ROT OP_ADD OP_SWAP
-OP_ROT OP_ROT OP_ADD OP_2DUP OP_LESSTHANOREQUAL OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_SUB OP_ENDIF
+OP_ROT OP_PUSHNUM_11 OP_PICK OP_ADD OP_ADD
+OP_2DUP OP_LESSTHANOREQUAL OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_SUB OP_ENDIF
 OP_TOALTSTACK
-OP_ROT OP_ADD OP_SWAP
-OP_ROT OP_ROT OP_ADD OP_2DUP OP_LESSTHANOREQUAL OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_SUB OP_ENDIF
+OP_ROT OP_PUSHNUM_11 OP_PICK OP_ADD OP_ADD
+OP_2DUP OP_LESSTHANOREQUAL OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_SUB OP_ENDIF
 OP_TOALTSTACK
-OP_ROT OP_ADD OP_SWAP
-OP_ROT OP_ROT OP_ADD OP_2DUP OP_LESSTHANOREQUAL OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_SUB OP_ENDIF
+OP_ROT OP_PUSHNUM_11 OP_PICK OP_ADD OP_ADD
+OP_2DUP OP_LESSTHANOREQUAL OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_SUB OP_ENDIF
 OP_TOALTSTACK
-OP_ROT OP_ADD OP_SWAP
-OP_ROT OP_ROT OP_ADD OP_2DUP OP_LESSTHANOREQUAL OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_SUB OP_ENDIF
+OP_ROT OP_PUSHNUM_11 OP_PICK OP_ADD OP_ADD
+OP_2DUP OP_LESSTHANOREQUAL OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_SUB OP_ENDIF
 OP_TOALTSTACK
-OP_ROT OP_ADD OP_SWAP
-OP_ROT OP_ROT OP_ADD OP_2DUP OP_LESSTHANOREQUAL OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_SUB OP_ENDIF
+OP_ROT OP_PUSHNUM_11 OP_PICK OP_ADD OP_ADD
+OP_2DUP OP_LESSTHANOREQUAL OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_SUB OP_ENDIF
 OP_TOALTSTACK
-OP_ROT OP_ADD OP_SWAP
-OP_ROT OP_ROT OP_ADD OP_2DUP OP_LESSTHANOREQUAL OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_SUB OP_ENDIF
+OP_ROT OP_PUSHNUM_11 OP_PICK OP_ADD OP_ADD
+OP_2DUP OP_LESSTHANOREQUAL OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_SUB OP_ENDIF
 OP_TOALTSTACK
-OP_NIP OP_ADD
-OP_ADD OP_PUSHBYTES_3 000040 OP_2DUP OP_GREATERTHANOREQUAL OP_IF OP_SUB OP_ELSE OP_DROP OP_ENDIF
+OP_NIP OP_PUSHNUM_10 OP_PICK OP_ROT
+OP_3DUP OP_ADD OP_ADD OP_NIP OP_PUSHBYTES_3 000020 OP_TUCK OP_DUP OP_ADD OP_2DUP OP_GREATERTHANOREQUAL OP_NOTIF OP_NOT OP_ENDIF OP_SUB OP_SWAP OP_2DUP OP_2ROT OP_PUSHNUM_2 OP_PICK OP_LESSTHAN OP_2SWAP OP_GREATERTHANOREQUAL OP_2SWAP OP_GREATERTHANOREQUAL OP_ADD OP_ADD OP_PUSHNUM_1 OP_PUSHNUM_3 OP_WITHIN OP_VERIFY
 OP_FROMALTSTACK
 OP_FROMALTSTACK
 OP_FROMALTSTACK
@@ -52,3 +43,14 @@ ASSERT_5 { (stack[5] == (((limbs0[5] + limbs1[5]) + (if (((limbs0[4] + limbs1[4]
 ASSERT_6 { (stack[6] == (((limbs0[6] + limbs1[6]) + (if (((limbs0[5] + limbs1[5]) + (if (((limbs0[4] + limbs1[4]) + (if (((limbs0[3] + limbs1[3]) + (if (((limbs0[2] + limbs1[2]) + (if (((limbs0[1] + limbs1[1]) + (if (((limbs0[0] + limbs1[0]) + 0) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) - (if (((limbs0[6] + limbs1[6]) + (if (((limbs0[5] + limbs1[5]) + (if (((limbs0[4] + limbs1[4]) + (if (((limbs0[3] + limbs1[3]) + (if (((limbs0[2] + limbs1[2]) + (if (((limbs0[1] + limbs1[1]) + (if (((limbs0[0] + limbs1[0]) + 0) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 536870912 else 0))) }
 ASSERT_7 { (stack[7] == (((limbs0[7] + limbs1[7]) + (if (((limbs0[6] + limbs1[6]) + (if (((limbs0[5] + limbs1[5]) + (if (((limbs0[4] + limbs1[4]) + (if (((limbs0[3] + limbs1[3]) + (if (((limbs0[2] + limbs1[2]) + (if (((limbs0[1] + limbs1[1]) + (if (((limbs0[0] + limbs1[0]) + 0) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) - (if (((limbs0[7] + limbs1[7]) + (if (((limbs0[6] + limbs1[6]) + (if (((limbs0[5] + limbs1[5]) + (if (((limbs0[4] + limbs1[4]) + (if (((limbs0[3] + limbs1[3]) + (if (((limbs0[2] + limbs1[2]) + (if (((limbs0[1] + limbs1[1]) + (if (((limbs0[0] + limbs1[0]) + 0) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 536870912 else 0))) }
 ASSERT_8 { (stack[8] == (((limbs0[8] + limbs1[8]) + (if (((limbs0[7] + limbs1[7]) + (if (((limbs0[6] + limbs1[6]) + (if (((limbs0[5] + limbs1[5]) + (if (((limbs0[4] + limbs1[4]) + (if (((limbs0[3] + limbs1[3]) + (if (((limbs0[2] + limbs1[2]) + (if (((limbs0[1] + limbs1[1]) + (if (((limbs0[0] + limbs1[0]) + 0) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) - (if (((limbs0[8] + limbs1[8]) + (if (((limbs0[7] + limbs1[7]) + (if (((limbs0[6] + limbs1[6]) + (if (((limbs0[5] + limbs1[5]) + (if (((limbs0[4] + limbs1[4]) + (if (((limbs0[3] + limbs1[3]) + (if (((limbs0[2] + limbs1[2]) + (if (((limbs0[1] + limbs1[1]) + (if (((limbs0[0] + limbs1[0]) + 0) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 4194304) then 4194304 else 0))) }
+ASSERT_9 { (((if (2097152 >= limbs0[8]) then 1 else 0) + ((if (limbs1[8] < 2097152) then 1 else 0) + (if ((((limbs0[8] + limbs1[8]) + (if (((limbs0[7] + limbs1[7]) + (if (((limbs0[6] + limbs1[6]) + (if (((limbs0[5] + limbs1[5]) + (if (((limbs0[4] + limbs1[4]) + (if (((limbs0[3] + limbs1[3]) + (if (((limbs0[2] + limbs1[2]) + (if (((limbs0[1] + limbs1[1]) + (if (((limbs0[0] + limbs1[0]) + 0) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) - (if (((limbs0[8] + limbs1[8]) + (if (((limbs0[7] + limbs1[7]) + (if (((limbs0[6] + limbs1[6]) + (if (((limbs0[5] + limbs1[5]) + (if (((limbs0[4] + limbs1[4]) + (if (((limbs0[3] + limbs1[3]) + (if (((limbs0[2] + limbs1[2]) + (if (((limbs0[1] + limbs1[1]) + (if (((limbs0[0] + limbs1[0]) + 0) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 4194304) then 4194304 else 0)) >= 2097152) then 1 else 0))) >= 1) }
+ASSERT_10 { (((if (2097152 >= limbs0[8]) then 1 else 0) + ((if (limbs1[8] < 2097152) then 1 else 0) + (if ((((limbs0[8] + limbs1[8]) + (if (((limbs0[7] + limbs1[7]) + (if (((limbs0[6] + limbs1[6]) + (if (((limbs0[5] + limbs1[5]) + (if (((limbs0[4] + limbs1[4]) + (if (((limbs0[3] + limbs1[3]) + (if (((limbs0[2] + limbs1[2]) + (if (((limbs0[1] + limbs1[1]) + (if (((limbs0[0] + limbs1[0]) + 0) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) - (if (((limbs0[8] + limbs1[8]) + (if (((limbs0[7] + limbs1[7]) + (if (((limbs0[6] + limbs1[6]) + (if (((limbs0[5] + limbs1[5]) + (if (((limbs0[4] + limbs1[4]) + (if (((limbs0[3] + limbs1[3]) + (if (((limbs0[2] + limbs1[2]) + (if (((limbs0[1] + limbs1[1]) + (if (((limbs0[0] + limbs1[0]) + 0) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 536870912) then 1 else 0)) > 4194304) then 4194304 else 0)) >= 2097152) then 1 else 0))) <= 2) }
+ASSERT_11 { (stack[9] == limbs0[0]) }
+ASSERT_12 { (stack[10] == limbs0[1]) }
+ASSERT_13 { (stack[11] == limbs0[2]) }
+ASSERT_14 { (stack[12] == limbs0[3]) }
+ASSERT_15 { (stack[13] == limbs0[4]) }
+ASSERT_16 { (stack[14] == limbs0[5]) }
+ASSERT_17 { (stack[15] == limbs0[6]) }
+ASSERT_18 { (stack[16] == limbs0[7]) }
+ASSERT_19 { (stack[17] == limbs0[8]) }
