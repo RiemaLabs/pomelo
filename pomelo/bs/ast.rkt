@@ -479,6 +479,9 @@
 (struct expr::not (expr) #:transparent)
 (struct expr::and (left right) #:transparent)
 (struct expr::or (left right) #:transparent)
+(struct expr::add (left right) #:transparent)
+(struct expr::sub (left right) #:transparent)
+(struct expr::mul (left right) #:transparent)
 
 (struct expr::stack-nth (n) #:transparent)
 (struct expr::altstack-nth (n) #:transparent)

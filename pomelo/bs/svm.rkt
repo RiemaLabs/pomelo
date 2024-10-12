@@ -646,6 +646,12 @@
     (define x1 (evaluate-expr rt left))
     (define x2 (evaluate-expr rt right))
     (|| x1 x2)]
+   [(bs::expr::add left right)
+    (bvadd (evaluate-expr rt left) (evaluate-expr rt right))]
+   [(bs::expr::sub left right)
+    (bvsub (evaluate-expr rt left) (evaluate-expr rt right))]
+   [(bs::expr::mul left right)
+    (bvmul (evaluate-expr rt left) (evaluate-expr rt right))]
    [_ (error 'evaluate-expr (format "Unsupported expression: ~a" expr))]))
 
 (define (get-variable rt name)
@@ -707,6 +713,15 @@
     [(bs::expr::or left right)
      (check-boolean-operation rt 'or left right)]
 
+    [(bs::expr::add left right)
+     (check-numeric-operation rt 'add left right)]
+
+    [(bs::expr::sub left right)
+     (check-numeric-operation rt 'sub left right)]
+
+    [(bs::expr::mul left right)
+     (check-numeric-operation rt 'mul left right)]
+
     [_ (error 'type-check-expr (format "Unsupported expression: ~a" expr))]))
 
 ; Helper function: Check equality operations
@@ -755,3 +770,11 @@
     (if var
         TYPE-INT
         (error 'get-variable-type (format "Variable not found: ~a" name)))))
+
+; Added helper function: Check numeric operations
+(define (check-numeric-operation rt op left right)
+  (define left-type (type-check-expr rt left))
+  (define right-type (type-check-expr rt right))
+  (unless (and (equal? left-type TYPE-INT) (equal? right-type TYPE-INT))
+    (error 'type-check "Both operands of ~a must be int" op))
+  TYPE-INT)
