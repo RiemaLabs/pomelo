@@ -282,18 +282,16 @@
         (assert (<= n-bits ::bvsize)
                 (format "OP_PUSHBYTES_~a: does not fit in bv ~a" n-bytes ::bvsize))
         (define bytes (hex-string->bytes t))
-        (define bits #f)
-        (for ([byte (in-bytes bytes)])
-          (if (not bits)
-              (set! bits (bv byte 8))
-              (set! bits (concat bits (bv byte 8)))))
+        (define reversed-bytes-list (reverse-bytes bytes))
+        (define bits (apply concat (map (lambda (byte) (bv byte 8)) reversed-bytes-list)))
         (define bits-padded
           (if (= n-bits ::bvsize)
               bits
               (concat (bv 0 (- ::bvsize n-bits)) bits)))
         (bs::op::pushbits bits-padded))))
 
-        
+(define (reverse-bytes bytes)
+ (reverse (bytes->list bytes)))
 
 ; parse string token starting with OP_PUSHNUM_
 (define (parse-token/pushnum n-str)

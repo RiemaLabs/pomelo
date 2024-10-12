@@ -399,7 +399,9 @@
    [(bs::op::add)
     (define b (pop! rt))
     (define a (pop! rt))
-    (define r (bvadd a b))
+    (define a-extended (zero-extend a ::bitvector))
+    (define b-extended (zero-extend b ::bitvector))
+    (define r (bvadd a-extended b-extended))
     (push! rt r)
     ]
 
