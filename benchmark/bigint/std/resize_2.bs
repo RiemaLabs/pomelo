@@ -1,10 +1,16 @@
 PUSH_BIGINT_0 254 29 limbs0
-PUSH_BIGINT_1 254 29 limbs1
-OP_2DROP
-OP_2DROP
-OP_2DROP
-OP_2DROP
-OP_DROP
+OP_0
+OP_DUP
+OP_DUP
+OP_PUSHNUM_11 OP_ROLL
+OP_PUSHNUM_11 OP_ROLL
+OP_PUSHNUM_11 OP_ROLL
+OP_PUSHNUM_11 OP_ROLL
+OP_PUSHNUM_11 OP_ROLL
+OP_PUSHNUM_11 OP_ROLL
+OP_PUSHNUM_11 OP_ROLL
+OP_PUSHNUM_11 OP_ROLL
+OP_PUSHNUM_11 OP_ROLL
 ASSERT_0 { (stack[0] == limbs0[0]) }
 ASSERT_1 { (stack[1] == limbs0[1]) }
 ASSERT_2 { (stack[2] == limbs0[2]) }
@@ -14,3 +20,6 @@ ASSERT_5 { (stack[5] == limbs0[5]) }
 ASSERT_6 { (stack[6] == limbs0[6]) }
 ASSERT_7 { (stack[7] == limbs0[7]) }
 ASSERT_8 { (stack[8] == limbs0[8]) }
+ASSERT_9 { (stack[9] == 0) }
+ASSERT_10 { (stack[10] == 0) }
+ASSERT_11 { (stack[11] == 0) }

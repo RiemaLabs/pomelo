@@ -1,4 +1,4 @@
-PUSH_BIGINT_0 254 29 limbs
+PUSH_BIGINT_0 254 29 limbs0
 OP_PUSHNUM_1 OP_PUSHNUM_1 OP_PICK OP_PUSHNUM_1 OP_EQUAL OP_BOOLAND
 OP_PUSHNUM_2 OP_PICK OP_NOT OP_BOOLAND
 OP_PUSHNUM_3 OP_PICK OP_NOT OP_BOOLAND
@@ -8,4 +8,13 @@ OP_PUSHNUM_6 OP_PICK OP_NOT OP_BOOLAND
 OP_PUSHNUM_7 OP_PICK OP_NOT OP_BOOLAND
 OP_PUSHNUM_8 OP_PICK OP_NOT OP_BOOLAND
 OP_PUSHNUM_9 OP_PICK OP_NOT OP_BOOLAND
-ASSERT_1 {stack[0] == (if v0 == 1 then 1 else 0)}
+ASSERT_0 { (stack[0] == (if (v0 == 1) then 1 else 0)) }
+ASSERT_1 { (stack[1] == limbs0[0]) }
+ASSERT_2 { (stack[2] == limbs0[1]) }
+ASSERT_3 { (stack[3] == limbs0[2]) }
+ASSERT_4 { (stack[4] == limbs0[3]) }
+ASSERT_5 { (stack[5] == limbs0[4]) }
+ASSERT_6 { (stack[6] == limbs0[5]) }
+ASSERT_7 { (stack[7] == limbs0[6]) }
+ASSERT_8 { (stack[8] == limbs0[7]) }
+ASSERT_9 { (stack[9] == limbs0[8]) }
