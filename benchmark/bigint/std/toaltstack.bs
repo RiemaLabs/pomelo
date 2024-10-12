@@ -8,4 +8,4 @@ OP_TOALTSTACK
 OP_TOALTSTACK
 OP_TOALTSTACK
 OP_TOALTSTACK
-ASSERT_0 { (alt[0] == v0) }
+ASSERT_0 { ( altstack[0] == limbs0[8] ) && ( altstack[1] == limbs0[7] ) && ( altstack[2] == limbs0[6] ) && ( altstack[3] == limbs0[5] ) && ( altstack[4] == limbs0[4] ) && ( altstack[5] == limbs0[3] ) && ( altstack[6] == limbs0[2] ) && ( altstack[7] == limbs0[1] ) && ( altstack[8] == limbs0[0] ) }
