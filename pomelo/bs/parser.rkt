@@ -117,8 +117,8 @@
        ; Control Flow (10), opcodes 0x61-0x6a
        [(equal? "OP_NOP" t) (bs::op::nop )]
        [(equal? "OP_VER" t) (bs::op::ver )]
-       [(equal? "OP_IF" t) (parse-token/branch g )]
-       [(equal? "OP_NOTIF" t) (parse-token/branch g )]
+       [(equal? "OP_IF" t) (parse-token/branch g #f)]
+       [(equal? "OP_NOTIF" t) (parse-token/branch g #t)]
        [(equal? "OP_VERIF" t) (bs::op::verif )]
        [(equal? "OP_VERNOTIF" t) (bs::op::vernotif )]
        [(equal? "OP_ELSE" t) (bs::op::else )]
