@@ -357,6 +357,11 @@
     (assume (bveq x1-extended x2-extended) "equalverify failed")
     ]
 
+    [(bs::op::verify)
+    (define x1 (pop! rt))
+    (assume (! (bvzero? x1)) "equalverify failed")
+    ]
+
    ; ==================================== ;
    ; ======== numeric/arithmetic ======== ;
    ; ==================================== ;
