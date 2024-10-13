@@ -2,7 +2,7 @@ PUSH_BIGINT_3 254 29 limbs3
 PUSH_BIGINT_2 254 29 limbs2
 PUSH_BIGINT_1 254 29 limbs1
 PUSH_BIGINT_0 254 29 limbs0
-assume( stack[0] <= 255 )
+ASSUME_0 { stack[0] <= 255 }
 ASSUME_1 { (stack[0] >= 0) }
 ASSUME_2 { (stack[1] <= 255) }
 ASSUME_3 { (stack[1] >= 0) }
