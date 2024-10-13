@@ -413,7 +413,9 @@
    [(bs::op::sub)
     (define b (pop! rt))
     (define a (pop! rt))
-    (define r (bvsub a b))
+    (define a-extended (sign-extend a ::bitvector))
+    (define b-extended (sign-extend b ::bitvector))
+    (define r (bvsub a-extended b-extended))
     (push! rt r)
     ]
 
