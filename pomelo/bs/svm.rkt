@@ -343,8 +343,8 @@
    [(bs::op::equal)
     (define x2 (pop! rt))
     (define x1 (pop! rt))
-    (define x1-extended (zero-extend x1 ::bitvector))
-    (define x2-extended (zero-extend x2 ::bitvector))
+    (define x1-extended (sign-extend x1 ::bitvector))
+    (define x2-extended (sign-extend x2 ::bitvector))
     (define r (bool->bitvector (bveq x1-extended x2-extended) ::bitvector))
     (push! rt r)
     ]
@@ -352,8 +352,8 @@
    [(bs::op::equalverify)
     (define x2 (pop! rt))
     (define x1 (pop! rt))
-    (define x1-extended (zero-extend x1 ::bitvector))
-    (define x2-extended (zero-extend x2 ::bitvector))
+    (define x1-extended (sign-extend x1 ::bitvector))
+    (define x2-extended (sign-extend x2 ::bitvector))
     (assume (bveq x1-extended x2-extended) "equalverify failed")
     ]
 
@@ -399,8 +399,8 @@
    [(bs::op::add)
     (define b (pop! rt))
     (define a (pop! rt))
-    (define a-extended (zero-extend a ::bitvector))
-    (define b-extended (zero-extend b ::bitvector))
+    (define a-extended (sign-extend a ::bitvector))
+    (define b-extended (sign-extend b ::bitvector))
     (define r (bvadd a-extended b-extended))
     (push! rt r)
     ]
@@ -436,8 +436,8 @@
    [(bs::op::lessthan)
     (define b (pop! rt))
     (define a (pop! rt))
-    (define b-extended (zero-extend b ::bitvector))
-    (define a-extended (zero-extend a ::bitvector))
+    (define b-extended (sign-extend b ::bitvector))
+    (define a-extended (sign-extend a ::bitvector))
     (define r (bool->bitvector (bvslt a-extended b-extended) ::bitvector))
     (push! rt r)
     ]
@@ -445,8 +445,8 @@
    [(bs::op::greaterthan)
     (define b (pop! rt))
     (define a (pop! rt))
-    (define b-extended (zero-extend b ::bitvector))
-    (define a-extended (zero-extend a ::bitvector))
+    (define b-extended (sign-extend b ::bitvector))
+    (define a-extended (sign-extend a ::bitvector))
     (define r (bool->bitvector (bvsgt a-extended b-extended) ::bitvector))
     (push! rt r)
     ]
@@ -454,8 +454,8 @@
    [(bs::op::lessthanorequal)
     (define b (pop! rt))
     (define a (pop! rt))
-    (define b-extended (zero-extend b ::bitvector))
-    (define a-extended (zero-extend a ::bitvector))
+    (define b-extended (sign-extend b ::bitvector))
+    (define a-extended (sign-extend a ::bitvector))
     (define r (bool->bitvector (bvsle a-extended b-extended) ::bitvector))
     (push! rt r)
     ]
@@ -463,8 +463,8 @@
    [(bs::op::greaterthanorequal)
     (define b (pop! rt))
     (define a (pop! rt))
-    (define b-extended (zero-extend b ::bitvector))
-    (define a-extended (zero-extend a ::bitvector))
+    (define b-extended (sign-extend b ::bitvector))
+    (define a-extended (sign-extend a ::bitvector))
     (define r (bool->bitvector (bvsge a-extended b-extended) ::bitvector))
     (push! rt r)
     ]
@@ -564,7 +564,8 @@
 
     ;; Reconstruct the large integer x_reconstructed
     (define x_reconstructed
-      (apply bvadd
+      (zero-extend
+        (apply bvadd
              (for/list ([i (in-range n_limbs)]
                         [limb limbs])
                ;; Extend limb to nbits width
@@ -572,7 +573,7 @@
                ;; Convert shift amount to a bitvector of nbits width
                (define shift_amount (bv (* i limb_size) nbits))
                ;; Perform left shift operation
-               (bvshl extended_limb shift_amount))))
+               (bvshl extended_limb shift_amount))) ::bitvector))
     ;;; (printf "  nbits: ~a\n" nbits)
     ;;; (printf "  limb_size: ~a\n" limb_size)
     ;;; (printf "  limbs_name: ~a\n" limbs_name)
@@ -586,7 +587,7 @@
     ;;; (define x_symbol (bitvector nbits))
     ;; Use fresh-symbolic to define the symbolic variable x_symbol with a width of nbits
     (define id (string->symbol (format "v~a" var_name)))
-    (define x_symbol (fresh-symbolic (list id nbits) 'bitvector))
+    (define x_symbol (fresh-symbolic (list id ::bvsize) 'bitvector))
     ; Print x_symbol
     ;; Apply constraint: x_symbol == x_reconstructed
     (assume (bveq x_reconstructed x_symbol))
@@ -613,11 +614,17 @@
   (destruct
    expr
    [(bs::expr::eq left right)
-    (bveq (evaluate-expr rt left) (evaluate-expr rt right))]
+    (define l (evaluate-expr rt left))
+    (define r (evaluate-expr rt right))
+    (bveq (sign-extend l ::bitvector) (sign-extend r ::bitvector))]
    [(bs::expr::lt left right)
-    (bvult (evaluate-expr rt left) (evaluate-expr rt right))]
+    (define l (evaluate-expr rt left))
+    (define r (evaluate-expr rt right))
+    (bvslt (sign-extend l ::bitvector) (sign-extend r ::bitvector))]
    [(bs::expr::lte left right)
-    (bvule (evaluate-expr rt left) (evaluate-expr rt right))]
+    (define l (evaluate-expr rt left))
+    (define r (evaluate-expr rt right))
+    (bvsle (sign-extend l ::bitvector) (sign-extend r ::bitvector))]
    [(bs::expr::ite condition then-expr else-expr)
     (if (evaluate-expr rt condition)
         (evaluate-expr rt then-expr)
@@ -631,11 +638,17 @@
    [(bs::expr::altstack-nth n)
     (list-ref (runtime-alt rt) n)]
    [(bs::expr::gt left right)
-    (bvugt (evaluate-expr rt left) (evaluate-expr rt right))]
+    (define l (evaluate-expr rt left))
+    (define r (evaluate-expr rt right))
+    (bvsgt (sign-extend l ::bitvector) (sign-extend r ::bitvector))]
    [(bs::expr::gte left right)
-    (bvuge (evaluate-expr rt left) (evaluate-expr rt right))]
+    (define l (evaluate-expr rt left))
+    (define r (evaluate-expr rt right))
+    (bvsge (sign-extend l ::bitvector) (sign-extend r ::bitvector))]
    [(bs::expr::neq left right)
-    (!(bveq (evaluate-expr rt left) (evaluate-expr rt right)))]
+    (define l (evaluate-expr rt left))
+    (define r (evaluate-expr rt right))
+    (!(bveq (sign-extend l ::bitvector) (sign-extend r ::bitvector)))]
    [(bs::expr::not expr)
     (!(evaluate-expr rt expr))]
    [(bs::expr::and left right)
@@ -647,12 +660,18 @@
     (define x2 (evaluate-expr rt right))
     (|| x1 x2)]
    [(bs::expr::add left right)
-    (bvadd (evaluate-expr rt left) (evaluate-expr rt right))]
+    (define l (evaluate-expr rt left))
+    (define r (evaluate-expr rt right))
+    (bvadd (sign-extend l ::bitvector) (sign-extend r ::bitvector))]
    [(bs::expr::sub left right)
-    (bvsub (evaluate-expr rt left) (evaluate-expr rt right))]
+    (define l (evaluate-expr rt left))
+    (define r (evaluate-expr rt right))
+    (bvsub (sign-extend l ::bitvector) (sign-extend r ::bitvector))]
    [(bs::expr::mul left right)
-    (bvmul (evaluate-expr rt left) (evaluate-expr rt right))]
-   [_ (error 'evaluate-expr (format "Unsupported expression: ~a" expr))]))
+    (define l (evaluate-expr rt left))
+    (define r (evaluate-expr rt right))
+    (bvmul (sign-extend l ::bitvector) (sign-extend r ::bitvector))]
+   [_ (error 'evaluate-expr (format "不支持的表达式：~a" expr))]))
 
 (define (get-variable rt name)
   (let ([var (assoc name (runtime-symvars rt))])
