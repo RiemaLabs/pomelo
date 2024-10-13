@@ -58,7 +58,7 @@ def run_file(filepath):
     return filepath, status
 
 # Parallel execution
-with concurrent.futures.ThreadPoolExecutor() as executor:
+with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
     future_to_file = {executor.submit(run_file, filepath): filepath for filepath in bs_files}
     for future in concurrent.futures.as_completed(future_to_file):
         filepath = future_to_file[future]
