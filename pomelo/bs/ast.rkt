@@ -482,6 +482,11 @@
 (struct expr::add (left right) #:transparent)
 (struct expr::sub (left right) #:transparent)
 (struct expr::mul (left right) #:transparent)
+(struct expr::div (left right) #:transparent)
+(struct expr::mod (left right) #:transparent)
+
+(struct expr::shr (left right) #:transparent)
+(struct expr::shl (left right) #:transparent)
 
 (struct expr::stack-nth (n) #:transparent)
 (struct expr::altstack-nth (n) #:transparent)

@@ -379,14 +379,18 @@
             (tokenize-helper (substring input-trimmed 2) (cons (Token 'EQUAL "==") tokens))]
            [(and (>= (string-length input-trimmed) 2) (string=? (substring input-trimmed 0 2) "<="))
             (tokenize-helper (substring input-trimmed 2) (cons (Token 'LTE "<=") tokens))]
-           [(char=? first-char #\<)
-            (tokenize-helper (substring input-trimmed 1) (cons (Token 'LT "<") tokens))]
            [(and (>= (string-length input-trimmed) 2) (string=? (substring input-trimmed 0 2) ">="))
             (tokenize-helper (substring input-trimmed 2) (cons (Token 'GTE ">=") tokens))]
            [(and (>= (string-length input-trimmed) 2) (string=? (substring input-trimmed 0 2) "!="))
             (tokenize-helper (substring input-trimmed 2) (cons (Token 'NEQ "!=") tokens))]
+           [(and (>= (string-length input-trimmed) 2) (string=? (substring input-trimmed 0 2) ">>"))
+            (tokenize-helper (substring input-trimmed 2) (cons (Token 'SHR ">>") tokens))]
+           [(and (>= (string-length input-trimmed) 2) (string=? (substring input-trimmed 0 2) "<<"))
+            (tokenize-helper (substring input-trimmed 2) (cons (Token 'SHL "<<") tokens))]
            [(char=? first-char #\>)
             (tokenize-helper (substring input-trimmed 1) (cons (Token 'GT ">") tokens))]
+           [(char=? first-char #\<)
+            (tokenize-helper (substring input-trimmed 1) (cons (Token 'LT "<") tokens))]
            [(char=? first-char #\!)
             (tokenize-helper (substring input-trimmed 1) (cons (Token 'NOT "!") tokens))]
            [(and (>= (string-length input-trimmed) 2) (string=? (substring input-trimmed 0 2) "&&"))
@@ -399,6 +403,10 @@
             (tokenize-helper (substring input-trimmed 1) (cons (Token 'SUB "-") tokens))]
            [(char=? first-char #\*)
             (tokenize-helper (substring input-trimmed 1) (cons (Token 'MUL "*") tokens))]
+           [(char=? first-char #\/)
+            (tokenize-helper (substring input-trimmed 1) (cons (Token 'DIV "/") tokens))]
+           [(char=? first-char #\%)
+            (tokenize-helper (substring input-trimmed 1) (cons (Token 'MOD "%") tokens))]
            [else (error 'tokenize (format "Unexpected character: ~a" first-char))]))]))
   
   (tokenize-helper input-string '()))
@@ -467,6 +475,14 @@
       (case (Token-type (car tokens))
         [(MUL) (let-values ([(right new-rest) (parse-term (cdr tokens))])
                  (parse-multiplicative-tail (bs::expr::mul left right) new-rest))]
+        [(SHR) (let-values ([(right new-rest) (parse-term (cdr tokens))])
+                 (parse-multiplicative-tail (bs::expr::shr left right) new-rest))]
+        [(SHL) (let-values ([(right new-rest) (parse-term (cdr tokens))])
+                 (parse-multiplicative-tail (bs::expr::shl left right) new-rest))]
+        [(DIV) (let-values ([(right new-rest) (parse-term (cdr tokens))])
+                 (parse-multiplicative-tail (bs::expr::div left right) new-rest))]
+        [(MOD) (let-values ([(right new-rest) (parse-term (cdr tokens))])
+                 (parse-multiplicative-tail (bs::expr::mod left right) new-rest))]
         [else (values left tokens)])))
 
 (define (parse-term tokens)

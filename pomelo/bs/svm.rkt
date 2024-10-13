@@ -357,7 +357,7 @@
     (assume (bveq x1-extended x2-extended) "equalverify failed")
     ]
 
-    [(bs::op::verify)
+   [(bs::op::verify)
     (define x1 (pop! rt))
     (assume (! (bvzero? x1)) "equalverify failed")
     ]
@@ -572,15 +572,15 @@
     ;; Reconstruct the large integer x_reconstructed
     (define x_reconstructed
       (zero-extend
-        (apply bvadd
-             (for/list ([i (in-range n_limbs)]
-                        [limb limbs])
-               ;; Extend limb to nbits width
-               (define extended_limb (zero-extend limb (bitvector nbits)))
-               ;; Convert shift amount to a bitvector of nbits width
-               (define shift_amount (bv (* i limb_size) nbits))
-               ;; Perform left shift operation
-               (bvshl extended_limb shift_amount))) ::bitvector))
+       (apply bvadd
+              (for/list ([i (in-range n_limbs)]
+                         [limb limbs])
+                ;; Extend limb to nbits width
+                (define extended_limb (zero-extend limb (bitvector nbits)))
+                ;; Convert shift amount to a bitvector of nbits width
+                (define shift_amount (bv (* i limb_size) nbits))
+                ;; Perform left shift operation
+                (bvshl extended_limb shift_amount))) ::bitvector))
     ;;; (printf "  nbits: ~a\n" nbits)
     ;;; (printf "  limb_size: ~a\n" limb_size)
     ;;; (printf "  limbs_name: ~a\n" limbs_name)
@@ -678,7 +678,24 @@
     (define l (evaluate-expr rt left))
     (define r (evaluate-expr rt right))
     (bvmul (sign-extend l ::bitvector) (sign-extend r ::bitvector))]
-   [_ (error 'evaluate-expr (format "不支持的表达式：~a" expr))]))
+   [(bs::expr::div left right)
+    (define l (evaluate-expr rt left))
+    (define r (evaluate-expr rt right))
+    (bvsdiv (sign-extend l ::bitvector) (sign-extend r ::bitvector))]
+   [(bs::expr::mod left right)
+    (define l (evaluate-expr rt left))
+    (define r (evaluate-expr rt right))
+    (bvsmod (sign-extend l ::bitvector) (sign-extend r ::bitvector))]
+   [(bs::expr::shl left right)
+    (define l (evaluate-expr rt left))
+    (define r (evaluate-expr rt right))
+    (bvshl (sign-extend l ::bitvector) (sign-extend r ::bitvector))]
+   [(bs::expr::shr left right)
+    (define l (evaluate-expr rt left))
+    (define r (evaluate-expr rt right))
+    (bvashr (sign-extend l ::bitvector) (sign-extend r ::bitvector))] ;; arithmetic right shift of x by y bits
+
+   [_ (error 'evaluate-expr (format "unsupported expr: ~a" expr))]))
 
 (define (get-variable rt name)
   (let ([var (assoc name (runtime-symvars rt))])
@@ -746,6 +763,18 @@
      (check-numeric-operation rt 'sub left right)]
 
     [(bs::expr::mul left right)
+     (check-numeric-operation rt 'mul left right)]
+
+    [(bs::expr::div left right)
+     (check-numeric-operation rt 'mul left right)]
+
+    [(bs::expr::mod left right)
+     (check-numeric-operation rt 'mul left right)]
+
+    [(bs::expr::shl left right)
+     (check-numeric-operation rt 'mul left right)]
+
+    [(bs::expr::shr left right)
      (check-numeric-operation rt 'mul left right)]
 
     [_ (error 'type-check-expr (format "Unsupported expression: ~a" expr))]))
