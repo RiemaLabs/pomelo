@@ -553,19 +553,19 @@
        ;; Lower limbs, there are n_limbs - 1, each with a width of limb_size + 1 for the sign bit
        (for/list ([i (in-range (sub1 n_limbs))])
          (define limb-name (format "~a[~a]" limbs_name i))
-         (fresh-symbolic (list limb-name (+ limb_size 1)) 'bitvector))
+         (fresh-symbolic (list limb-name limb_size) 'bitvector))
        ;; Most significant limb, with a width of highest_limb_size + 1 for the sign bit
        (list
         (let ([highest-limb-name (format "~a[~a]" limbs_name (sub1 n_limbs))])
-          (fresh-symbolic (list highest-limb-name (+ highest_limb_size 1)) 'bitvector)))))
+          (fresh-symbolic (list highest-limb-name highest_limb_size) 'bitvector)))))
 
     ;; Assume all limbs are positive >=0
     ;; Assume that in all bigints (a bigint = an array of n numbers), each number is positive (the highest bit of each number is 0), assuming all are positive by default
     (for ([limb limbs]
           [i (in-naturals)])
       (if (= i (sub1 n_limbs))
-          (assume (bvzero? (extract (sub1 (+ highest_limb_size 1)) (sub1 (+ highest_limb_size 1)) limb)))
-          (assume (bvzero? (extract (sub1 (+ limb_size 1)) (sub1 (+ limb_size 1)) limb)))))
+          (assume (bvzero? (extract (sub1 highest_limb_size) (sub1 highest_limb_size) limb)))
+          (assume (bvzero? (extract (sub1 limb_size) (sub1 limb_size) limb)))))
 
     ;; Reconstruct the large integer x_reconstructed
     (define x_reconstructed
