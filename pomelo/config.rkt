@@ -8,3 +8,4 @@
 (define ::bvsize 256) ; default bvsize
 ; (define ::bvsize 4160) ; default bvsize (520 bytes, bs single element limit)
 (define ::bitvector (bitvector ::bvsize)) ; default bitvector type
+(define MAX_SCRIPT_ELEMENT_SIZE 4160)

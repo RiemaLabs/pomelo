@@ -613,6 +613,15 @@
                                              [limb limbs])
                                     (cons (format "~a[~a]" limbs_name i) limb))))]
 
+
+   [(bs::op::cat)
+    (define x2 (pop! rt))
+    (define x1 (pop! rt))
+    (define result (concat x1 x2))
+    ;;; (when (bvugt (length result) (bv MAX_SCRIPT_ELEMENT_SIZE ::bitvector))
+    ;;;   (error 'step "OP_CAT result exceeds MAX_SCRIPT_ELEMENT_SIZE"))
+    (push! rt result)]
+
    [_ (error 'step (format "unsupported operator: ~a" o))]
    )
   )

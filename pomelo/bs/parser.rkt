@@ -155,6 +155,7 @@
        ; ================================ ;
        ; Strings (5), opcodes 0x7e-0x82
        [(equal? "OP_SIZE" t) (bs::op::size )]
+       [(equal? "OP_CAT" t) (bs::op::cat )]
 
        ; =============================== ;
        ; ======== bitwise logic ======== ;
