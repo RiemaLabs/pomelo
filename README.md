@@ -13,8 +13,6 @@ Pomelo is a symbolic reasoning toolkit designed to simplify the formal verificat
 
 Before diving into Pomelo's usage, it's important to understand the context in which it operates. **Bitcoin Script** is a stack-based programming language used to control the spending conditions of Bitcoins. It enables the creation of complex transaction scripts that define how funds can be moved. Ensuring these scripts function correctly under all possible scenarios is crucial for the security and reliability of Bitcoin transactions.
 
-**BitVM** allows for more expressive computations and advanced smart contract functionalities on Bitcoin. Our focus is on using formal verification to improve BitVM's ZK verifier implementation, making the process of verifying its functional correctness more straightforward and reliable.
-
 ### Symbolic Variables
 
 Before delving into how Pomelo works, it's essential to understand the concept of **symbolic variables**. Unlike traditional variables that hold concrete values during computation, symbolic variables do not have specific values—they exist symbolically. When these symbolic variables are processed through a script, the output isn't a single number but an equation or set of constraints involving these variables.
@@ -25,7 +23,7 @@ For example, in a Bitcoin Script with symbolic inputs, the output will be an equ
 
 Here's how Pomelo facilitates formal verification:
 
-1. **Script Extraction**: The developer writes or extracts the Bitcoin Script from BitVM.
+1. **Script Extraction**: The developer writes or extracts the Bitcoin Script.
 2. **Specification with Assertions**: The developer provides a specification of the script's correctness using assertions embedded within the script.
 3. **Automatic Verification**: Pomelo utilizes an SMT (Satisfiability Modulo Theories) solver to automatically verify the correctness of the script against the specified assertions.
 4. **Guarantee of Correctness**: If all assertions are proven, Pomelo guarantees the script's correctness for all possible inputs.
