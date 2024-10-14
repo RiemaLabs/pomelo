@@ -3,6 +3,7 @@ import subprocess
 import multiprocessing
 from collections import defaultdict
 import signal
+import time
 
 # Initialize counters and result storage
 total_files = 0
@@ -36,6 +37,7 @@ def timeout_handler(signum, frame):
 # Define execution function
 def run_file(filepath):
     cmd = ['racket', 'run.rkt', '--file', filepath]
+    start_time = time.time()
     try:
         # Set timeout signal
         signal.signal(signal.SIGALRM, timeout_handler)
@@ -65,10 +67,13 @@ def run_file(filepath):
         # Cancel timeout signal
         signal.alarm(0)
 
+    execution_time = time.time() - start_time
+    
     # Print results
     print('=' * 40)
     print('Filename: {}'.format(filepath))
     print('Status: {}'.format(status))
+    print('Execution time: {:.2f} seconds'.format(execution_time))
     if 'Failed' in status or 'Timeout' in status:
         print('Error Message:')
         print(error)
@@ -76,7 +81,7 @@ def run_file(filepath):
         print('Output:')
         print(output)
     print('\n')
-    return filepath, status
+    return filepath, status, execution_time
 
 if __name__ == '__main__':
     # Parallel execution
@@ -84,7 +89,7 @@ if __name__ == '__main__':
         results = pool.map(run_file, bs_files)
 
     # Process results
-    for filepath, status in results:
+    for filepath, status, execution_time in results:
         # Summarize results
         if 'Successful' in status:
             successes += 1
@@ -98,7 +103,7 @@ if __name__ == '__main__':
         # Categorize and store results
         folder = os.path.dirname(filepath)
         filename = os.path.basename(filepath)
-        folder_stats[folder].append({'filename': filename, 'status': status})
+        folder_stats[folder].append({'filename': filename, 'status': status, 'execution_time': execution_time})
 
     # Print statistics table
     print('=' * 40)
@@ -113,7 +118,7 @@ if __name__ == '__main__':
     # Print table categorized by folder
     for folder, files in folder_stats.items():
         print('Folder: {}'.format(folder))
-        print('{:<50}{:<10}'.format('Filename', 'Status'))
+        print('{:<50}{:<20}{:<15}'.format('Filename', 'Status', 'Execution Time(s)'))
         for file in files:
-            print('{:<50}{:<10}'.format(file['filename'], file['status']))
+            print('{:<50}{:<20}{:<15.2f}'.format(file['filename'], file['status'], file['execution_time']))
         print('\n')
