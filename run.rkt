@@ -4,8 +4,10 @@
   (prefix-in svm:: "./pomelo/bs/svm.rkt")
   (prefix-in utils:: "./pomelo/utils.rkt")
   racket/string
+  rosette/solver/smt/bitwuzla
   )
 
+(define arg-solver 'rosette)
 (define arg-str null)
 (define arg-auto-init #f)
 (define arg-debug #f)
@@ -17,7 +19,14 @@
  #:once-each
  [("--auto-init") "auto init stack" (set! arg-auto-init #t)]
  [("--debug") "enable debug output" (set! arg-debug #t)]
+ [("--solver") p-solver "Choose solver (z3 or bitwuzla)" (set! arg-solver (string->symbol p-solver))]
  )
+
+ (current-solver 
+ (case arg-solver
+   [(z3) (current-solver)]
+   [(bitwuzla) (bitwuzla)]
+   [else (error "Unsupported solver:" arg-solver)]))
 
 (when (! (null? arg-str))
   (define script (parser::parse-str arg-str))
