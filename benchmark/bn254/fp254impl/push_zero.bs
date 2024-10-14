@@ -1,0 +1,6 @@
+OP_0
+OP_DUP
+OP_2DUP
+OP_3DUP
+OP_2DUP
+ASSERT_0 { (stack[0] == 0) }

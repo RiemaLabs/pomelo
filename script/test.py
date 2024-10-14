@@ -85,7 +85,7 @@ def run_file(filepath):
 
 if __name__ == '__main__':
     # Parallel execution
-    with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
+    with multiprocessing.Pool(processes=16) as pool:
         results = pool.map(run_file, bs_files)
 
     # Process results
