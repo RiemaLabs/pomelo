@@ -435,11 +435,13 @@
 ; opcode 242 (0xf2)
 (struct op::assert (name expr) #:transparent)
 
+(struct op::assume (name expr) #:transparent)
+
 ; opcode 243 (0xf3)
 (struct op::solve () #:mutable #:transparent #:reflection-name 'OP_SOLVE)
 
 (define op::sym?
-  (disjoin op::symint? op::symbool? op::assert? op::solve?))
+  (disjoin op::symint? op::symbool? op::assert? op::assume? op::solve?))
 
 ; ======================================= ;
 ; ========== internal opcodes =========== ;

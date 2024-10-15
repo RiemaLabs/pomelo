@@ -544,6 +544,15 @@
                            (lambda (key value)
                              (printf "  ~a: ~a\n" key value))))))]
 
+   [(bs::op::assume name expr)
+    (printf "# ASSUME")
+    (when name
+      (printf " (~a)" name))
+    (printf ":\n")
+    (define assume-result (evaluate-expr rt expr))
+    (assume assume-result)
+    (printf "  Assumption added: ~a \n\n" (convert assume-result))]
+
    ; Modify the handling of PUSH_BIGINT
    [(bs::op::push_bigint nbits limb_size limbs_name var_name)
     (define n_limbs (ceiling (/ nbits limb_size)))
