@@ -7,7 +7,7 @@
   rosette/solver/smt/bitwuzla
   )
 
-(define arg-solver 'rosette)
+(define arg-solver 'z3)
 (define arg-str null)
 (define arg-auto-init #f)
 (define arg-debug #f)
