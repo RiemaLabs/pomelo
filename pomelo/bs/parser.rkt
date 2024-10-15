@@ -414,8 +414,19 @@
 
 ; Helper functions for tokenizer
 (define (parse-number input)
-  (define num-str (list->string (take-while char-numeric? (string->list input))))
-  (values (string->number num-str) (substring input (string-length num-str))))
+  (cond
+    [(string-prefix? input "0x")
+     (define hex-str (list->string (take-while char-hex? (string->list (substring input 2)))))
+     (values (string->number (string-append "#x" hex-str)) (substring input (+ 2 (string-length hex-str))))]
+    [else
+     (define num-str (list->string (take-while char-numeric? (string->list input))))
+     (values (string->number num-str) (substring input (string-length num-str)))]))
+
+(define (char-hex? c)
+  (or (char-numeric? c)
+      (and (char-alphabetic? c)
+           (or (char<=? #\a c #\f)
+               (char<=? #\A c #\F)))))
 
 (define (parse-identifier input)
   (define id-str (list->string (take-while char-identifier? (string->list input))))
