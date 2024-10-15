@@ -1,0 +1,41 @@
+PUSH_BIGINT_0 254 29 limbs0
+PUSH_BIGINT_1 254 29 limbs1
+PUSH_BIGINT_2 254 29 limbs2
+OP_PUSHNUM_1
+OP_PUSHNUM_1 OP_PICK OP_NOT OP_BOOLAND
+OP_PUSHNUM_2 OP_PICK OP_NOT OP_BOOLAND
+OP_PUSHNUM_3 OP_PICK OP_NOT OP_BOOLAND
+OP_PUSHNUM_4 OP_PICK OP_NOT OP_BOOLAND
+OP_PUSHNUM_5 OP_PICK OP_NOT OP_BOOLAND
+OP_PUSHNUM_6 OP_PICK OP_NOT OP_BOOLAND
+OP_PUSHNUM_7 OP_PICK OP_NOT OP_BOOLAND
+OP_PUSHNUM_8 OP_PICK OP_NOT OP_BOOLAND
+OP_PUSHNUM_9 OP_PICK OP_NOT OP_BOOLAND
+ASSERT_0 { (stack[0] == (if (v2 == 0) then 1 else 0)) }
+ASSERT_1 { (stack[1] == limbs2[0]) }
+ASSERT_2 { (stack[2] == limbs2[1]) }
+ASSERT_3 { (stack[3] == limbs2[2]) }
+ASSERT_4 { (stack[4] == limbs2[3]) }
+ASSERT_5 { (stack[5] == limbs2[4]) }
+ASSERT_6 { (stack[6] == limbs2[5]) }
+ASSERT_7 { (stack[7] == limbs2[6]) }
+ASSERT_8 { (stack[8] == limbs2[7]) }
+ASSERT_9 { (stack[9] == limbs2[8]) }
+ASSERT_10 { (stack[10] == limbs1[0]) }
+ASSERT_11 { (stack[11] == limbs1[1]) }
+ASSERT_12 { (stack[12] == limbs1[2]) }
+ASSERT_13 { (stack[13] == limbs1[3]) }
+ASSERT_14 { (stack[14] == limbs1[4]) }
+ASSERT_15 { (stack[15] == limbs1[5]) }
+ASSERT_16 { (stack[16] == limbs1[6]) }
+ASSERT_17 { (stack[17] == limbs1[7]) }
+ASSERT_18 { (stack[18] == limbs1[8]) }
+ASSERT_19 { (stack[19] == limbs0[0]) }
+ASSERT_20 { (stack[20] == limbs0[1]) }
+ASSERT_21 { (stack[21] == limbs0[2]) }
+ASSERT_22 { (stack[22] == limbs0[3]) }
+ASSERT_23 { (stack[23] == limbs0[4]) }
+ASSERT_24 { (stack[24] == limbs0[5]) }
+ASSERT_25 { (stack[25] == limbs0[6]) }
+ASSERT_26 { (stack[26] == limbs0[7]) }
+ASSERT_27 { (stack[27] == limbs0[8]) }
