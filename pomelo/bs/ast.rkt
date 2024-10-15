@@ -47,7 +47,7 @@
 (struct op::x (x) #:mutable #:transparent #:reflection-name 'OP_X)
 ; opcode 240 (0xf0) | x: non-negative integer
 ; x is the name of the symbolic int
-(struct op::symint (x) #:mutable #:transparent #:reflection-name 'OP_SYMINT)
+(struct op::symint (x) #:mutable #:transparent #:reflection-name 'PUSH_SYMINT)
 
 ; ======================================= ;
 ; ============= bigint symbolic ============= ;

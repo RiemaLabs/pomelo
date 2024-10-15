@@ -230,7 +230,7 @@
        ; ======================================= ;
        ; ======== pomelo symbolic words ======== ;
        ; ======================================= ;
-       [(string-prefix? t "OP_SYMINT_") (parse-token/symint t)]
+       [(string-prefix? t "PUSH_SYMINT_") (parse-token/symint t)]
        [(string-prefix? t "PUSH_BIGINT_")
         (define n (string->number (substring t (string-length "PUSH_BIGINT_"))))
         (define nbits (string->number (g)))
@@ -336,8 +336,8 @@
   (let ([ns (substring t 10)])
     ; convert to number, it's decimal
     (define n (string->number ns))
-    (assert (integer? n) (format "OP_SYMINT_ argument should be integer, got: ~a" ns))
-    (assert (>= n 0) (format "OP_SYMINT_ argument should be non-negative, got: ~a" n))
+    (assert (integer? n) (format "PUSH_SYMINT_ argument should be integer, got: ~a" ns))
+    (assert (>= n 0) (format "PUSH_SYMINT_ argument should be non-negative, got: ~a" n))
     (bs::op::symint n)))
 
 
