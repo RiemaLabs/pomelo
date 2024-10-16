@@ -466,26 +466,50 @@
   (parse-comparison tokens))
 
 (define (parse-comparison tokens)
-  (let-values ([(left rest) (parse-additive tokens)])
+  (let-values ([(left rest) (parse-logical-or tokens)])
     (if (null? rest)
         (values left rest)
         (case (Token-type (car rest))
-          [(EQUAL) (let-values ([(right new-rest) (parse-additive (cdr rest))])
+          [(EQUAL) (let-values ([(right new-rest) (parse-logical-or (cdr rest))])
                      (values (bs::expr::eq left right) new-rest))]
-          [(LT) (let-values ([(right new-rest) (parse-additive (cdr rest))])
+          [(LT) (let-values ([(right new-rest) (parse-logical-or (cdr rest))])
                   (values (bs::expr::lt left right) new-rest))]
-          [(LTE) (let-values ([(right new-rest) (parse-additive (cdr rest))])
+          [(LTE) (let-values ([(right new-rest) (parse-logical-or (cdr rest))])
                    (values (bs::expr::lte left right) new-rest))]
-          [(GT) (let-values ([(right new-rest) (parse-additive (cdr rest))])
+          [(GT) (let-values ([(right new-rest) (parse-logical-or (cdr rest))])
                   (values (bs::expr::gt left right) new-rest))]
-          [(GTE) (let-values ([(right new-rest) (parse-additive (cdr rest))])
+          [(GTE) (let-values ([(right new-rest) (parse-logical-or (cdr rest))])
                    (values (bs::expr::gte left right) new-rest))]
-          [(NEQ) (let-values ([(right new-rest) (parse-additive (cdr rest))])
+          [(NEQ) (let-values ([(right new-rest) (parse-logical-or (cdr rest))])
                    (values (bs::expr::neq left right) new-rest))]
           [else (values left rest)]))))
 
+(define (parse-logical-or tokens)
+  (let-values ([(left rest) (parse-logical-and tokens)])
+    (parse-logical-or-tail left rest)))
+
+(define (parse-logical-or-tail left tokens)
+  (if (null? tokens)
+      (values left tokens)
+      (case (Token-type (car tokens))
+        [(OR) (let-values ([(right new-rest) (parse-logical-and (cdr tokens))])
+                (parse-logical-or-tail (bs::expr::or left right) new-rest))]
+        [else (values left tokens)])))
+
+(define (parse-logical-and tokens)
+  (let-values ([(left rest) (parse-additive tokens)])
+    (parse-logical-and-tail left rest)))
+
+(define (parse-logical-and-tail left tokens)
+  (if (null? tokens)
+      (values left tokens)
+      (case (Token-type (car tokens))
+        [(AND) (let-values ([(right new-rest) (parse-additive (cdr tokens))])
+                 (parse-logical-and-tail (bs::expr::and left right) new-rest))]
+        [else (values left tokens)])))
+
 (define (parse-additive tokens)
-  (let-values ([(left rest) (parse-multiplicative tokens)])
+  (let-values ([(left rest) (parse-term tokens)])
     (parse-additive-tail left rest)))
 
 (define (parse-additive-tail left tokens)
