@@ -562,13 +562,17 @@
     [(list (Token 'LPAREN _) rest ...)
      (if (null? rest)
          (error 'parse-parenthesized-expr "Unexpected end of input after opening parenthesis")
-         (let-values ([(expr rest1) (parse-expr rest)])
-           (if (null? rest1)
+         (let loop ([expr-tokens rest] [paren-count 1])
+           (if (null? expr-tokens)
                (error 'parse-parenthesized-expr "Missing closing parenthesis")
-               (match rest1
-                 [(list (Token 'RPAREN _) rest2 ...)
-                  (values expr rest2)]
-                 [else (error 'parse-parenthesized-expr "Expected closing parenthesis")]))))]
+               (match (car expr-tokens)
+                 [(Token 'LPAREN _) (loop (cdr expr-tokens) (add1 paren-count))]
+                 [(Token 'RPAREN _) 
+                  (if (= paren-count 1)
+                      (let-values ([(expr _) (parse-expr rest)])
+                        (values expr (cdr expr-tokens)))
+                      (loop (cdr expr-tokens) (sub1 paren-count)))]
+                 [_ (loop (cdr expr-tokens) paren-count)]))))]
     [else (error 'parse-parenthesized-expr "Expected opening parenthesis")]))
 
 (define (parse-if-expr tokens)
