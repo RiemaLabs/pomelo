@@ -36,7 +36,7 @@ def timeout_handler(signum, frame):
 
 # Define execution function
 def run_file(filepath):
-    cmd = ['racket', 'run.rkt', '--file', filepath]
+    cmd = ['racket', 'run.rkt', '--file', filepath , '--solver', 'bitwuzla']
     start_time = time.time()
     try:
         # Set timeout signal

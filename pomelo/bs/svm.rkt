@@ -135,7 +135,7 @@
    [(bs::op::x x) (push! rt (bv x ::bitvector))]
    [(bs::op::pushbits bs) (push! rt bs)]
    [(bs::op::pushbytes::x x)
-    (match x
+    (destruct x
       [(bs::op::symint n)
        (define r (fresh-symbolic* (format "v~a" n) 'int))
        (set-runtime-symvars! rt (cons (cons (format "v~a" n) r) (runtime-symvars rt)))
@@ -564,19 +564,19 @@
        ;; Lower limbs, there are n_limbs - 1, each with a width of limb_size + 1 for the sign bit
        (for/list ([i (in-range (sub1 n_limbs))])
          (define limb-name (format "~a[~a]" limbs_name i))
-         (fresh-symbolic (list limb-name limb_size) 'bitvector))
+         (fresh-symbolic (list limb-name 32) 'bitvector))
        ;; Most significant limb, with a width of highest_limb_size + 1 for the sign bit
        (list
         (let ([highest-limb-name (format "~a[~a]" limbs_name (sub1 n_limbs))])
-          (fresh-symbolic (list highest-limb-name highest_limb_size) 'bitvector)))))
+          (fresh-symbolic (list highest-limb-name 32) 'bitvector)))))
 
     ;; Assume all limbs are positive >=0
     ;; Assume that in all bigints (a bigint = an array of n numbers), each number is positive (the highest bit of each number is 0), assuming all are positive by default
     (for ([limb limbs]
           [i (in-naturals)])
       (if (= i (sub1 n_limbs))
-          (assume (bvzero? (extract (sub1 highest_limb_size) (sub1 highest_limb_size) limb)))
-          (assume (bvzero? (extract (sub1 limb_size) (sub1 limb_size) limb)))))
+          (assume (bvzero? (extract 31 (sub1 highest_limb_size) limb)))
+          (assume (bvzero? (extract 31 (sub1 limb_size) limb)))))
 
     ;; Reconstruct the large integer x_reconstructed
     (define x_reconstructed
@@ -630,6 +630,17 @@
     ;;; (when (bvugt (length result) (bv MAX_SCRIPT_ELEMENT_SIZE ::bitvector))
     ;;;   (error 'step "OP_CAT result exceeds MAX_SCRIPT_ELEMENT_SIZE"))
     (push! rt result)]
+
+  [(bs::op::printsmt)
+    (define timestamp (current-seconds))
+    (define output-file (format "smt_output_~a.smt2" timestamp))
+    (output-smt output-file)
+    (print-stack (runtime-stack rt) "init (stack)")
+    (printf "\n")
+    (print-stack (runtime-alt rt) "init (alt stack)")
+    (printf "\n")
+    (printf "SMT output will be written to ~a\n" output-file)]
+
 
    [_ (error 'step (format "unsupported operator: ~a" o))]
    )
@@ -731,7 +742,7 @@
 
 ; Main type checking function
 (define (type-check-expr rt expr)
-  (match expr
+  (destruct expr
     [(bs::expr::eq left right)
      (check-equality rt 'eq left right)]
 

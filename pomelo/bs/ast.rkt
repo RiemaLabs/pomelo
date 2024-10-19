@@ -182,6 +182,8 @@
 ; opcode 126 (0x7e)
 (struct op::cat () #:mutable #:transparent #:reflection-name 'OP_CAT)
 
+(struct op::printsmt () #:mutable #:transparent #:reflection-name 'PRINTSMT)
+
 ; opcode 127 (0x7f)
 (struct op::substr () #:mutable #:transparent #:reflection-name 'OP_SUBSTR)
 

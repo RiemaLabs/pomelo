@@ -33,7 +33,7 @@
         [(#\}) " } "]
         [else (string c)]))
     (string-join (map process-char (string->list str)) ""))
-  
+
   (add-spaces-around-braces input-string))
 
 ; parse bitcoin script from string
@@ -230,6 +230,7 @@
        ; ======================================= ;
        ; ======== pomelo symbolic words ======== ;
        ; ======================================= ;
+       [(equal? "PRINT_SMT" t) (bs::op::printsmt)]
        [(string-prefix? t "PUSH_SYMINT_") (parse-token/symint t)]
        [(string-prefix? t "PUSH_BIGINT_")
         (define n (string->number (substring t (string-length "PUSH_BIGINT_"))))
@@ -240,55 +241,55 @@
 
        ; Handle OP_PUSHNUM_ and OP_PUSHBYTES_
        [(string-prefix? t "OP_PUSHNUM_") (parse-token/pushnum (substring t (string-length "OP_PUSHNUM_")))]
-       [(string-prefix? t "OP_PUSHBYTES_") 
+       [(string-prefix? t "OP_PUSHBYTES_")
         (parse-token/pushbytes (substring t (string-length "OP_PUSHBYTES_")) g)]
        [(string-prefix? t "OP_") (parse-token/x (substring t (string-length "OP_")))]
-       [(string-prefix? t "ASSERT") 
- (define parts (string-split t "_"))
- (define name 
-   (if (>= (length parts) 2)
-       (string-join (drop parts 1) "_")
-       #f))
- (define next-token (g))
- (unless (equal? next-token "{")
-   (error 'parse-token "Expected '{' after ASSERT, got: ~a" next-token))
- (define expr-string 
-   (let loop ([content ""] [paren-count 1])
-     (define token (g))
-     (cond
-       [(equal? token "{") (loop (string-append content " " token) (add1 paren-count))]
-       [(equal? token "}") 
-        (if (= paren-count 1)
-            content
-            (loop (string-append content " " token) (sub1 paren-count)))]
-       [else (loop (string-append content " " token) paren-count)])))
- (let ([expr (parse-assert-expr (string-trim expr-string))])
-   (bs::op::assert name expr))]
-       [(string-prefix? t "ASSUME") 
- (define parts (string-split t "_"))
- (define name 
-   (if (>= (length parts) 2)
-       (string-join (drop parts 1) "_")
-       #f))
- (define next-token (g))
- (unless (equal? next-token "{")
-   (error 'parse-token "Expected '{' after ASSUME, got: ~a" next-token))
- (define expr-string 
-   (let loop ([content ""] [paren-count 1])
-     (define token (g))
-     (cond
-       [(equal? token "{") (loop (string-append content " " token) (add1 paren-count))]
-       [(equal? token "}") 
-        (if (= paren-count 1)
-            content
-            (loop (string-append content " " token) (sub1 paren-count)))]
-       [else (loop (string-append content " " token) paren-count)])))
- (let ([expr (parse-assert-expr (string-trim expr-string))])
-   (bs::op::assume name expr))]
+       [(string-prefix? t "ASSERT")
+        (define parts (string-split t "_"))
+        (define name
+          (if (>= (length parts) 2)
+              (string-join (drop parts 1) "_")
+              #f))
+        (define next-token (g))
+        (unless (equal? next-token "{")
+          (error 'parse-token "Expected '{' after ASSERT, got: ~a" next-token))
+        (define expr-string
+          (let loop ([content ""] [paren-count 1])
+            (define token (g))
+            (cond
+              [(equal? token "{") (loop (string-append content " " token) (add1 paren-count))]
+              [(equal? token "}")
+               (if (= paren-count 1)
+                   content
+                   (loop (string-append content " " token) (sub1 paren-count)))]
+              [else (loop (string-append content " " token) paren-count)])))
+        (let ([expr (parse-assert-expr (string-trim expr-string))])
+          (bs::op::assert name expr))]
+       [(string-prefix? t "ASSUME")
+        (define parts (string-split t "_"))
+        (define name
+          (if (>= (length parts) 2)
+              (string-join (drop parts 1) "_")
+              #f))
+        (define next-token (g))
+        (unless (equal? next-token "{")
+          (error 'parse-token "Expected '{' after ASSUME, got: ~a" next-token))
+        (define expr-string
+          (let loop ([content ""] [paren-count 1])
+            (define token (g))
+            (cond
+              [(equal? token "{") (loop (string-append content " " token) (add1 paren-count))]
+              [(equal? token "}")
+               (if (= paren-count 1)
+                   content
+                   (loop (string-append content " " token) (sub1 paren-count)))]
+              [else (loop (string-append content " " token) paren-count)])))
+        (let ([expr (parse-assert-expr (string-trim expr-string))])
+          (bs::op::assume name expr))]
        [else (error 'parse-token (format "unsupported token: ~a" t))]
        )
      ]
-  ))
+    ))
 
 
 ; parse string token starting with OP_PUSHBYTES_
@@ -313,7 +314,7 @@
         (bs::op::pushbits bits-padded))))
 
 (define (reverse-bytes bytes)
- (reverse (bytes->list bytes)))
+  (reverse (bytes->list bytes)))
 
 ; parse string token starting with OP_PUSHNUM_
 (define (parse-token/pushnum n-str)
@@ -367,9 +368,9 @@
         [(char-whitespace? (string-ref str 0))
          (consume-whitespace (substring str 1))]
         [else str]))
-    
+
     (define input-trimmed (consume-whitespace input))
-    
+
     (cond
       [(equal? input-trimmed "") (reverse tokens)]
       [else
@@ -380,7 +381,7 @@
             (tokenize-helper rest (cons (Token 'NUMBER num) tokens))]
            [(char-alphabetic? first-char)
             (define-values (id rest) (parse-identifier input-trimmed))
-            (tokenize-helper rest 
+            (tokenize-helper rest
                              (cons (cond
                                      [(equal? id "if") (Token 'IF "if")]
                                      [(equal? id "then") (Token 'THEN "then")]
@@ -430,7 +431,7 @@
            [(char=? first-char #\%)
             (tokenize-helper (substring input-trimmed 1) (cons (Token 'MOD "%") tokens))]
            [else (error 'tokenize (format "Unexpected character: ~a" first-char))]))]))
-  
+
   (tokenize-helper input-string '()))
 
 ; Helper functions for tokenizer
@@ -547,7 +548,7 @@
       (error 'parse-term "Unexpected end of input")
       (match (car tokens)
         [(Token 'IF _) (parse-if-expr tokens)]
-        [(Token 'NOT _) 
+        [(Token 'NOT _)
          (let-values ([(expr rest) (parse-term (cdr tokens))])
            (values (bs::expr::not expr) rest))]
         [(Token 'IDENTIFIER "stack") (parse-stack-access tokens)]
@@ -567,7 +568,7 @@
                (error 'parse-parenthesized-expr "Missing closing parenthesis")
                (match (car expr-tokens)
                  [(Token 'LPAREN _) (loop (cdr expr-tokens) (add1 paren-count))]
-                 [(Token 'RPAREN _) 
+                 [(Token 'RPAREN _)
                   (if (= paren-count 1)
                       (let-values ([(expr _) (parse-expr rest)])
                         (values expr (cdr expr-tokens)))
@@ -628,8 +629,8 @@
             (values (bs::expr::var (format "~a[~a]" id n)) rest2)]
            [_ (error 'parse-limbs-access "Invalid var access syntax")]))]
     [(list (Token 'IDENTIFIER _) rest ...)
-      (values (bs::expr::var id) rest)
-    ]
+     (values (bs::expr::var id) rest)
+     ]
     [_ (error 'parse-limbs-access "Invalid var access syntax")]))
 
 ; Main parser for assert expressions
