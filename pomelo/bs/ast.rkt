@@ -439,11 +439,13 @@
 
 (struct op::assume (name expr) #:transparent)
 
+(struct op::eval (name expr) #:transparent)
+
 ; opcode 243 (0xf3)
 (struct op::solve () #:mutable #:transparent #:reflection-name 'OP_SOLVE)
 
 (define op::sym?
-  (disjoin op::symint? op::symbool? op::assert? op::assume? op::solve?))
+  (disjoin op::symint? op::symbool? op::assert? op::assume? op::solve? op::eval?))
 
 ; ======================================= ;
 ; ========== internal opcodes =========== ;

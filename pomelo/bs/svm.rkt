@@ -13,7 +13,7 @@
 (define debug-output #f)
 
 ; stack is a stack, alt is a stack, script is a FILO list
-(struct runtime (stack alt script symvars) #:mutable #:transparent #:reflection-name 'runtime)
+(struct runtime (stack alt script symvars evals) #:mutable #:transparent #:reflection-name 'runtime)
 
 ; tells whether a runtime script is terminated
 (define (terminated? rt) (null? (runtime-script rt)))
@@ -106,8 +106,8 @@
           (define script-list (sequence->list script))
           (define stack (analysis::auto-init/stack script-list))
           (define alt (analysis::auto-init/alt script-list))
-          (runtime stack alt (in-list script-list) '()))
-        (runtime '() '() script '())))
+          (runtime stack alt (in-list script-list) '() '()))
+        (runtime '() '() script '() '()))) 
   (when debug-output
     (print-stack (runtime-stack rt) "init (stack)")
     (printf "\n")
@@ -538,11 +538,32 @@
         (printf "  Result: \033[1;32mVerified\033[0m\n\n")
         (begin
           (printf "  Result: \033[1;31mFailed\033[0m\n")
-          (let ([model (model verify-result)])
-            (printf "Model:\n")
-            (hash-for-each model
-                           (lambda (key value)
-                             (printf "  ~a: ~a\n" key value))))))]
+          
+          (printf "\nEvaluated Expressions:\n")
+          (for ([var (runtime-symvars rt)])
+            (let* ([var-name (car var)]
+                   [var-value (cdr var)]
+                   [evaluated-value (evaluate var-value verify-result)])
+              (printf "  ~a: ~a\n" var-name evaluated-value)))
+
+          (printf "\nStack Evaluation:\n")
+          (for ([stack-item (runtime-stack rt)]
+                [index (in-naturals)])
+            (let ([evaluated-item (evaluate stack-item verify-result)])
+              (printf "  Stack[~a]: ~a\n" index evaluated-item)))
+
+          (printf "\nAlt Stack Evaluation:\n")
+          (for ([alt-stack-item (runtime-alt rt)]
+                [index (in-naturals)])
+            (let ([evaluated-item (evaluate alt-stack-item verify-result)])
+              (printf "  AltStack[~a]: ~a\n" index evaluated-item)))
+              
+          (printf "\nEval Evaluation:\n")
+          (for ([eval-expr (runtime-evals rt)])
+            (let* ([name (car eval-expr)]
+                   [expr (cdr eval-expr)]
+                   [evaluated-value (evaluate (evaluate-expr rt expr) verify-result)])
+              (printf "  ~a: ~a\n" name evaluated-value)))))]
 
    [(bs::op::assume name expr)
     (printf "# ASSUME")
@@ -552,6 +573,16 @@
     (define assume-result (evaluate-expr rt expr))
     (assume assume-result)
     (printf "  Assumption added: ~a \n\n" (convert assume-result))]
+
+    [(bs::op::eval name expr)
+    (printf "# EVAL")
+    (when name
+      (printf " (~a)" name))
+    (printf ":\n")
+    (define eval-result (evaluate-expr rt expr))
+    ;;; (printf "  Evaluation result: ~a \n" (convert eval-result))
+    (set-runtime-evals! rt (cons (cons name expr) (runtime-evals rt)))
+    (printf "  Expression added to evals list.\n\n")]
 
    ; Modify the handling of PUSH_BIGINT
    [(bs::op::push_bigint nbits limb_size limbs_name var_name)

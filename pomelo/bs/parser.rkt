@@ -286,6 +286,27 @@
               [else (loop (string-append content " " token) paren-count)])))
         (let ([expr (parse-assert-expr (string-trim expr-string))])
           (bs::op::assume name expr))]
+        [(string-prefix? t "EVAL")
+        (define parts (string-split t "_"))
+        (define name
+          (if (>= (length parts) 2)
+              (string-join (drop parts 1) "_")
+              #f))
+        (define next-token (g))
+        (unless (equal? next-token "{")
+          (error 'parse-token "Expected '{' after ASSUME, got: ~a" next-token))
+        (define expr-string
+          (let loop ([content ""] [paren-count 1])
+            (define token (g))
+            (cond
+              [(equal? token "{") (loop (string-append content " " token) (add1 paren-count))]
+              [(equal? token "}")
+               (if (= paren-count 1)
+                   content
+                   (loop (string-append content " " token) (sub1 paren-count)))]
+              [else (loop (string-append content " " token) paren-count)])))
+        (let ([expr (parse-assert-expr (string-trim expr-string))])
+          (bs::op::eval name expr))]
        [else (error 'parse-token (format "unsupported token: ~a" t))]
        )
      ]
@@ -510,7 +531,7 @@
         [else (values left tokens)])))
 
 (define (parse-additive tokens)
-  (let-values ([(left rest) (parse-term tokens)])
+  (let-values ([(left rest) (parse-multiplicative tokens)])
     (parse-additive-tail left rest)))
 
 (define (parse-additive-tail left tokens)
@@ -524,33 +545,34 @@
         [else (values left tokens)])))
 
 (define (parse-multiplicative tokens)
-  (let-values ([(left rest) (parse-term tokens)])
+  (let-values ([(left rest) (parse-unary tokens)])
     (parse-multiplicative-tail left rest)))
 
 (define (parse-multiplicative-tail left tokens)
   (if (null? tokens)
       (values left tokens)
       (case (Token-type (car tokens))
-        [(MUL) (let-values ([(right new-rest) (parse-term (cdr tokens))])
+        [(MUL) (let-values ([(right new-rest) (parse-unary (cdr tokens))])
                  (parse-multiplicative-tail (bs::expr::mul left right) new-rest))]
-        [(SHR) (let-values ([(right new-rest) (parse-term (cdr tokens))])
-                 (parse-multiplicative-tail (bs::expr::shr left right) new-rest))]
-        [(SHL) (let-values ([(right new-rest) (parse-term (cdr tokens))])
-                 (parse-multiplicative-tail (bs::expr::shl left right) new-rest))]
-        [(DIV) (let-values ([(right new-rest) (parse-term (cdr tokens))])
+        [(DIV) (let-values ([(right new-rest) (parse-unary (cdr tokens))])
                  (parse-multiplicative-tail (bs::expr::div left right) new-rest))]
-        [(MOD) (let-values ([(right new-rest) (parse-term (cdr tokens))])
+        [(MOD) (let-values ([(right new-rest) (parse-unary (cdr tokens))])
                  (parse-multiplicative-tail (bs::expr::mod left right) new-rest))]
         [else (values left tokens)])))
+
+(define (parse-unary tokens)
+  (if (null? tokens)
+      (error 'parse-unary "Unexpected end of input")
+      (case (Token-type (car tokens))
+        [(NOT) (let-values ([(expr rest) (parse-unary (cdr tokens))])
+                 (values (bs::expr::not expr) rest))]
+        [else (parse-term tokens)])))
 
 (define (parse-term tokens)
   (if (null? tokens)
       (error 'parse-term "Unexpected end of input")
       (match (car tokens)
         [(Token 'IF _) (parse-if-expr tokens)]
-        [(Token 'NOT _)
-         (let-values ([(expr rest) (parse-term (cdr tokens))])
-           (values (bs::expr::not expr) rest))]
         [(Token 'IDENTIFIER "stack") (parse-stack-access tokens)]
         [(Token 'IDENTIFIER "altstack") (parse-altstack-access tokens)]
         [(Token 'IDENTIFIER id) (parse-var-access id tokens)]
