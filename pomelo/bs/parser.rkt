@@ -558,6 +558,10 @@
                  (parse-multiplicative-tail (bs::expr::div left right) new-rest))]
         [(MOD) (let-values ([(right new-rest) (parse-unary (cdr tokens))])
                  (parse-multiplicative-tail (bs::expr::mod left right) new-rest))]
+        [(SHR) (let-values ([(right new-rest) (parse-unary (cdr tokens))])
+                 (parse-multiplicative-tail (bs::expr::shr left right) new-rest))]
+        [(SHL) (let-values ([(right new-rest) (parse-unary (cdr tokens))])
+                 (parse-multiplicative-tail (bs::expr::shl left right) new-rest))]
         [else (values left tokens)])))
 
 (define (parse-unary tokens)
