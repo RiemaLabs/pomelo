@@ -441,6 +441,8 @@
 
 (struct op::eval (name expr) #:transparent)
 
+(struct op::define_n (n expr) #:mutable #:transparent #:reflection-name 'OP_DEFINE_N)
+
 ; opcode 243 (0xf3)
 (struct op::solve () #:mutable #:transparent #:reflection-name 'OP_SOLVE)
 

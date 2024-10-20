@@ -307,6 +307,23 @@
               [else (loop (string-append content " " token) paren-count)])))
         (let ([expr (parse-assert-expr (string-trim expr-string))])
           (bs::op::eval name expr))]
+       [(string-prefix? t "DEFINE_")
+        (define n (string->number (substring t (string-length "DEFINE_"))))
+        (define next-token (g))
+        (unless (equal? next-token "{")
+          (error 'parse-token "Expected '{' after DEFINE_n, got: ~a" next-token))
+        (define expr-string
+          (let loop ([content ""] [paren-count 1])
+            (define token (g))
+            (cond
+              [(equal? token "{") (loop (string-append content " " token) (add1 paren-count))]
+              [(equal? token "}")
+               (if (= paren-count 1)
+                   content
+                   (loop (string-append content " " token) (sub1 paren-count)))]
+              [else (loop (string-append content " " token) paren-count)])))
+        (let ([expr (parse-assert-expr (string-trim expr-string))])
+          (bs::op::define_n n expr))]
        [else (error 'parse-token (format "unsupported token: ~a" t))]
        )
      ]
@@ -687,3 +704,5 @@
   (define token (g))
   (unless (equal? token expected)
     (error 'expect-token! "Expected ~a, got ~a" expected token)))
+
+

@@ -682,6 +682,10 @@
     (printf "\n")
     (printf "SMT output will be written to ~a\n" output-file)]
 
+   [(bs::op::define_n n expr)
+    (define var-name (format "i~a" n))
+    (define expr-value (evaluate-expr rt expr))
+    (set-runtime-symvars! rt (cons (cons var-name expr-value) (runtime-symvars rt)))]
 
    [_ (error 'step (format "unsupported operator: ~a" o))]
    )
@@ -918,4 +922,6 @@
   (unless (and (equal? left-type TYPE-INT) (equal? right-type TYPE-INT))
     (error 'type-check "Both operands of ~a must be int" op))
   TYPE-INT)
+
+
 
