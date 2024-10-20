@@ -417,6 +417,8 @@
             (tokenize-helper (substring input-trimmed 1) (cons (Token 'COMMA ",") tokens))]
            [(char=? first-char #\[)
             (tokenize-helper (substring input-trimmed 1) (cons (Token 'LBRACKET "[") tokens))]
+           [(char=? first-char #\.)
+            (tokenize-helper (substring input-trimmed 1) (cons (Token 'DOT ".") tokens))]
            [(char=? first-char #\])
             (tokenize-helper (substring input-trimmed 1) (cons (Token 'RBRACKET "]") tokens))]
            [(and (>= (string-length input-trimmed) 2) (string=? (substring input-trimmed 0 2) "=="))
@@ -649,15 +651,26 @@
   (match tokens
     [(list (Token 'IDENTIFIER _) (Token 'LBRACKET _) rest ...)
      (if (null? rest)
-         (error 'parse-limbs-access "Unexpected end of input after opening bracket")
+         (error 'parse-var-access "Unexpected end of input after opening bracket")
          (match rest
            [(list (Token 'NUMBER n) (Token 'RBRACKET _) rest2 ...)
-            (values (bs::expr::var (format "~a[~a]" id n)) rest2)]
-           [_ (error 'parse-limbs-access "Invalid var access syntax")]))]
+            (parse-var-access-dot (format "~a[~a]" id n) rest2)]
+           [_ (error 'parse-var-access "Invalid var access syntax")]))]
     [(list (Token 'IDENTIFIER _) rest ...)
      (values (bs::expr::var id) rest)
      ]
     [_ (error 'parse-limbs-access "Invalid var access syntax")]))
+
+(define (parse-var-access-dot id tokens)
+  (match tokens
+    [(list (Token 'DOT _) (Token 'LPAREN _) rest ...)
+     (if (null? rest)
+         (error 'parse-var-access "Unexpected end of input after opening parenthesis")
+         (match rest
+           [(list (Token 'NUMBER n) (Token 'RPAREN _) rest2 ...)
+            (values (bs::expr::bit-at (bs::expr::var id) (bs::expr::nat n)) rest2)]
+           [_ (error 'parse-var-access "Expected number and closing parenthesis for bit access")]))]
+    [_ (values (bs::expr::var id) tokens)]))
 
 ; Main parser for assert expressions
 (define (parse-assert-expr expr-string)

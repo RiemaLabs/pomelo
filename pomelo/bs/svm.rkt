@@ -579,7 +579,6 @@
     (when name
       (printf " (~a)" name))
     (printf ":\n")
-    (define eval-result (evaluate-expr rt expr))
     ;;; (printf "  Evaluation result: ~a \n" (convert eval-result))
     (set-runtime-evals! rt (cons (cons name expr) (runtime-evals rt)))
     (printf "  Expression added to evals list.\n\n")]
@@ -754,6 +753,12 @@
     (define l (evaluate-expr rt left))
     (define r (evaluate-expr rt right))
     (bvashr (sign-extend l ::bitvector) (sign-extend r ::bitvector))] ;; arithmetic right shift of x by y bits
+   [(bs::expr::nat n)
+     n ]
+   [(bs::expr::bit-at expr index)
+    (define bv (evaluate-expr rt expr))
+    (define idx (evaluate-expr rt index))
+    (zero-extend (extract idx idx bv) ::bitvector)]
 
    [_ (error 'evaluate-expr (format "unsupported expr: ~a" expr))]))
 
@@ -837,6 +842,14 @@
     [(bs::expr::shr left right)
      (check-numeric-operation rt 'mul left right)]
 
+    [(bs::expr::bit-at expr index)
+     (define expr-type (type-check-expr rt expr))
+     (unless (equal? expr-type TYPE-INT)
+       (error 'type-check "Expression in bit-at must be a bitvector"))
+     (unless (bs::expr::nat? index)
+       (error 'type-check "Index in bit-at must be a natural number"))
+     TYPE-INT]
+
     [_ (error 'type-check-expr (format "Unsupported expression: ~a" expr))]))
 
 ; Helper function: Check equality operations
@@ -858,6 +871,7 @@
 ; Helper function: Check if-then-else expression
 (define (check-if-then-else rt condition then-expr else-expr)
   (unless (equal? (type-check-expr rt condition) TYPE-BOOL)
+    (printf "~a" condition)
     (error 'type-check "Condition must be boolean in if-then-else"))
   (define then-type (type-check-expr rt then-expr))
   (define else-type (type-check-expr rt else-expr))

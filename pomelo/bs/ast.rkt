@@ -477,6 +477,7 @@
 (struct expr::lte (left right) #:transparent)
 (struct expr::ite (condition then-expr else-expr) #:transparent)
 (struct expr::bv (value) #:transparent)
+(struct expr::nat (value) #:transparent)
 (struct expr::var (name) #:transparent)
 
 (struct expr::gt (left right) #:transparent)
@@ -496,3 +497,5 @@
 
 (struct expr::stack-nth (n) #:transparent)
 (struct expr::altstack-nth (n) #:transparent)
+
+(struct expr::bit-at (expr index) #:transparent)
