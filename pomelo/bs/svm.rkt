@@ -535,7 +535,18 @@
     (printf "  Type Check: ~a\n" type-check-result)
     (define verify-result (verify (assert (evaluate-expr rt expr))))
     (if (unsat? verify-result)
-        (printf "  Result: \033[1;32mVerified\033[0m\n\n")
+        (begin
+          (printf "  Result: \033[1;32mVerified\033[0m\n")
+          (when (bs::expr::eq? expr)
+            (match expr
+              [(bs::expr::eq (bs::expr::stack-nth n) value)
+               (printf "  Replacing stack[~a] with ~a\n" n value)
+               (set-runtime-stack! rt (list-set (runtime-stack rt) n (evaluate-expr rt value)))]
+              [(bs::expr::eq (bs::expr::altstack-nth n) value)
+               (printf "  Replacing altstack[~a] with ~a\n" n value)
+               (set-runtime-alt! rt (list-set (runtime-alt rt) n (evaluate-expr rt value)))]
+              [_ (void)]))
+          (printf "\n"))
         (begin
           (printf "  Result: \033[1;31mFailed\033[0m\n")
           
@@ -907,3 +918,4 @@
   (unless (and (equal? left-type TYPE-INT) (equal? right-type TYPE-INT))
     (error 'type-check "Both operands of ~a must be int" op))
   TYPE-INT)
+
