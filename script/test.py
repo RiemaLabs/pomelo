@@ -38,6 +38,10 @@ def timeout_handler(signum, frame):
 
 # Define execution function
 def run_file(filepath):
+    filename = os.path.basename(filepath)
+    if filename.startswith('TO-'):
+        return filepath, f'{YELLOW}Timeout{RESET}', 60.0
+
     cmd = ['racket', 'run.rkt', '--file', filepath , '--solver', 'bitwuzla']
     start_time = time.time()
     try:
