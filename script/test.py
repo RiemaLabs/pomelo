@@ -4,6 +4,8 @@ import multiprocessing
 from collections import defaultdict
 import signal
 import time
+import csv
+from datetime import datetime
 
 # Initialize counters and result storage
 total_files = 0
@@ -50,7 +52,7 @@ def run_file(filepath):
         if process.returncode != 0:
             status = f'{RED}Failed{RESET}'
         # Check if verification failed
-        elif 'Model' in output:
+        elif 'Evaluated' in output:
             status = f'{RED}Failed{RESET}'
         else:
             status = f'{GREEN}Successful{RESET}'
@@ -94,7 +96,7 @@ if __name__ == '__main__':
         if 'Successful' in status:
             successes += 1
         elif 'Failed' in status:
-            if 'Model' in status:
+            if 'Evaluated' in status:
                 verification_failures += 1
             else:
                 execution_failures += 1
@@ -122,3 +124,24 @@ if __name__ == '__main__':
         for file in files:
             print('{:<50}{:<20}{:<15.2f}'.format(file['filename'], file['status'], file['execution_time']))
         print('\n')
+
+    # Generate timestamp for the filename
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    csv_filename = f'test_results_{timestamp}.csv'
+
+    # Write results to CSV file
+    with open(csv_filename, 'w', newline='') as csvfile:
+        fieldnames = ['Folder', 'Filename', 'Status', 'Execution Time(s)']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+        writer.writeheader()
+        for folder, files in folder_stats.items():
+            for file in files:
+                writer.writerow({
+                    'Folder': folder,
+                    'Filename': file['filename'],
+                    'Status': file['status'].replace(GREEN, '').replace(RED, '').replace(YELLOW, '').replace(RESET, ''),
+                    'Execution Time(s)': f"{file['execution_time']:.2f}"
+                })
+
+    print(f"Results have been written to {csv_filename}")
