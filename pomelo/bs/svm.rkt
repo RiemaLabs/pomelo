@@ -583,7 +583,15 @@
     (printf ":\n")
     (define assume-result (evaluate-expr rt expr))
     (assume assume-result)
-    (printf "  Assumption added: ~a \n\n" (convert assume-result))]
+    (when (bs::expr::eq? expr)
+            (match expr
+              [(bs::expr::eq (bs::expr::stack-nth n) value)
+               (printf "  Replacing stack[~a] with ~a\n" n value)
+               (set-runtime-stack! rt (list-set (runtime-stack rt) n (evaluate-expr rt value)))]
+              [(bs::expr::eq (bs::expr::altstack-nth n) value)
+               (printf "  Replacing altstack[~a] with ~a\n" n value)
+               (set-runtime-alt! rt (list-set (runtime-alt rt) n (evaluate-expr rt value)))]
+              [_ (void)]))]
 
     [(bs::op::eval name expr)
     (printf "# EVAL")
@@ -922,6 +930,8 @@
   (unless (and (equal? left-type TYPE-INT) (equal? right-type TYPE-INT))
     (error 'type-check "Both operands of ~a must be int" op))
   TYPE-INT)
+
+
 
 
 
