@@ -1,15 +1,15 @@
-PUSH_BIGINT_3 254 29 limbs3
-PUSH_BIGINT_2 254 29 limbs2
-PUSH_BIGINT_1 254 29 limbs1
-PUSH_BIGINT_0 254 29 limbs0
-ASSUME_0 { stack[0] <= 255 }
-ASSUME_1 { (stack[0] >= 0) }
-ASSUME_2 { (stack[1] <= 255) }
-ASSUME_3 { (stack[1] >= 0) }
-ASSUME_4 { (stack[2] <= 255) }
-ASSUME_5 { (stack[2] >= 0) }
-ASSUME_6 { (stack[3] <= 255) }
-ASSUME_7 { (stack[3] >= 0) }
+PUSH_SYMINT_3
+PUSH_SYMINT_2
+PUSH_SYMINT_1
+PUSH_SYMINT_0
+ASSUME_0 { (v0 <= 255) }
+ASSUME_1 { (v0 >= 0) }
+ASSUME_2 { (v1 <= 255) }
+ASSUME_3 { (v1 >= 0) }
+ASSUME_4 { (v2 <= 255) }
+ASSUME_5 { (v2 >= 0) }
+ASSUME_6 { (v3 <= 255) }
+ASSUME_7 { (v3 >= 0) }
 OP_0
 OP_SWAP OP_DUP OP_PUSHBYTES_2 0001 OP_LESSTHAN OP_VERIFY
 OP_ADD
