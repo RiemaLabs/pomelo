@@ -33,16 +33,20 @@ for root, dirs, files in os.walk('benchmark'):
             bs_files.append(filepath)
 
 # Define timeout handler
+
+
 def timeout_handler(signum, frame):
     raise TimeoutError("Execution timed out")
 
 # Define execution function
+
+
 def run_file(filepath, no_rewrite):
     filename = os.path.basename(filepath)
     if filename.startswith('TO-'):
         return filepath, f'{YELLOW}Timeout{RESET}', 60.0
 
-    cmd = ['racket', 'run.rkt', '--file', filepath , '--solver', 'bitwuzla']
+    cmd = ['racket', 'run.rkt', '--file', filepath, '--solver', 'bitwuzla']
     if no_rewrite:
         print('disable rewrite')
         cmd.append('--no-rewrite')
@@ -52,7 +56,8 @@ def run_file(filepath, no_rewrite):
         signal.signal(signal.SIGALRM, timeout_handler)
         signal.alarm(60)  # 60 seconds timeout
 
-        process = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+        process = subprocess.run(
+            cmd, capture_output=True, text=True, timeout=60)
         output = process.stdout
         error = process.stderr
         # Check if execution failed
@@ -77,7 +82,7 @@ def run_file(filepath, no_rewrite):
         signal.alarm(0)
 
     execution_time = time.time() - start_time
-    
+
     # Print results
     print('=' * 40)
     print('Filename: {}'.format(filepath))
@@ -92,16 +97,18 @@ def run_file(filepath, no_rewrite):
     print('\n')
     return filepath, status, execution_time
 
+
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description='Run tests')
-    parser.add_argument('--no-rewrite', action='store_true', help='disable automatic stack rewriting')
+    parser.add_argument('--no-rewrite', action='store_true',
+                        help='disable automatic stack rewriting')
     args = parser.parse_args()
 
     # Parallel execution
-    with multiprocessing.Pool(processes=4) as pool:
-        results = pool.starmap(run_file, [(filepath, args.no_rewrite) for filepath in bs_files])
-
+    with multiprocessing.Pool(processes=24) as pool:
+        results = pool.starmap(
+            run_file, [(filepath, args.no_rewrite) for filepath in bs_files])
 
     # Process results
     for filepath, status, execution_time in results:
@@ -118,7 +125,8 @@ if __name__ == '__main__':
         # Categorize and store results
         folder = os.path.dirname(filepath)
         filename = os.path.basename(filepath)
-        folder_stats[folder].append({'filename': filename, 'status': status, 'execution_time': execution_time})
+        folder_stats[folder].append(
+            {'filename': filename, 'status': status, 'execution_time': execution_time})
 
     # Print statistics table
     print('=' * 40)
@@ -133,9 +141,11 @@ if __name__ == '__main__':
     # Print table categorized by folder
     for folder, files in folder_stats.items():
         print('Folder: {}'.format(folder))
-        print('{:<50}{:<20}{:<15}'.format('Filename', 'Status', 'Execution Time(s)'))
+        print('{:<50}{:<20}{:<15}'.format(
+            'Filename', 'Status', 'Execution Time(s)'))
         for file in files:
-            print('{:<50}{:<20}{:<15.2f}'.format(file['filename'], file['status'], file['execution_time']))
+            print('{:<50}{:<20}{:<15.2f}'.format(
+                file['filename'], file['status'], file['execution_time']))
         print('\n')
 
     # Generate timestamp for the filename
