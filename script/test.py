@@ -37,12 +37,15 @@ def timeout_handler(signum, frame):
     raise TimeoutError("Execution timed out")
 
 # Define execution function
-def run_file(filepath):
+def run_file(filepath, no_rewrite):
     filename = os.path.basename(filepath)
     if filename.startswith('TO-'):
         return filepath, f'{YELLOW}Timeout{RESET}', 60.0
 
     cmd = ['racket', 'run.rkt', '--file', filepath , '--solver', 'bitwuzla']
+    if no_rewrite:
+        print('disable rewrite')
+        cmd.append('--no-rewrite')
     start_time = time.time()
     try:
         # Set timeout signal
@@ -90,9 +93,15 @@ def run_file(filepath):
     return filepath, status, execution_time
 
 if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser(description='Run tests')
+    parser.add_argument('--no-rewrite', action='store_true', help='disable automatic stack rewriting')
+    args = parser.parse_args()
+
     # Parallel execution
-    with multiprocessing.Pool(processes=16) as pool:
-        results = pool.map(run_file, bs_files)
+    with multiprocessing.Pool(processes=4) as pool:
+        results = pool.starmap(run_file, [(filepath, args.no_rewrite) for filepath in bs_files])
+
 
     # Process results
     for filepath, status, execution_time in results:

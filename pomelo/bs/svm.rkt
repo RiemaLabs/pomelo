@@ -11,6 +11,7 @@
 ; symbolic virtual machine
 
 (define debug-output #f)
+(define enable-rewrite #t)
 
 ; stack is a stack, alt is a stack, script is a FILO list
 (struct runtime (stack alt script symvars evals) #:mutable #:transparent #:reflection-name 'runtime)
@@ -98,8 +99,9 @@
         (step rt o)
         (interpret* rt (cdr script-list)))))
 
-(define (interpret-script script #:auto-init [auto-init #f] #:debug [debug #f])
+(define (interpret-script script #:auto-init [auto-init #f] #:debug [debug #f] #:enable-rewrite [enable-rewrite #t])
   (set! debug-output debug)
+  (set! enable-rewrite enable-rewrite)
   (define rt
     (if auto-init
         (begin
@@ -537,13 +539,13 @@
     (if (unsat? verify-result)
         (begin
           (printf "  Result: \033[1;32mVerified\033[0m\n")
-          (when (bs::expr::eq? expr)
+          (when (and enable-rewrite (bs::expr::eq? expr))
             (match expr
               [(bs::expr::eq (bs::expr::stack-nth n) value)
-               (printf "  Replacing stack[~a] with ~a\n" n value)
+               (printf "  Rewriting stack[~a] with ~a\n" n value)
                (set-runtime-stack! rt (list-set (runtime-stack rt) n (evaluate-expr rt value)))]
               [(bs::expr::eq (bs::expr::altstack-nth n) value)
-               (printf "  Replacing altstack[~a] with ~a\n" n value)
+               (printf "  Rewriting altstack[~a] with ~a\n" n value)
                (set-runtime-alt! rt (list-set (runtime-alt rt) n (evaluate-expr rt value)))]
               [_ (void)]))
           (printf "\n"))
@@ -583,15 +585,15 @@
     (printf ":\n")
     (define assume-result (evaluate-expr rt expr))
     (assume assume-result)
-    (when (bs::expr::eq? expr)
-            (match expr
-              [(bs::expr::eq (bs::expr::stack-nth n) value)
-               (printf "  Replacing stack[~a] with ~a\n" n value)
-               (set-runtime-stack! rt (list-set (runtime-stack rt) n (evaluate-expr rt value)))]
-              [(bs::expr::eq (bs::expr::altstack-nth n) value)
-               (printf "  Replacing altstack[~a] with ~a\n" n value)
-               (set-runtime-alt! rt (list-set (runtime-alt rt) n (evaluate-expr rt value)))]
-              [_ (void)]))]
+    (when (and enable-rewrite (bs::expr::eq? expr))
+      (match expr
+        [(bs::expr::eq (bs::expr::stack-nth n) value)
+         (printf "  Rewriting stack[~a] with ~a\n" n value)
+         (set-runtime-stack! rt (list-set (runtime-stack rt) n (evaluate-expr rt value)))]
+        [(bs::expr::eq (bs::expr::altstack-nth n) value)
+         (printf "  Rewriting altstack[~a] with ~a\n" n value)
+         (set-runtime-alt! rt (list-set (runtime-alt rt) n (evaluate-expr rt value)))]
+        [_ (void)]))]
 
     [(bs::op::eval name expr)
     (printf "# EVAL")
@@ -930,6 +932,7 @@
   (unless (and (equal? left-type TYPE-INT) (equal? right-type TYPE-INT))
     (error 'type-check "Both operands of ~a must be int" op))
   TYPE-INT)
+
 
 
 

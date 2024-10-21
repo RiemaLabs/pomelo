@@ -11,6 +11,7 @@
 (define arg-str null)
 (define arg-auto-init #f)
 (define arg-debug #f)
+(define arg-enable-rewrite #t)
 
 (command-line
  #:once-any
@@ -20,6 +21,7 @@
  [("--auto-init") "auto init stack" (set! arg-auto-init #t)]
  [("--debug") "enable debug output" (set! arg-debug #t)]
  [("--solver") p-solver "Choose solver (z3 or bitwuzla)" (set! arg-solver (string->symbol p-solver))]
+ [("--no-rewrite") "disable automatic stack rewriting" (set! arg-enable-rewrite #f)]
  )
 
  (current-solver 
