@@ -45,6 +45,28 @@ OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0
 OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
 OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF
 OP_TOALTSTACK OP_TOALTSTACK
+ASSUME_0 { (altstack[0] == limbs0[8].(0)) }
+ASSUME_1 { (altstack[1] == limbs0[8].(1)) }
+ASSUME_2 { (altstack[2] == limbs0[8].(2)) }
+ASSUME_3 { (altstack[3] == limbs0[8].(3)) }
+ASSUME_4 { (altstack[4] == limbs0[8].(4)) }
+ASSUME_5 { (altstack[5] == limbs0[8].(5)) }
+ASSUME_6 { (altstack[6] == limbs0[8].(6)) }
+ASSUME_7 { (altstack[7] == limbs0[8].(7)) }
+ASSUME_8 { (altstack[8] == limbs0[8].(8)) }
+ASSUME_9 { (altstack[9] == limbs0[8].(9)) }
+ASSUME_10 { (altstack[10] == limbs0[8].(10)) }
+ASSUME_11 { (altstack[11] == limbs0[8].(11)) }
+ASSUME_12 { (altstack[12] == limbs0[8].(12)) }
+ASSUME_13 { (altstack[13] == limbs0[8].(13)) }
+ASSUME_14 { (altstack[14] == limbs0[8].(14)) }
+ASSUME_15 { (altstack[15] == limbs0[8].(15)) }
+ASSUME_16 { (altstack[16] == limbs0[8].(16)) }
+ASSUME_17 { (altstack[17] == limbs0[8].(17)) }
+ASSUME_18 { (altstack[18] == limbs0[8].(18)) }
+ASSUME_19 { (altstack[19] == limbs0[8].(19)) }
+ASSUME_20 { (altstack[20] == limbs0[8].(20)) }
+ASSUME_21 { (altstack[21] == limbs0[8].(21)) }
 OP_PUSHNUM_7 OP_ROLL
 OP_TOALTSTACK
 OP_PUSHNUM_2
@@ -105,6 +127,35 @@ OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0
 OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
 OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF
 OP_TOALTSTACK OP_TOALTSTACK
+ASSUME_22 { (altstack[0] == limbs0[7].(0)) }
+ASSUME_23 { (altstack[1] == limbs0[7].(1)) }
+ASSUME_24 { (altstack[2] == limbs0[7].(2)) }
+ASSUME_25 { (altstack[3] == limbs0[7].(3)) }
+ASSUME_26 { (altstack[4] == limbs0[7].(4)) }
+ASSUME_27 { (altstack[5] == limbs0[7].(5)) }
+ASSUME_28 { (altstack[6] == limbs0[7].(6)) }
+ASSUME_29 { (altstack[7] == limbs0[7].(7)) }
+ASSUME_30 { (altstack[8] == limbs0[7].(8)) }
+ASSUME_31 { (altstack[9] == limbs0[7].(9)) }
+ASSUME_32 { (altstack[10] == limbs0[7].(10)) }
+ASSUME_33 { (altstack[11] == limbs0[7].(11)) }
+ASSUME_34 { (altstack[12] == limbs0[7].(12)) }
+ASSUME_35 { (altstack[13] == limbs0[7].(13)) }
+ASSUME_36 { (altstack[14] == limbs0[7].(14)) }
+ASSUME_37 { (altstack[15] == limbs0[7].(15)) }
+ASSUME_38 { (altstack[16] == limbs0[7].(16)) }
+ASSUME_39 { (altstack[17] == limbs0[7].(17)) }
+ASSUME_40 { (altstack[18] == limbs0[7].(18)) }
+ASSUME_41 { (altstack[19] == limbs0[7].(19)) }
+ASSUME_42 { (altstack[20] == limbs0[7].(20)) }
+ASSUME_43 { (altstack[21] == limbs0[7].(21)) }
+ASSUME_44 { (altstack[22] == limbs0[7].(22)) }
+ASSUME_45 { (altstack[23] == limbs0[7].(23)) }
+ASSUME_46 { (altstack[24] == limbs0[7].(24)) }
+ASSUME_47 { (altstack[25] == limbs0[7].(25)) }
+ASSUME_48 { (altstack[26] == limbs0[7].(26)) }
+ASSUME_49 { (altstack[27] == limbs0[7].(27)) }
+ASSUME_50 { (altstack[28] == limbs0[7].(28)) }
 OP_PUSHNUM_6 OP_ROLL
 OP_TOALTSTACK
 OP_PUSHNUM_2
@@ -165,6 +216,35 @@ OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0
 OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
 OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF
 OP_TOALTSTACK OP_TOALTSTACK
+ASSUME_51 { (altstack[0] == limbs0[6].(0)) }
+ASSUME_52 { (altstack[1] == limbs0[6].(1)) }
+ASSUME_53 { (altstack[2] == limbs0[6].(2)) }
+ASSUME_54 { (altstack[3] == limbs0[6].(3)) }
+ASSUME_55 { (altstack[4] == limbs0[6].(4)) }
+ASSUME_56 { (altstack[5] == limbs0[6].(5)) }
+ASSUME_57 { (altstack[6] == limbs0[6].(6)) }
+ASSUME_58 { (altstack[7] == limbs0[6].(7)) }
+ASSUME_59 { (altstack[8] == limbs0[6].(8)) }
+ASSUME_60 { (altstack[9] == limbs0[6].(9)) }
+ASSUME_61 { (altstack[10] == limbs0[6].(10)) }
+ASSUME_62 { (altstack[11] == limbs0[6].(11)) }
+ASSUME_63 { (altstack[12] == limbs0[6].(12)) }
+ASSUME_64 { (altstack[13] == limbs0[6].(13)) }
+ASSUME_65 { (altstack[14] == limbs0[6].(14)) }
+ASSUME_66 { (altstack[15] == limbs0[6].(15)) }
+ASSUME_67 { (altstack[16] == limbs0[6].(16)) }
+ASSUME_68 { (altstack[17] == limbs0[6].(17)) }
+ASSUME_69 { (altstack[18] == limbs0[6].(18)) }
+ASSUME_70 { (altstack[19] == limbs0[6].(19)) }
+ASSUME_71 { (altstack[20] == limbs0[6].(20)) }
+ASSUME_72 { (altstack[21] == limbs0[6].(21)) }
+ASSUME_73 { (altstack[22] == limbs0[6].(22)) }
+ASSUME_74 { (altstack[23] == limbs0[6].(23)) }
+ASSUME_75 { (altstack[24] == limbs0[6].(24)) }
+ASSUME_76 { (altstack[25] == limbs0[6].(25)) }
+ASSUME_77 { (altstack[26] == limbs0[6].(26)) }
+ASSUME_78 { (altstack[27] == limbs0[6].(27)) }
+ASSUME_79 { (altstack[28] == limbs0[6].(28)) }
 OP_PUSHNUM_5 OP_ROLL
 OP_TOALTSTACK
 OP_PUSHNUM_2
@@ -225,6 +305,35 @@ OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0
 OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
 OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF
 OP_TOALTSTACK OP_TOALTSTACK
+ASSUME_80 { (altstack[0] == limbs0[5].(0)) }
+ASSUME_81 { (altstack[1] == limbs0[5].(1)) }
+ASSUME_82 { (altstack[2] == limbs0[5].(2)) }
+ASSUME_83 { (altstack[3] == limbs0[5].(3)) }
+ASSUME_84 { (altstack[4] == limbs0[5].(4)) }
+ASSUME_85 { (altstack[5] == limbs0[5].(5)) }
+ASSUME_86 { (altstack[6] == limbs0[5].(6)) }
+ASSUME_87 { (altstack[7] == limbs0[5].(7)) }
+ASSUME_88 { (altstack[8] == limbs0[5].(8)) }
+ASSUME_89 { (altstack[9] == limbs0[5].(9)) }
+ASSUME_90 { (altstack[10] == limbs0[5].(10)) }
+ASSUME_91 { (altstack[11] == limbs0[5].(11)) }
+ASSUME_92 { (altstack[12] == limbs0[5].(12)) }
+ASSUME_93 { (altstack[13] == limbs0[5].(13)) }
+ASSUME_94 { (altstack[14] == limbs0[5].(14)) }
+ASSUME_95 { (altstack[15] == limbs0[5].(15)) }
+ASSUME_96 { (altstack[16] == limbs0[5].(16)) }
+ASSUME_97 { (altstack[17] == limbs0[5].(17)) }
+ASSUME_98 { (altstack[18] == limbs0[5].(18)) }
+ASSUME_99 { (altstack[19] == limbs0[5].(19)) }
+ASSUME_100 { (altstack[20] == limbs0[5].(20)) }
+ASSUME_101 { (altstack[21] == limbs0[5].(21)) }
+ASSUME_102 { (altstack[22] == limbs0[5].(22)) }
+ASSUME_103 { (altstack[23] == limbs0[5].(23)) }
+ASSUME_104 { (altstack[24] == limbs0[5].(24)) }
+ASSUME_105 { (altstack[25] == limbs0[5].(25)) }
+ASSUME_106 { (altstack[26] == limbs0[5].(26)) }
+ASSUME_107 { (altstack[27] == limbs0[5].(27)) }
+ASSUME_108 { (altstack[28] == limbs0[5].(28)) }
 OP_PUSHNUM_4 OP_ROLL
 OP_TOALTSTACK
 OP_PUSHNUM_2
@@ -285,6 +394,35 @@ OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0
 OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
 OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF
 OP_TOALTSTACK OP_TOALTSTACK
+ASSUME_109 { (altstack[0] == limbs0[4].(0)) }
+ASSUME_110 { (altstack[1] == limbs0[4].(1)) }
+ASSUME_111 { (altstack[2] == limbs0[4].(2)) }
+ASSUME_112 { (altstack[3] == limbs0[4].(3)) }
+ASSUME_113 { (altstack[4] == limbs0[4].(4)) }
+ASSUME_114 { (altstack[5] == limbs0[4].(5)) }
+ASSUME_115 { (altstack[6] == limbs0[4].(6)) }
+ASSUME_116 { (altstack[7] == limbs0[4].(7)) }
+ASSUME_117 { (altstack[8] == limbs0[4].(8)) }
+ASSUME_118 { (altstack[9] == limbs0[4].(9)) }
+ASSUME_119 { (altstack[10] == limbs0[4].(10)) }
+ASSUME_120 { (altstack[11] == limbs0[4].(11)) }
+ASSUME_121 { (altstack[12] == limbs0[4].(12)) }
+ASSUME_122 { (altstack[13] == limbs0[4].(13)) }
+ASSUME_123 { (altstack[14] == limbs0[4].(14)) }
+ASSUME_124 { (altstack[15] == limbs0[4].(15)) }
+ASSUME_125 { (altstack[16] == limbs0[4].(16)) }
+ASSUME_126 { (altstack[17] == limbs0[4].(17)) }
+ASSUME_127 { (altstack[18] == limbs0[4].(18)) }
+ASSUME_128 { (altstack[19] == limbs0[4].(19)) }
+ASSUME_129 { (altstack[20] == limbs0[4].(20)) }
+ASSUME_130 { (altstack[21] == limbs0[4].(21)) }
+ASSUME_131 { (altstack[22] == limbs0[4].(22)) }
+ASSUME_132 { (altstack[23] == limbs0[4].(23)) }
+ASSUME_133 { (altstack[24] == limbs0[4].(24)) }
+ASSUME_134 { (altstack[25] == limbs0[4].(25)) }
+ASSUME_135 { (altstack[26] == limbs0[4].(26)) }
+ASSUME_136 { (altstack[27] == limbs0[4].(27)) }
+ASSUME_137 { (altstack[28] == limbs0[4].(28)) }
 OP_PUSHNUM_3 OP_ROLL
 OP_TOALTSTACK
 OP_PUSHNUM_2
@@ -345,6 +483,35 @@ OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0
 OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
 OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF
 OP_TOALTSTACK OP_TOALTSTACK
+ASSUME_138 { (altstack[0] == limbs0[3].(0)) }
+ASSUME_139 { (altstack[1] == limbs0[3].(1)) }
+ASSUME_140 { (altstack[2] == limbs0[3].(2)) }
+ASSUME_141 { (altstack[3] == limbs0[3].(3)) }
+ASSUME_142 { (altstack[4] == limbs0[3].(4)) }
+ASSUME_143 { (altstack[5] == limbs0[3].(5)) }
+ASSUME_144 { (altstack[6] == limbs0[3].(6)) }
+ASSUME_145 { (altstack[7] == limbs0[3].(7)) }
+ASSUME_146 { (altstack[8] == limbs0[3].(8)) }
+ASSUME_147 { (altstack[9] == limbs0[3].(9)) }
+ASSUME_148 { (altstack[10] == limbs0[3].(10)) }
+ASSUME_149 { (altstack[11] == limbs0[3].(11)) }
+ASSUME_150 { (altstack[12] == limbs0[3].(12)) }
+ASSUME_151 { (altstack[13] == limbs0[3].(13)) }
+ASSUME_152 { (altstack[14] == limbs0[3].(14)) }
+ASSUME_153 { (altstack[15] == limbs0[3].(15)) }
+ASSUME_154 { (altstack[16] == limbs0[3].(16)) }
+ASSUME_155 { (altstack[17] == limbs0[3].(17)) }
+ASSUME_156 { (altstack[18] == limbs0[3].(18)) }
+ASSUME_157 { (altstack[19] == limbs0[3].(19)) }
+ASSUME_158 { (altstack[20] == limbs0[3].(20)) }
+ASSUME_159 { (altstack[21] == limbs0[3].(21)) }
+ASSUME_160 { (altstack[22] == limbs0[3].(22)) }
+ASSUME_161 { (altstack[23] == limbs0[3].(23)) }
+ASSUME_162 { (altstack[24] == limbs0[3].(24)) }
+ASSUME_163 { (altstack[25] == limbs0[3].(25)) }
+ASSUME_164 { (altstack[26] == limbs0[3].(26)) }
+ASSUME_165 { (altstack[27] == limbs0[3].(27)) }
+ASSUME_166 { (altstack[28] == limbs0[3].(28)) }
 OP_PUSHNUM_2 OP_ROLL
 OP_TOALTSTACK
 OP_PUSHNUM_2
@@ -405,6 +572,35 @@ OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0
 OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
 OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF
 OP_TOALTSTACK OP_TOALTSTACK
+ASSUME_167 { (altstack[0] == limbs0[2].(0)) }
+ASSUME_168 { (altstack[1] == limbs0[2].(1)) }
+ASSUME_169 { (altstack[2] == limbs0[2].(2)) }
+ASSUME_170 { (altstack[3] == limbs0[2].(3)) }
+ASSUME_171 { (altstack[4] == limbs0[2].(4)) }
+ASSUME_172 { (altstack[5] == limbs0[2].(5)) }
+ASSUME_173 { (altstack[6] == limbs0[2].(6)) }
+ASSUME_174 { (altstack[7] == limbs0[2].(7)) }
+ASSUME_175 { (altstack[8] == limbs0[2].(8)) }
+ASSUME_176 { (altstack[9] == limbs0[2].(9)) }
+ASSUME_177 { (altstack[10] == limbs0[2].(10)) }
+ASSUME_178 { (altstack[11] == limbs0[2].(11)) }
+ASSUME_179 { (altstack[12] == limbs0[2].(12)) }
+ASSUME_180 { (altstack[13] == limbs0[2].(13)) }
+ASSUME_181 { (altstack[14] == limbs0[2].(14)) }
+ASSUME_182 { (altstack[15] == limbs0[2].(15)) }
+ASSUME_183 { (altstack[16] == limbs0[2].(16)) }
+ASSUME_184 { (altstack[17] == limbs0[2].(17)) }
+ASSUME_185 { (altstack[18] == limbs0[2].(18)) }
+ASSUME_186 { (altstack[19] == limbs0[2].(19)) }
+ASSUME_187 { (altstack[20] == limbs0[2].(20)) }
+ASSUME_188 { (altstack[21] == limbs0[2].(21)) }
+ASSUME_189 { (altstack[22] == limbs0[2].(22)) }
+ASSUME_190 { (altstack[23] == limbs0[2].(23)) }
+ASSUME_191 { (altstack[24] == limbs0[2].(24)) }
+ASSUME_192 { (altstack[25] == limbs0[2].(25)) }
+ASSUME_193 { (altstack[26] == limbs0[2].(26)) }
+ASSUME_194 { (altstack[27] == limbs0[2].(27)) }
+ASSUME_195 { (altstack[28] == limbs0[2].(28)) }
 OP_PUSHNUM_1 OP_ROLL
 OP_TOALTSTACK
 OP_PUSHNUM_2
@@ -465,6 +661,35 @@ OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0
 OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
 OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF
 OP_TOALTSTACK OP_TOALTSTACK
+ASSUME_196 { (altstack[0] == limbs0[1].(0)) }
+ASSUME_197 { (altstack[1] == limbs0[1].(1)) }
+ASSUME_198 { (altstack[2] == limbs0[1].(2)) }
+ASSUME_199 { (altstack[3] == limbs0[1].(3)) }
+ASSUME_200 { (altstack[4] == limbs0[1].(4)) }
+ASSUME_201 { (altstack[5] == limbs0[1].(5)) }
+ASSUME_202 { (altstack[6] == limbs0[1].(6)) }
+ASSUME_203 { (altstack[7] == limbs0[1].(7)) }
+ASSUME_204 { (altstack[8] == limbs0[1].(8)) }
+ASSUME_205 { (altstack[9] == limbs0[1].(9)) }
+ASSUME_206 { (altstack[10] == limbs0[1].(10)) }
+ASSUME_207 { (altstack[11] == limbs0[1].(11)) }
+ASSUME_208 { (altstack[12] == limbs0[1].(12)) }
+ASSUME_209 { (altstack[13] == limbs0[1].(13)) }
+ASSUME_210 { (altstack[14] == limbs0[1].(14)) }
+ASSUME_211 { (altstack[15] == limbs0[1].(15)) }
+ASSUME_212 { (altstack[16] == limbs0[1].(16)) }
+ASSUME_213 { (altstack[17] == limbs0[1].(17)) }
+ASSUME_214 { (altstack[18] == limbs0[1].(18)) }
+ASSUME_215 { (altstack[19] == limbs0[1].(19)) }
+ASSUME_216 { (altstack[20] == limbs0[1].(20)) }
+ASSUME_217 { (altstack[21] == limbs0[1].(21)) }
+ASSUME_218 { (altstack[22] == limbs0[1].(22)) }
+ASSUME_219 { (altstack[23] == limbs0[1].(23)) }
+ASSUME_220 { (altstack[24] == limbs0[1].(24)) }
+ASSUME_221 { (altstack[25] == limbs0[1].(25)) }
+ASSUME_222 { (altstack[26] == limbs0[1].(26)) }
+ASSUME_223 { (altstack[27] == limbs0[1].(27)) }
+ASSUME_224 { (altstack[28] == limbs0[1].(28)) }
 OP_0 OP_ROLL
 OP_TOALTSTACK
 OP_PUSHNUM_2
@@ -525,6 +750,35 @@ OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0
 OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
 OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF
 OP_TOALTSTACK OP_TOALTSTACK
+ASSUME_225 { (altstack[0] == limbs0[0].(0)) }
+ASSUME_226 { (altstack[1] == limbs0[0].(1)) }
+ASSUME_227 { (altstack[2] == limbs0[0].(2)) }
+ASSUME_228 { (altstack[3] == limbs0[0].(3)) }
+ASSUME_229 { (altstack[4] == limbs0[0].(4)) }
+ASSUME_230 { (altstack[5] == limbs0[0].(5)) }
+ASSUME_231 { (altstack[6] == limbs0[0].(6)) }
+ASSUME_232 { (altstack[7] == limbs0[0].(7)) }
+ASSUME_233 { (altstack[8] == limbs0[0].(8)) }
+ASSUME_234 { (altstack[9] == limbs0[0].(9)) }
+ASSUME_235 { (altstack[10] == limbs0[0].(10)) }
+ASSUME_236 { (altstack[11] == limbs0[0].(11)) }
+ASSUME_237 { (altstack[12] == limbs0[0].(12)) }
+ASSUME_238 { (altstack[13] == limbs0[0].(13)) }
+ASSUME_239 { (altstack[14] == limbs0[0].(14)) }
+ASSUME_240 { (altstack[15] == limbs0[0].(15)) }
+ASSUME_241 { (altstack[16] == limbs0[0].(16)) }
+ASSUME_242 { (altstack[17] == limbs0[0].(17)) }
+ASSUME_243 { (altstack[18] == limbs0[0].(18)) }
+ASSUME_244 { (altstack[19] == limbs0[0].(19)) }
+ASSUME_245 { (altstack[20] == limbs0[0].(20)) }
+ASSUME_246 { (altstack[21] == limbs0[0].(21)) }
+ASSUME_247 { (altstack[22] == limbs0[0].(22)) }
+ASSUME_248 { (altstack[23] == limbs0[0].(23)) }
+ASSUME_249 { (altstack[24] == limbs0[0].(24)) }
+ASSUME_250 { (altstack[25] == limbs0[0].(25)) }
+ASSUME_251 { (altstack[26] == limbs0[0].(26)) }
+ASSUME_252 { (altstack[27] == limbs0[0].(27)) }
+ASSUME_253 { (altstack[28] == limbs0[0].(28)) }
 ASSERT_0 { (altstack[0] == limbs0[0].(0)) }
 ASSERT_1 { (altstack[1] == limbs0[0].(1)) }
 ASSERT_2 { (altstack[2] == limbs0[0].(2)) }

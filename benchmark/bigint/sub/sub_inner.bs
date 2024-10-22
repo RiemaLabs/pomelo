@@ -1,0 +1,7 @@
+PUSH_SYMINT_0
+PUSH_SYMINT_1
+PUSH_SYMINT_2
+OP_ROT OP_ROT OP_SUB OP_DUP OP_0 OP_LESSTHAN OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_ADD OP_ENDIF
+ASSERT_0 { (stack[0] == (if ((v0 - v1) < 0) then ((v0 - v1) + v2) else (v0 - v1))) }
+ASSERT_1 { (stack[1] == (if ((v0 - v1) < 0) then 1 else 0)) }
+ASSERT_2 { (stack[2] == v2) }
