@@ -6,6 +6,9 @@ import signal
 import time
 import csv
 from datetime import datetime
+import shlex
+import tempfile
+import re
 
 # Initialize counters and result storage
 total_files = 0
@@ -33,37 +36,41 @@ for root, dirs, files in os.walk('benchmark'):
             bs_files.append(filepath)
 
 # Define timeout handler
-
-
 def timeout_handler(signum, frame):
     raise TimeoutError("Execution timed out")
 
 # Define execution function
-
-
 def run_file(filepath, no_rewrite):
     filename = os.path.basename(filepath)
+
+    with open(filepath, 'r') as f:
+        loc = sum(1 for line in f if line.strip())
+    
     if filename.startswith('TO-'):
-        return filepath, f'{YELLOW}Timeout{RESET}', 60.0
+        return filepath, f'{YELLOW}Timeout{RESET}', 60.0, loc
 
     cmd = ['racket', 'run.rkt', '--file', filepath, '--solver', 'bitwuzla']
     if no_rewrite:
-        print('disable rewrite')
         cmd.append('--no-rewrite')
-    start_time = time.time()
-    try:
-        # Set timeout signal
-        signal.signal(signal.SIGALRM, timeout_handler)
-        signal.alarm(60)  # 60 seconds timeout
+    
+    with tempfile.NamedTemporaryFile(mode='w+', delete=False) as temp_file:
+        time_output_path = temp_file.name
+    
+    time_cmd = ['/usr/bin/time', '-l', '-o', time_output_path]
+    full_cmd = time_cmd + cmd
 
-        process = subprocess.run(
-            cmd, capture_output=True, text=True, timeout=60)
+    try:
+        process = subprocess.run(full_cmd, capture_output=True, text=True, timeout=60)
+        with open(time_output_path, 'r') as f:
+            time_output = f.read()
+            match = re.search(r'(\d+\.\d+)\s+real', time_output)
+            execution_time = float(match.group(1)) if match else 0.0
+        
         output = process.stdout
         error = process.stderr
-        # Check if execution failed
+        
         if process.returncode != 0:
             status = f'{RED}Failed{RESET}'
-        # Check if verification failed
         elif 'Evaluated' in output:
             status = f'{RED}Failed{RESET}'
         else:
@@ -71,23 +78,24 @@ def run_file(filepath, no_rewrite):
     except subprocess.TimeoutExpired:
         status = f'{YELLOW}Timeout{RESET}'
         error = "Execution timed out"
-    except TimeoutError:
-        status = f'{YELLOW}Timeout{RESET}'
-        error = "Execution timed out"
+        execution_time = 60.0
+    except ValueError as e:
+        status = f'{RED}Failed{RESET}'
+        error = f"Error reading execution time: {str(e)}"
+        execution_time = 0.0
     except Exception as e:
         status = f'{RED}Failed{RESET}'
         error = str(e)
+        execution_time = 0.0
     finally:
-        # Cancel timeout signal
-        signal.alarm(0)
+        if os.path.exists(time_output_path):
+            os.remove(time_output_path)
 
-    execution_time = time.time() - start_time
-
-    # Print results
     print('=' * 40)
-    print('Filename: {}'.format(filepath))
-    print('Status: {}'.format(status))
-    print('Execution time: {:.2f} seconds'.format(execution_time))
+    print(f'Filename: {filepath}')
+    print(f'Status: {status}')
+    print(f'Execution time: {execution_time:.2f} seconds')
+    print(f'Total Lines of Code (LoC): {loc}')
     if 'Failed' in status or 'Timeout' in status:
         print('Error Message:')
         print(error)
@@ -95,7 +103,8 @@ def run_file(filepath, no_rewrite):
         print('Output:')
         print(output)
     print('\n')
-    return filepath, status, execution_time
+    
+    return filepath, status, execution_time, loc
 
 
 if __name__ == '__main__':
@@ -103,15 +112,19 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run tests')
     parser.add_argument('--no-rewrite', action='store_true',
                         help='disable automatic stack rewriting')
+    parser.add_argument('--single-core', action='store_true',
+                        help='use single core for more accurate time measurements')
     args = parser.parse_args()
 
-    # Parallel execution
-    with multiprocessing.Pool(processes=24) as pool:
-        results = pool.starmap(
-            run_file, [(filepath, args.no_rewrite) for filepath in bs_files])
+    if args.single_core:
+        results = [run_file(filepath, args.no_rewrite) for filepath in bs_files]
+    else:
+        with multiprocessing.Pool(processes=24) as pool:
+            results = pool.starmap(
+                run_file, [(filepath, args.no_rewrite) for filepath in bs_files])
 
     # Process results
-    for filepath, status, execution_time in results:
+    for filepath, status, execution_time, loc in results:
         # Summarize results
         if 'Successful' in status:
             successes += 1
@@ -126,7 +139,7 @@ if __name__ == '__main__':
         folder = os.path.dirname(filepath)
         filename = os.path.basename(filepath)
         folder_stats[folder].append(
-            {'filename': filename, 'status': status, 'execution_time': execution_time})
+            {'filename': filename, 'status': status, 'execution_time': execution_time, 'loc': loc})
 
     # Print statistics table
     print('=' * 40)
@@ -141,11 +154,11 @@ if __name__ == '__main__':
     # Print table categorized by folder
     for folder, files in folder_stats.items():
         print('Folder: {}'.format(folder))
-        print('{:<50}{:<20}{:<15}'.format(
-            'Filename', 'Status', 'Execution Time(s)'))
+        print('{:<50}{:<20}{:<15}{:<10}'.format(
+            'Filename', 'Status', 'Execution Time(s)', 'LoC'))
         for file in files:
-            print('{:<50}{:<20}{:<15.2f}'.format(
-                file['filename'], file['status'], file['execution_time']))
+            print('{:<50}{:<20}{:<15.2f}{:<10}'.format(
+                file['filename'], file['status'], file['execution_time'], file['loc']))
         print('\n')
 
     # Generate timestamp for the filename
@@ -154,7 +167,7 @@ if __name__ == '__main__':
 
     # Write results to CSV file
     with open(csv_filename, 'w', newline='') as csvfile:
-        fieldnames = ['Folder', 'Filename', 'Status', 'Execution Time(s)']
+        fieldnames = ['Folder', 'Filename', 'Status', 'Execution Time(s)', 'LoC']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
         writer.writeheader()
@@ -164,7 +177,8 @@ if __name__ == '__main__':
                     'Folder': folder,
                     'Filename': file['filename'],
                     'Status': file['status'].replace(GREEN, '').replace(RED, '').replace(YELLOW, '').replace(RESET, ''),
-                    'Execution Time(s)': f"{file['execution_time']:.2f}"
+                    'Execution Time(s)': f"{file['execution_time']:.2f}",
+                    'LoC': file['loc']
                 })
 
     print(f"Results have been written to {csv_filename}")
