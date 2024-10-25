@@ -114,7 +114,18 @@ if __name__ == '__main__':
                         help='disable automatic stack rewriting')
     parser.add_argument('--single-core', action='store_true',
                         help='use single core for more accurate time measurements')
+    parser.add_argument('--directory', type=str, default='benchmark',
+                        help='specify the directory to search for .bs files')
     args = parser.parse_args()
+
+    # Collect all .bs files from the specified directory
+    bs_files = []
+    for root, dirs, files in os.walk(args.directory):
+        for file in files:
+            if file.endswith('.bs'):
+                total_files += 1
+                filepath = os.path.join(root, file)
+                bs_files.append(filepath)
 
     if args.single_core:
         results = [run_file(filepath, args.no_rewrite) for filepath in bs_files]
