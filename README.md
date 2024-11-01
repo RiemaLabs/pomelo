@@ -122,7 +122,7 @@ In addition to these primary constructs, Pomelo supports supplementary expressio
 
 5. **Conditional Expressions**  
    - **`If bool_expr then value_expr1 else value_expr2`**  
-     Serves as syntactic sugar, yielding $value\_expr1$ if $bool\_expr$ evaluates to true, and $value\_expr2$ otherwise.
+     Serves as syntactic sugar, yielding `value_expr1` if `bool_expr` evaluates to true, and `value_expr2` otherwise.
 
 6. **Logical Operators (`&&`, `||`, `<=`, `>=`, `<`, `>`, `==`, `!=`)**  
    Utilized for constructing boolean expressions, with the stipulation that expressions within `Assert` and `Assume` must evaluate to boolean values.
