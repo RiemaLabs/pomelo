@@ -25,61 +25,22 @@ To use Pomelo, you'll need the following dependencies:
     raco pkg install --auto rosette
     ```
   - Repository: [https://github.com/emina/rosette](https://github.com/emina/rosette)
+- **Bitwuzla (Version 0.6.0 or higher)**: An SMT Solver for the theories of fixed-size bit-vectors
+  - **Installation**: Download the source code from the [Bitwuzla Repository](https://github.com/bitwuzla/bitwuzla), then compile and run it. After installation, ensure that the `bitwuzla` binary is added to your system’s environment PATH for easy access.
 
 ## Using Pomelo
-
-### Parsing a Bitcoin Script
-
-To parse a Bitcoin Script written as a string, use the `parse.rkt` script:
-
-```bash
-racket ./parse.rkt --str "OP_1 OP_SYMINT_0 OP_ADD OP_3 OP_NUMEQUAL OP_DUP OP_SOLVE"
-```
-
-This command will output the internal representation of the parsed script:
-
-```
-(#(struct:OP_1) #(struct:OP_SYMINT 0) #(struct:OP_ADD) #(struct:OP_X 3) #(struct:OP_NUMEQUAL) #(struct:OP_DUP) #(struct:OP_SOLVE))
-```
-
-To parse a script from a file:
-
-```bash
-racket ./parse.rkt --file <path-to-file>
-```
 
 ### Running a Bitcoin Script for Verification
 
 To execute a Bitcoin Script with symbolic variables, use the `run.rkt` script:
 
 ```bash
-racket ./run.rkt --str "OP_1 OP_SYMINT_0 OP_ADD OP_3 OP_NUMEQUALVERIFY OP_SYMINT_0 OP_SOLVE" --debug
+racket ./run.rkt --file <path-to-file> --debug --solver bitwuzla
 ```
 
-The output will show intermediate opcodes and the final state of the stacks, and with the `--debug` flag, you'll see detailed execution steps and the result of the SMT solver:
-
-```
-# next: #(struct:OP_1)
-# next: #(struct:OP_SYMINT 0)
-# next: #(struct:OP_ADD)
-# next: #(struct:OP_X 3)
-# next: #(struct:OP_NUMEQUALVERIFY)
-# next: #(struct:OP_SYMINT 0)
-# next: #(struct:OP_SOLVE)
-# OP_SOLVE result:
-(model
- [int$0 (bv #x00000002 32)])
-# result (stack):
-()
-# result (alt stack):
-()
-```
-
-To run a script from a file:
-
-```bash
-racket ./run.rkt --file <path-to-file> --debug
-```
+- By default, the SMT backend solver employed is Z3; however, users may opt to utilize Bitwuzla by specifying the `--solver bitwuzla` flag. 
+- The `--debug` option facilitates the output of comprehensive stack state transitions at each execution step, thereby enhancing the debugging process, especially in instances where assertion verifications fail. 
+- The input file is expected to contain Bitcoin Script code augmented with the Pomelo extension verification language, which currently supports nearly the entirety of Bitcoin Script syntax.
 
 ### Verification-Specific Syntax and Semantics
 
@@ -128,96 +89,3 @@ In addition to these primary constructs, Pomelo supports supplementary expressio
    Utilized for constructing boolean expressions, with the stipulation that expressions within `Assert` and `Assume` must evaluate to boolean values.
 
 For illustrative examples, please refer to the `./benchmark` directory, which aligns with the corresponding public functions in the [BitVM](https://github.com/RiemaLabs/BitVM) repository. These examples encompass specifications generated through automated scripts, demonstrating the practical application of the extended syntactic constructs.
-
-## Examples
-
-Below are some example scripts demonstrating how to use Pomelo for symbolic reasoning and verification.
-
-### Example 1: Checking if a BigInt is Zero
-
-```bash
-racket run.rkt --file ./bigint/is_zero.bs
-```
-
-**Script**: `bigint/is_zero.bs`
-
-```bigint/is_zero.bs
-OP_0
-OP_0
-OP_0
-OP_0
-OP_0
-OP_0
-OP_0
-OP_0
-OP_PUSHBYTES_2 OP_SYMINT_0
-OP_PUSHNUM_1
-OP_PUSHNUM_1 OP_ROLL OP_NOT OP_BOOLAND
-OP_PUSHNUM_1 OP_ROLL OP_NOT OP_BOOLAND
-OP_PUSHNUM_1 OP_ROLL OP_NOT OP_BOOLAND
-...
-ASSERT_1 {stack[0] == (if v0 == 0 then 1 else 0)}
-```
-
-**Explanation**:
-
-This script initializes a BigInt with a symbolic variable `v0` and checks if it is zero. The assertion ensures that `stack[0]` is `1` if `v0` is zero, and `0` otherwise.
-
-### Example 2: Comparing Two BigInts for Equality
-
-```bash
-racket run.rkt --file ./bigint/equal.bs
-```
-
-**Script**: `bigint/equal.bs`
-
-```bigint/equal.bs
-OP_0
-OP_0
-OP_0
-...
-OP_PUSHBYTES_2 OP_SYMINT_0
-...
-OP_PUSHBYTES_2 OP_SYMINT_1
-OP_PUSHBYTES_1 11 OP_ROLL OP_PUSHNUM_9 OP_ROLL
-...
-OP_EQUAL OP_TOALTSTACK
-...
-OP_FROMALTSTACK
-...
-OP_BOOLAND
-...
-ASSERT_1 {stack[0] == (if v0 == v1 then 1 else 0)}
-```
-
-**Explanation**:
-
-This script compares two symbolic BigInt variables `v0` and `v1` for equality. The assertion verifies that `stack[0]` correctly reflects the result of the comparison.
-
-### Example 3: Comparing Two BigInts with Less Than
-
-```bash
-racket run.rkt --file ./bigint/lessthan.bs
-```
-
-**Script**: `bigint/lessthan.bs`
-
-```bigint/lessthan.bs
-OP_0
-OP_0
-...
-OP_PUSHBYTES_2 OP_SYMINT_0
-...
-OP_PUSHBYTES_2 OP_SYMINT_1
-OP_PUSHBYTES_1 11 OP_ROLL OP_PUSHNUM_9 OP_ROLL
-OP_PUSHBYTES_1 11 OP_ROLL OP_PUSHNUM_10 OP_ROLL
-...
-OP_FROMALTSTACK OP_FROMALTSTACK OP_ROT OP_IF OP_2DROP OP_PUSHNUM_1 OP_ELSE OP_ROT OP_DROP OP_OVER OP_BOOLOR OP_ENDIF
-...
-OP_BOOLAND
-ASSERT_1 {stack[0] == (if v0 < v1 then 1 else 0)}
-```
-
-**Explanation**:
-
-This script compares two symbolic BigInt variables `v0` and `v1` to determine if `v0` is less than `v1`. The assertion verifies that `stack[0]` correctly reflects the comparison result, being `1` if `v0` is less than `v1`, and `0` otherwise.
