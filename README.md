@@ -13,21 +13,6 @@ Pomelo is a symbolic reasoning toolkit designed to simplify the formal verificat
 
 Before diving into Pomelo's usage, it's important to understand the context in which it operates. **Bitcoin Script** is a stack-based programming language used to control the spending conditions of Bitcoins. It enables the creation of complex transaction scripts that define how funds can be moved. Ensuring these scripts function correctly under all possible scenarios is crucial for the security and reliability of Bitcoin transactions.
 
-### Symbolic Variables
-
-Before delving into how Pomelo works, it's essential to understand the concept of **symbolic variables**. Unlike traditional variables that hold concrete values during computation, symbolic variables do not have specific values—they exist symbolically. When these symbolic variables are processed through a script, the output isn't a single number but an equation or set of constraints involving these variables.
-
-For example, in a Bitcoin Script with symbolic inputs, the output will be an equation that incorporates those symbolic variables, enabling reasoning about all possible input values simultaneously. This approach allows developers to verify that the script behaves correctly for any valid input, rather than testing individual cases.
-
-## How It Works
-
-Here's how Pomelo facilitates formal verification:
-
-1. **Script Extraction**: The developer writes or extracts the Bitcoin Script.
-2. **Specification with Assertions**: The developer provides a specification of the script's correctness using assertions embedded within the script.
-3. **Automatic Verification**: Pomelo utilizes an SMT (Satisfiability Modulo Theories) solver to automatically verify the correctness of the script against the specified assertions.
-4. **Guarantee of Correctness**: If all assertions are proven, Pomelo guarantees the script's correctness for all possible inputs.
-
 ## Dependencies
 
 To use Pomelo, you'll need the following dependencies:
@@ -63,43 +48,15 @@ To parse a script from a file:
 racket ./parse.rkt --file <path-to-file>
 ```
 
-### Running a Bitcoin Script
+### Running a Bitcoin Script for Verification
 
 To execute a Bitcoin Script with symbolic variables, use the `run.rkt` script:
-
-```bash
-racket ./run.rkt --str "OP_1 OP_SYMINT_0 OP_ADD OP_3 OP_NUMEQUALVERIFY" --debug
-```
-
-The output will show intermediate opcodes and the final state of the stacks:
-
-```
-# next: #(struct:OP_1)
-# next: #(struct:OP_SYMINT 0)
-# next: #(struct:OP_ADD)
-# next: #(struct:OP_X 3)
-# next: #(struct:OP_NUMEQUALVERIFY)
-# result (stack):
-()
-# result (alt stack):
-()
-```
-
-To run a script from a file:
-
-```bash
-racket ./run.rkt --file <path-to-file> --debug
-```
-
-### Performing Symbolic Reasoning and Verification
-
-To reason about a Bitcoin Script and verify assertions using symbolic variables:
 
 ```bash
 racket ./run.rkt --str "OP_1 OP_SYMINT_0 OP_ADD OP_3 OP_NUMEQUALVERIFY OP_SYMINT_0 OP_SOLVE" --debug
 ```
 
-With the `--debug` flag, you'll see detailed execution steps and the result of the SMT solver:
+The output will show intermediate opcodes and the final state of the stacks, and with the `--debug` flag, you'll see detailed execution steps and the result of the SMT solver:
 
 ```
 # next: #(struct:OP_1)
@@ -118,33 +75,58 @@ With the `--debug` flag, you'll see detailed execution steps and the result of t
 ()
 ```
 
-### Debug Mode
-
-Enable debug mode for detailed execution tracing:
+To run a script from a file:
 
 ```bash
 racket ./run.rkt --file <path-to-file> --debug
 ```
 
-This mode provides step-by-step information about the stack and alternative stack at each step of execution, as well as the final state of both stacks.
+### Verification-Specific Syntax and Semantics
 
-### Auto-Initialization
+Pomelo introduces an array of extended syntactic constructs into Bitcoin Script to facilitate functional verification. These enhancements include:
 
-To automatically initialize the stack, use the `--auto-init` flag:
+1. **`PUSH_BIGINT_{i} {n_bits} {limb_size} limbs{i}`**  
+   Inserts a large integer onto the stack in little-endian order, occupying $\lceil \frac{n\_bits}{limb\_size} \rceil$ stack elements corresponding to individual limbs. Each non-base stack element represents a machine integer of `limb_size` bits, whereas the base element encapsulates $((n\_bits - 1)\mod limb\_size) + 1$ bits.
+   - Subsequently, the large integer pushed onto the stack is denoted by the symbolic variable $v_i$, with `limbs{i}[j]` representing the $j$-th limb of $v_i$.
+   - The variable $v_i$ is syntactzc sugar for the expression:  
+     $v_i = limbs{i}[0] + limbs{i}[1] \times (1 \ll limb\_size) + \dots + limbs{i}[\lceil \frac{n\_bits}{limb\_size} \rceil - 1] \times \left(1 \ll \left(\lceil \frac{n\_bits}{limb\_size} \rceil - 1\right) \times limb\_size\right)$
 
-```bash
-racket ./run.rkt --file <path-to-file> --auto-init
-```
+2. **`PUSH_SYMINT_{i}`**  
+   Pushes a single symbolic integer onto the stack without any range constraints.
+   - In subsequent expressions, the symbolic variable $v_i$ references this single stack element.
 
-### Assertions for Formal Verification
+3. **`DEFINE_{id} { expr }`**  
+   Establishes an intermediate variable, $i_{id} = expr$. During evaluation, $i_{id}$ is automatically substituted with $expr$ via an assumption mechanism.
 
-Pomelo supports assertions to specify and verify the functional correctness of scripts. Assertions are specified using the `ASSERT_X` opcode followed by a condition in curly braces `{}`. For example:
+4. **`Assume_{index} { expr }`**  
+   Adheres to conventional assume semantics by introducing the $index$-th hypothesis as $expr$ within the SMT solver.
 
-```
-ASSERT_1 {stack[0] == (if v0 == 0 then 0 else 1)}
-```
+5. **`Assert_{index} { expr }`**  
+   Follows standard assert semantics by invoking the SMT solver to validate whether $expr$ holds under the provided premises, substituting parts of $expr$ with actual symbolic expressions as necessary.
 
-This assertion checks whether the top item of the stack (`stack[0]`) equals `0` when `v0` is `0`, and `1` otherwise.
+In addition to these primary constructs, Pomelo supports supplementary expression syntaxes to enrich assertion descriptions:
+
+1. **`stack[i]`, `altstack[i]`**  
+   Denotes the $i$-th element from the top of the primary and auxiliary stacks, respectively.
+
+2. **`limbs{i}[j].(k)`**  
+   Represents the $k$-th bit of the $j$-th limb of the large integer $v_i$, with all indices commencing at 0.
+
+3. **`sha256`**, **`++`**  
+   - `sha256` functions as a unary operator, emulating the `OP_SHA256` operation.
+   - `++` concatenates two stack elements at the bit vector level, simulating the `OP_CAT` semantics.
+
+4. **Arithmetic Operators (`+`, `-`, `*`, `/`, `%`, `<<`, `>>`)**  
+   Implemented within the Quantifier-Free Bit-Vector (QF_BV) logic.
+
+5. **Conditional Expressions**  
+   - **`If bool_expr then value_expr1 else value_expr2`**  
+     Serves as syntactic sugar, yielding $value\_expr1$ if $bool\_expr$ evaluates to true, and $value\_expr2$ otherwise.
+
+6. **Logical Operators (`&&`, `||`, `<=`, `>=`, `<`, `>`, `==`, `!=`)**  
+   Utilized for constructing boolean expressions, with the stipulation that expressions within `Assert` and `Assume` must evaluate to boolean values.
+
+For illustrative examples, please refer to the `./benchmark` directory, which aligns with the corresponding public functions in the [BitVM](https://github.com/RiemaLabs/BitVM) repository. These examples encompass specifications generated through automated scripts, demonstrating the practical application of the extended syntactic constructs.
 
 ## Examples
 
