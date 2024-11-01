@@ -86,10 +86,11 @@ racket ./run.rkt --file <path-to-file> --debug
 Pomelo introduces an array of extended syntactic constructs into Bitcoin Script to facilitate functional verification. These enhancements include:
 
 1. **`PUSH_BIGINT_{i} {n_bits} {limb_size} limbs{i}`**  
-   Inserts a large integer onto the stack in little-endian order, occupying $\lceil \frac{n\_bits}{limb\_size} \rceil$ stack elements corresponding to individual limbs. Each non-base stack element represents a machine integer of `limb_size` bits, whereas the base element encapsulates $((n\_bits - 1)\mod limb\_size) + 1$ bits.
+   Inserts a large integer onto the stack in little-endian order, occupying ` ceil(n_bits/limb_size)` stack elements corresponding to individual limbs. Each non-base stack element represents a machine integer of `limb_size` bits, whereas the base element encapsulates `(n_bits - 1) mod limb_size + 1`$` bits.
    - Subsequently, the large integer pushed onto the stack is denoted by the symbolic variable $v_i$, with `limbs{i}[j]` representing the $j$-th limb of $v_i$.
-   - The variable $v_i$ is syntactzc sugar for the expression:  
-     $v_i = limbs{i}[0] + limbs{i}[1] \times (1 \ll limb\_size) + \dots + limbs{i}[\lceil \frac{n\_bits}{limb\_size} \rceil - 1] \times \left(1 \ll \left(\lceil \frac{n\_bits}{limb\_size} \rceil - 1\right) \times limb\_size\right)$
+   - The variable $v_i$ is syntactic sugar for the expression:  
+     `v_i = limbsi[0] + limbsi[1] * (1 << limb_size) + ... + limbsi[ceil(n_bits/limb_size) - 1] * (1 << (ceil(n_bits/limb_size) - 1) * limb_size))`
+
 
 2. **`PUSH_SYMINT_{i}`**  
    Pushes a single symbolic integer onto the stack without any range constraints.
