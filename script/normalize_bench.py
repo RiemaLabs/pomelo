@@ -1,3 +1,5 @@
+# Note: Abort.
+# Note: It can be replaced by simply counting strings that start with "OP_".
 import os
 
 
