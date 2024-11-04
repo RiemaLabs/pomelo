@@ -41,6 +41,8 @@ def run_file(filepath, use_bitwuzla=False):
     cmd = ['racket', 'run.rkt', '--file', filepath]
     if use_bitwuzla:
         cmd += ['--solver', 'bitwuzla']
+    else:
+        cmd += ['--solver', 'cvc5']
 
     # 根据操作系统选择不同的时间测量方法
     if platform.system() == 'Darwin':  # macOS

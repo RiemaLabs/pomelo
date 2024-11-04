@@ -5,6 +5,7 @@
   (prefix-in utils:: "./pomelo/utils.rkt")
   racket/string
   rosette/solver/smt/bitwuzla
+  rosette/solver/smt/cvc5
   )
 
 (define arg-solver 'z3)
@@ -28,6 +29,7 @@
  (case arg-solver
    [(z3) (current-solver)]
    [(bitwuzla) (bitwuzla)]
+   [(cvc5) (cvc5)]
    [else (error "Unsupported solver:" arg-solver)]))
 
 (when (! (null? arg-str))
