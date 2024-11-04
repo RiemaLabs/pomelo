@@ -5,6 +5,7 @@ import csv
 from datetime import datetime
 import re
 from tqdm import tqdm
+import platform
 
 # ANSI color codes for colored terminal output
 GREEN = '\033[92m'
@@ -12,7 +13,7 @@ RED = '\033[91m'
 YELLOW = '\033[93m'
 RESET = '\033[0m'
 
-TIMEOUT = 20.0
+TIMEOUT = 600.0
 
 
 def run_file(filepath, use_bitwuzla=False):
@@ -41,8 +42,11 @@ def run_file(filepath, use_bitwuzla=False):
     if use_bitwuzla:
         cmd += ['--solver', 'bitwuzla']
 
-    # Use '/usr/bin/time' to measure execution time and output to stderr
-    time_cmd = ['/usr/bin/time', '-f', 'ELAPSED_TIME %e']
+    # 根据操作系统选择不同的时间测量方法
+    if platform.system() == 'Darwin':  # macOS
+        time_cmd = ['gtime', '-f', 'ELAPSED_TIME %e']  # 如果安装了 GNU time
+    else:  # Linux
+        time_cmd = ['/usr/bin/time', '-f', 'ELAPSED_TIME %e']
 
     # Combine the time command with the actual command
     full_cmd = time_cmd + cmd
