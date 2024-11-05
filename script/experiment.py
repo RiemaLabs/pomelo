@@ -13,7 +13,7 @@ RED = '\033[91m'
 YELLOW = '\033[93m'
 RESET = '\033[0m'
 
-TIMEOUT = 600.0
+TIMEOUT = 900.0
 
 
 def run_file(filepath, use_bitwuzla=False):

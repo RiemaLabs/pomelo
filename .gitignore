@@ -12,6 +12,8 @@ compiled/
 res.out
 */test.bs
 *.csv
+test_*
+summary_*
 
 # ================ #
 # ==== Python ==== #
