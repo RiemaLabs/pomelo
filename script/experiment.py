@@ -37,41 +37,45 @@ def run_file(filepath, use_bitwuzla=False):
     if filename.startswith('TO-'):
         return filepath, f'{YELLOW}Timeout{RESET}', TIMEOUT, loc
 
-    # Define the command to run
     cmd = ['racket', 'run.rkt', '--file', filepath]
     if use_bitwuzla:
         cmd += ['--solver', 'bitwuzla']
     else:
         cmd += ['--solver', 'cvc5']
 
-    # 根据操作系统选择不同的时间测量方法
+    # Use the appropriate `time` command based on the OS
     if platform.system() == 'Darwin':  # macOS
-        time_cmd = ['gtime', '-f', 'ELAPSED_TIME %e']  # 如果安装了 GNU time
-    else:  # Linux
-        time_cmd = ['/usr/bin/time', '-f', 'ELAPSED_TIME %e']
+        time_cmd = 'gtime -p'
+    else:  # Linux and others
+        time_cmd = 'time -p'
 
-    # Combine the time command with the actual command
-    full_cmd = time_cmd + cmd
+    # Combine the `time` and `timeout` commands with `racket`
+    shell_cmd = f'{time_cmd} timeout {int(TIMEOUT)}s ' + ' '.join(cmd)
 
     try:
-        # Run the command and capture both stdout and stderr
+        # Run the command
         process = subprocess.run(
-            full_cmd, capture_output=True, text=True, timeout=TIMEOUT
+            shell_cmd,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
         )
 
-        output = process.stdout
-        error = process.stderr
+        stdout = process.stdout
+        stderr = process.stderr
 
-        # Extract the execution time from stderr
+        # Extract execution time from stderr
         execution_time = 0.0
-        match = re.search(r'ELAPSED_TIME (\d+\.\d+)', error)
+        match = re.search(r'real (\d+\.\d+)', stderr)
         if match:
             execution_time = float(match.group(1))
 
-        # Determine the status based on the return code and output
-        if process.returncode != 0:
+        if execution_time >= TIMEOUT:
+            status = f'{YELLOW}Timeout{RESET}'
+        elif process.returncode != 0:
             status = f'{RED}Failed{RESET}'
-        elif 'Evaluated' in output:
+        elif 'Evaluated' in stdout:
             status = f'{RED}Failed{RESET}'
         else:
             status = f'{GREEN}Successful{RESET}'
@@ -79,15 +83,14 @@ def run_file(filepath, use_bitwuzla=False):
     except subprocess.TimeoutExpired:
         # Handle the timeout scenario
         status = f'{YELLOW}Timeout{RESET}'
-        error = "Execution timed out"
+        stderr = "Execution timed out"
         execution_time = TIMEOUT
     except Exception as e:
         # Handle other exceptions
         status = f'{RED}Failed{RESET}'
-        error = str(e)
+        stderr = str(e)
         execution_time = 0.0
 
-    # Return the result
     return filepath, status, execution_time, loc
 
 
