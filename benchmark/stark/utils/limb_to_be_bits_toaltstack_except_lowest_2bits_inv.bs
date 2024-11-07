@@ -1,0 +1,144 @@
+PUSH_SYMINT_0
+ASSUME_0 { ((v0 < 536870912) && (v0 >= 0)) }
+OP_TOALTSTACK
+OP_PUSHNUM_2
+OP_PUSHNUM_4
+OP_PUSHNUM_8
+OP_PUSHNUM_16
+OP_PUSHBYTES_1 20
+OP_PUSHBYTES_1 40
+OP_PUSHBYTES_2 8000
+OP_PUSHBYTES_2 0001
+OP_PUSHBYTES_2 0002
+OP_PUSHBYTES_2 0004
+OP_PUSHBYTES_2 0008
+OP_PUSHBYTES_2 0010
+OP_PUSHBYTES_2 0020
+OP_PUSHBYTES_2 0040
+OP_PUSHBYTES_3 008000
+OP_PUSHBYTES_3 000001
+OP_PUSHBYTES_3 000002
+OP_PUSHBYTES_3 000004
+OP_PUSHBYTES_3 000008
+OP_PUSHBYTES_3 000010
+OP_PUSHBYTES_3 000020
+OP_PUSHBYTES_3 000040
+OP_DUP OP_DUP OP_ADD
+OP_DUP OP_DUP OP_ADD
+OP_DUP OP_DUP OP_ADD
+OP_DUP OP_DUP OP_ADD
+OP_DUP OP_DUP OP_ADD
+OP_DUP OP_DUP OP_ADD
+OP_FROMALTSTACK
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_0 { (stack[0] == (v0 % 268435456)) }
+ASSUME_1 { (altstack[0] == ((v0 >> 28) - ((v0 >> 29) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_2 { (stack[0] == (v0 % 134217728)) }
+ASSUME_3 { (altstack[0] == ((v0 >> 27) - ((v0 >> 28) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_4 { (stack[0] == (v0 % 67108864)) }
+ASSUME_5 { (altstack[0] == ((v0 >> 26) - ((v0 >> 27) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_6 { (stack[0] == (v0 % 33554432)) }
+ASSUME_7 { (altstack[0] == ((v0 >> 25) - ((v0 >> 26) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_8 { (stack[0] == (v0 % 16777216)) }
+ASSUME_9 { (altstack[0] == ((v0 >> 24) - ((v0 >> 25) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_10 { (stack[0] == (v0 % 8388608)) }
+ASSUME_11 { (altstack[0] == ((v0 >> 23) - ((v0 >> 24) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_12 { (stack[0] == (v0 % 4194304)) }
+ASSUME_13 { (altstack[0] == ((v0 >> 22) - ((v0 >> 23) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_14 { (stack[0] == (v0 % 2097152)) }
+ASSUME_15 { (altstack[0] == ((v0 >> 21) - ((v0 >> 22) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_16 { (stack[0] == (v0 % 1048576)) }
+ASSUME_17 { (altstack[0] == ((v0 >> 20) - ((v0 >> 21) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_18 { (stack[0] == (v0 % 524288)) }
+ASSUME_19 { (altstack[0] == ((v0 >> 19) - ((v0 >> 20) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_20 { (stack[0] == (v0 % 262144)) }
+ASSUME_21 { (altstack[0] == ((v0 >> 18) - ((v0 >> 19) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_22 { (stack[0] == (v0 % 131072)) }
+ASSUME_23 { (altstack[0] == ((v0 >> 17) - ((v0 >> 18) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_24 { (stack[0] == (v0 % 65536)) }
+ASSUME_25 { (altstack[0] == ((v0 >> 16) - ((v0 >> 17) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_26 { (stack[0] == (v0 % 32768)) }
+ASSUME_27 { (altstack[0] == ((v0 >> 15) - ((v0 >> 16) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_28 { (stack[0] == (v0 % 16384)) }
+ASSUME_29 { (altstack[0] == ((v0 >> 14) - ((v0 >> 15) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_30 { (stack[0] == (v0 % 8192)) }
+ASSUME_31 { (altstack[0] == ((v0 >> 13) - ((v0 >> 14) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_32 { (stack[0] == (v0 % 4096)) }
+ASSUME_33 { (altstack[0] == ((v0 >> 12) - ((v0 >> 13) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_34 { (stack[0] == (v0 % 2048)) }
+ASSUME_35 { (altstack[0] == ((v0 >> 11) - ((v0 >> 12) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_36 { (stack[0] == (v0 % 1024)) }
+ASSUME_37 { (altstack[0] == ((v0 >> 10) - ((v0 >> 11) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_38 { (stack[0] == (v0 % 512)) }
+ASSUME_39 { (altstack[0] == ((v0 >> 9) - ((v0 >> 10) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_40 { (stack[0] == (v0 % 256)) }
+ASSUME_41 { (altstack[0] == ((v0 >> 8) - ((v0 >> 9) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_42 { (stack[0] == (v0 % 128)) }
+ASSUME_43 { (altstack[0] == ((v0 >> 7) - ((v0 >> 8) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_44 { (stack[0] == (v0 % 64)) }
+ASSUME_45 { (altstack[0] == ((v0 >> 6) - ((v0 >> 7) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_46 { (stack[0] == (v0 % 32)) }
+ASSUME_47 { (altstack[0] == ((v0 >> 5) - ((v0 >> 6) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_48 { (stack[0] == (v0 % 16)) }
+ASSUME_49 { (altstack[0] == ((v0 >> 4) - ((v0 >> 5) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_50 { (stack[0] == (v0 % 8)) }
+ASSUME_51 { (altstack[0] == ((v0 >> 3) - ((v0 >> 4) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF OP_TOALTSTACK
+ASSUME_52 { (stack[0] == (v0 % 4)) }
+ASSUME_53 { (altstack[0] == ((v0 >> 2) - ((v0 >> 3) << 1))) }
+OP_2DUP OP_LESSTHANOREQUAL OP_IF OP_SWAP OP_SUB OP_PUSHNUM_1 OP_ELSE OP_NIP OP_0 OP_ENDIF
+ASSUME_54 { (stack[1] == (v0 % 2)) }
+ASSUME_55 { (stack[0] == ((v0 >> 1) - ((v0 >> 2) << 1))) }
+OP_DROP OP_DROP
+ASSERT_0 { (altstack[0] == ((v0 >> 2) - ((v0 >> 3) << 1))) }
+ASSERT_1 { (altstack[1] == ((v0 >> 3) - ((v0 >> 4) << 1))) }
+ASSERT_2 { (altstack[2] == ((v0 >> 4) - ((v0 >> 5) << 1))) }
+ASSERT_3 { (altstack[3] == ((v0 >> 5) - ((v0 >> 6) << 1))) }
+ASSERT_4 { (altstack[4] == ((v0 >> 6) - ((v0 >> 7) << 1))) }
+ASSERT_5 { (altstack[5] == ((v0 >> 7) - ((v0 >> 8) << 1))) }
+ASSERT_6 { (altstack[6] == ((v0 >> 8) - ((v0 >> 9) << 1))) }
+ASSERT_7 { (altstack[7] == ((v0 >> 9) - ((v0 >> 10) << 1))) }
+ASSERT_8 { (altstack[8] == ((v0 >> 10) - ((v0 >> 11) << 1))) }
+ASSERT_9 { (altstack[9] == ((v0 >> 11) - ((v0 >> 12) << 1))) }
+ASSERT_10 { (altstack[10] == ((v0 >> 12) - ((v0 >> 13) << 1))) }
+ASSERT_11 { (altstack[11] == ((v0 >> 13) - ((v0 >> 14) << 1))) }
+ASSERT_12 { (altstack[12] == ((v0 >> 14) - ((v0 >> 15) << 1))) }
+ASSERT_13 { (altstack[13] == ((v0 >> 15) - ((v0 >> 16) << 1))) }
+ASSERT_14 { (altstack[14] == ((v0 >> 16) - ((v0 >> 17) << 1))) }
+ASSERT_15 { (altstack[15] == ((v0 >> 17) - ((v0 >> 18) << 1))) }
+ASSERT_16 { (altstack[16] == ((v0 >> 18) - ((v0 >> 19) << 1))) }
+ASSERT_17 { (altstack[17] == ((v0 >> 19) - ((v0 >> 20) << 1))) }
+ASSERT_18 { (altstack[18] == ((v0 >> 20) - ((v0 >> 21) << 1))) }
+ASSERT_19 { (altstack[19] == ((v0 >> 21) - ((v0 >> 22) << 1))) }
+ASSERT_20 { (altstack[20] == ((v0 >> 22) - ((v0 >> 23) << 1))) }
+ASSERT_21 { (altstack[21] == ((v0 >> 23) - ((v0 >> 24) << 1))) }
+ASSERT_22 { (altstack[22] == ((v0 >> 24) - ((v0 >> 25) << 1))) }
+ASSERT_23 { (altstack[23] == ((v0 >> 25) - ((v0 >> 26) << 1))) }
+ASSERT_24 { (altstack[24] == ((v0 >> 26) - ((v0 >> 27) << 1))) }
+ASSERT_25 { (altstack[25] == ((v0 >> 27) - ((v0 >> 28) << 1))) }
+ASSERT_26 { (altstack[26] == ((v0 >> 28) - ((v0 >> 29) << 1))) }

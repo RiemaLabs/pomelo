@@ -54,6 +54,7 @@ def run_file(filepath, use_bitwuzla=False):
 
     try:
         # Run the command
+        print(shell_cmd)
         process = subprocess.run(
             shell_cmd,
             shell=True,
@@ -87,6 +88,7 @@ def run_file(filepath, use_bitwuzla=False):
         execution_time = TIMEOUT
     except Exception as e:
         # Handle other exceptions
+        print(e)
         status = f'{RED}Failed{RESET}'
         stderr = str(e)
         execution_time = 0.0
@@ -96,7 +98,8 @@ def run_file(filepath, use_bitwuzla=False):
 
 def collect_bs_files(directory):
     """
-    Collects all .bs files from the specified directory, excluding those containing 'inner'.
+    Collects all .bs files from the specified directory, excluding those containing 'inner'
+    and those within the 'extra' subdirectory.
 
     Args:
         directory (str): Directory to search for .bs files.
@@ -106,6 +109,9 @@ def collect_bs_files(directory):
     """
     bs_files = []
     for root, dirs, files in os.walk(directory):
+        # Modify dirs in-place to exclude 'extra' directory from traversal
+        dirs[:] = [d for d in dirs if d.lower() != 'extra']
+
         for file in files:
             if file.endswith('.bs') and 'inner' not in file:
                 bs_files.append(os.path.join(root, file))
@@ -211,7 +217,7 @@ def write_detailed_csv(csv_filename, folder_stats):
             for file in files:
                 writer.writerow({
                     'Folder': folder,
-                    'Filename': file['filename'],
+                    'Filename': file['filename'].replace('TO-', ''),
                     'Status': file['status'].replace(GREEN, '').replace(RED, '').replace(YELLOW, '').replace(RESET, ''),
                     'Execution Time(s)': f"{file['execution_time']:.2f}",
                     'LoC': file['loc']
@@ -254,18 +260,18 @@ if __name__ == '__main__':
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
     # Process CSV1: Regular files without bitwuzla
-    if regular_bs_files:
-        folder_stats_csv1, summary_csv1 = process_files(
-            regular_bs_files, use_bitwuzla=False, desc="Processing CSV1 (No Bitwuzla)"
-        )
-        csv1_filename = f'test_results_no_bitwuzla_{timestamp}.csv'
-        write_detailed_csv(csv1_filename, folder_stats_csv1)
-        summary_csv1_filename = f'summary_no_bitwuzla_{timestamp}.csv'
-        write_summary_csv(summary_csv1_filename, summary_csv1)
-        print(f"CSV1 detailed results written to {csv1_filename}")
-        print(f"CSV1 summary written to {summary_csv1_filename}")
-    else:
-        print("No regular .bs files to process for CSV1.")
+    # if regular_bs_files:
+    #     folder_stats_csv1, summary_csv1 = process_files(
+    #         regular_bs_files, use_bitwuzla=False, desc="Processing CSV1 (No Bitwuzla)"
+    #     )
+    #     csv1_filename = f'test_results_no_bitwuzla_{timestamp}.csv'
+    #     write_detailed_csv(csv1_filename, folder_stats_csv1)
+    #     summary_csv1_filename = f'summary_no_bitwuzla_{timestamp}.csv'
+    #     write_summary_csv(summary_csv1_filename, summary_csv1)
+    #     print(f"CSV1 detailed results written to {csv1_filename}")
+    #     print(f"CSV1 summary written to {summary_csv1_filename}")
+    # else:
+    #     print("No regular .bs files to process for CSV1.")
 
     # Process CSV2: Regular files with bitwuzla
     if regular_bs_files:

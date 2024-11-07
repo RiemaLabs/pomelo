@@ -1,0 +1,13 @@
+PUSH_SYMINT_0
+PUSH_SYMINT_1
+ASSUME_0 { ((v0 < 4194304) && (v0 >= 0)) }
+ASSUME_1 { ((v1 < 4194304) && (v1 >= 0)) }
+OP_SUB
+OP_DUP
+OP_0
+OP_LESSTHAN
+OP_IF
+OP_PUSHBYTES_3 000040
+OP_ADD
+OP_ENDIF
+ASSERT_0 { (stack[0] == (if ((v0 - v1) < 0) then ((v0 - v1) + 4194304) else (v0 - v1))) }
