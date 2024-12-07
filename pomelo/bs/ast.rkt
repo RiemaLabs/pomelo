@@ -501,3 +501,5 @@
 (struct expr::altstack-nth (n) #:transparent)
 
 (struct expr::bit-at (expr index) #:transparent)
+
+(struct expr::concat (left right) #:transparent)

@@ -432,6 +432,8 @@
             (tokenize-helper (substring input-trimmed 2) (cons (Token 'SHR ">>") tokens))]
            [(and (>= (string-length input-trimmed) 2) (string=? (substring input-trimmed 0 2) "<<"))
             (tokenize-helper (substring input-trimmed 2) (cons (Token 'SHL "<<") tokens))]
+           [(and (>= (string-length input-trimmed) 2) (string=? (substring input-trimmed 0 2) "++"))
+            (tokenize-helper (substring input-trimmed 2) (cons (Token 'CONCAT "++") tokens))]
            [(char=? first-char #\>)
             (tokenize-helper (substring input-trimmed 1) (cons (Token 'GT ">") tokens))]
            [(char=? first-char #\<)
@@ -576,6 +578,9 @@
         [(SHL)
          (let-values ([(right new-rest) (parse-unary (cdr tokens))])
            (parse-multiplicative-tail (bs::expr::shl left right) new-rest))]
+        [(CONCAT)
+         (let-values ([(right new-rest) (parse-unary (cdr tokens))])
+           (parse-multiplicative-tail (bs::expr::concat left right) new-rest))]
         [else (values left tokens)])))
 
 (define (parse-unary tokens)

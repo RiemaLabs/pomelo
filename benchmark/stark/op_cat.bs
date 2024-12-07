@@ -1,0 +1,4 @@
+PUSH_SYMINT_0
+PUSH_SYMINT_1
+OP_CAT
+ASSERT{ stack[0] == v0 ++ v1 }

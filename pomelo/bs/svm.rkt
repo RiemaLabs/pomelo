@@ -537,7 +537,12 @@
             [(bs::expr::eq left right)
              (define l (evaluate-expr rt left))
              (define r (evaluate-expr rt right))
-             (bveq (sign-extend l ::bitvector) (sign-extend r ::bitvector))]
+             (define left-type (type-check-expr rt left))
+             (define right-type (type-check-expr rt right))
+             (if (or (equal? left-type TYPE-STRING) 
+                     (equal? right-type TYPE-STRING))
+                 (bveq l r)
+                 (bveq (sign-extend l ::bitvector) (sign-extend r ::bitvector)))]
             [(bs::expr::lt left right)
              (define l (evaluate-expr rt left))
              (define r (evaluate-expr rt right))
@@ -609,6 +614,10 @@
              (define bv (evaluate-expr rt expr))
              (define idx (evaluate-expr rt index))
              (zero-extend (extract idx idx bv) ::bitvector)]
+            [(bs::expr::concat left right)
+             (define l (evaluate-expr rt left))
+             (define r (evaluate-expr rt right))
+             (concat l r)]
             [_ (error 'evaluate-expr (format "unsupported expr: ~a" expr))]))
 
 (define (get-variable rt name)
@@ -623,6 +632,7 @@
 ; Define type enums
 (define TYPE-BOOL 'bool)
 (define TYPE-INT 'int)
+(define TYPE-STRING 'string)
 
 ; Main type checking function
 (define (type-check-expr rt expr)
@@ -656,13 +666,18 @@
              (unless (bs::expr::nat? index)
                (error 'type-check "Index in bit-at must be a natural number"))
              TYPE-INT]
+            [(bs::expr::concat left right)
+             TYPE-STRING]
             [_ (error 'type-check-expr (format "Unsupported expression: ~a" expr))]))
 
 ; Helper function: Check equality operations
 (define (check-equality rt op left right)
   (define left-type (type-check-expr rt left))
   (define right-type (type-check-expr rt right))
-  (unless (equal? left-type right-type)
+  (unless (or 
+           (equal? left-type right-type)
+           (and (or (equal? left-type TYPE-STRING) (equal? left-type TYPE-INT))
+                (or (equal? right-type TYPE-STRING) (equal? right-type TYPE-INT))))
     (error 'type-check "Type mismatch in ~a: ~a and ~a" op left-type right-type))
   TYPE-BOOL)
 
