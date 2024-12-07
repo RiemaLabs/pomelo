@@ -89,3 +89,6 @@ In addition to these primary constructs, Pomelo supports supplementary expressio
    Utilized for constructing boolean expressions, with the stipulation that expressions within `Assert` and `Assume` must evaluate to boolean values.
 
 For illustrative examples, please refer to the `./benchmark` directory, which aligns with the corresponding public functions in the [BitVM](https://github.com/RiemaLabs/BitVM) repository. These examples encompass specifications generated through automated scripts, demonstrating the practical application of the extended syntactic constructs.
+
+### Acknowledgment
+This work is supported by research grants from StarkWare and Fractal Bitcoin. We extend our gratitude for their generous support, which made this project possible.
