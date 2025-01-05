@@ -104,12 +104,12 @@
         (printf "+~a+\n" (make-string total-width #\-))
         (for ([item stack] [i (in-range (length stack))])
           (printf "| ~a | ~a |\n" 
-                  (string-pad-left (~a i) max-index-width) 
-                  (string-pad-right (~a item) max-item-width))) ; 使用 convert 函数
+                  (string-pad-left (number->string i) max-index-width) 
+                  (string-pad-right (convert item) max-item-width))) ; Use convert function
         (printf "+~a+\n" (make-string total-width #\-)))))
 
 (define (convert obj)
-  (pretty-format (read (open-input-string (~a obj)))))
+  (pretty-format (read (open-input-string (format "~a" obj)))))
 
 (define (string-pad-left s n [c #\space])
   (define l (string-length s))
