@@ -28,7 +28,7 @@ def main():
         print(f"{Fore.RED}total_bench.txt does not exist in {script_dir}")
         sys.exit(1)
 
-    # Read total_bench.txt and collect required files
+    # Read total_bench.txt and collect the required files
     required_files = set()
 
     with total_bench_path.open('r', encoding='utf-8') as f:
@@ -75,7 +75,7 @@ def main():
             except Exception as e:
                 print(f"{Fore.YELLOW}Warning: Could not move file {file_path}: {e}")
 
-    # Check if required files exist
+    # Check if the required files exist
     for file_path in required_files:
         if not file_path.exists():
             if not file_path.name.endswith('_inv.bs'):
