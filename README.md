@@ -61,7 +61,7 @@ Pomelo introduces an array of extended syntactic constructs into Bitcoin Script 
    Establishes an intermediate variable, $i_{id} = expr$. During evaluation, $i_{id}$ is automatically substituted with $expr$ via an assumption mechanism.
 
 4. **`Assume_{index} { expr }`**  
-   Adheres to conventional assume semantics by introducing the $index$-th hypothesis as $expr$ within the SMT solver.
+   Adheres to conventional assumed semantics by introducing the $index$-th hypothesis as $expr$ within the SMT solver.
 
 5. **`Assert_{index} { expr }`**  
    Follows standard assert semantics by invoking the SMT solver to validate whether $expr$ holds under the provided premises, substituting parts of $expr$ with actual symbolic expressions as necessary.
