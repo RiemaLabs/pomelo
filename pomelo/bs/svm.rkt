@@ -366,7 +366,7 @@
    ; ============================== ;
    ; no op code here
    ; ======================================= ;
-   ; ======== pomela symbolic words ======== ;
+   ; ======== pomelo symbolic words ======== ;
    ; ======================================= ;
    [(bs::op::symint x)
     (define r (fresh-symbolic* (format "v~a" x) 'int))

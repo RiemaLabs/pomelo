@@ -50,7 +50,7 @@ Pomelo introduces an array of extended syntactic constructs into Bitcoin Script 
    Inserts a large integer onto the stack in little-endian order, occupying ` ceil(n_bits/limb_size)` stack elements corresponding to individual limbs. Each non-base stack element represents a machine integer of `limb_size` bits, whereas the base element encapsulates `(n_bits - 1) mod limb_size + 1`$` bits.
    - Subsequently, the large integer pushed onto the stack is denoted by the symbolic variable $v_i$, with `limbs{i}[j]` representing the $j$-th limb of $v_i$.
    - The variable $v_i$ is syntactic sugar for the expression:  
-     `v_i = limbsi[0] + limbsi[1] * (1 << limb_size) + ... + limbsi[ceil(n_bits/limb_size) - 1] * (1 << (ceil(n_bits/limb_size) - 1) * limb_size))`
+     `v_i = limbsi[0] + limbsi[1] * (1 << limb_size) + ... + limbsi[ceil(n_bits/limb_size) - 1] * (1 << ((ceil(n_bits/limb_size) - 1) * limb_size))`
 
 
 2. **`PUSH_SYMINT_{i}`**  
