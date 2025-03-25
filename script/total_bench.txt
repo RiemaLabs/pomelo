@@ -42,7 +42,7 @@ bn254/fp254impl	push_modulus	0
 bn254/fp254impl	push_zero	0
 bn254/fp254impl	push_one_not_montgomery	0
 bn254/fp254impl	decode_montgomery	0
-bn254/fp254impl	sub	1
+bn254/fp254impl	sub	0
 bn254/fp254impl	double	0
 bn254/fp254impl	mul	0
 bn254/fp254impl	mul_bucket	0

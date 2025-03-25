@@ -1,0 +1,127 @@
+PUSH_BIGINT_0 254 29 limbs0
+PUSH_BIGINT_1 254 29 limbs1
+OP_PUSHBYTES_1 11 OP_ROLL OP_PUSHNUM_9 OP_ROLL
+OP_PUSHBYTES_1 11 OP_ROLL OP_PUSHNUM_10 OP_ROLL
+OP_PUSHBYTES_1 11 OP_ROLL OP_PUSHNUM_11 OP_ROLL
+OP_PUSHBYTES_1 11 OP_ROLL OP_PUSHNUM_12 OP_ROLL
+OP_PUSHBYTES_1 11 OP_ROLL OP_PUSHNUM_13 OP_ROLL
+OP_PUSHBYTES_1 11 OP_ROLL OP_PUSHNUM_14 OP_ROLL
+OP_PUSHBYTES_1 11 OP_ROLL OP_PUSHNUM_15 OP_ROLL
+OP_PUSHBYTES_1 11 OP_ROLL OP_PUSHNUM_16 OP_ROLL
+OP_PUSHBYTES_1 11 OP_ROLL OP_PUSHBYTES_1 11 OP_ROLL
+OP_PUSHBYTES_4 00000020
+ASSERT_0 { (stack[1] == limbs1[0]) }
+ASSERT_1 { (stack[2] == limbs0[0]) }
+OP_ROT OP_ROT OP_SUB OP_DUP OP_0 OP_LESSTHAN OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_ADD OP_ENDIF
+ASSUME_2 { (stack[0] == ((limbs0[0] + (if (limbs0[0] < limbs1[0]) then 536870912 else 0)) - limbs1[0])) }
+ASSUME_3 { (stack[1] == (if (limbs0[0] < limbs1[0]) then 1 else 0)) }
+OP_DUP OP_TOALTSTACK OP_ROT OP_PUSHBYTES_4 47fd7c18 OP_SWAP
+OP_ROT OP_ROT OP_ADD OP_2DUP OP_LESSTHANOREQUAL OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_SUB OP_ENDIF
+OP_TOALTSTACK
+ASSERT_4 { (altstack[0] == (if ((((limbs0[0] + (if (limbs0[0] < limbs1[0]) then 536870912 else 0)) - limbs1[0]) + 410844487) >= 536870912) then ((((limbs0[0] + (if (limbs0[0] < limbs1[0]) then 536870912 else 0)) - limbs1[0]) + 410844487) - 536870912) else (((limbs0[0] + (if (limbs0[0] < limbs1[0]) then 536870912 else 0)) - limbs1[0]) + 410844487))) }
+ASSERT_5 { (stack[0] == (if ((((limbs0[0] + (if (limbs0[0] < limbs1[0]) then 536870912 else 0)) - limbs1[0]) + 410844487) >= 536870912) then 1 else 0)) }
+ASSERT_6 { (stack[2] == (if (limbs0[0] < limbs1[0]) then 1 else 0)) }
+DEFINE_2 { stack[0] }
+DEFINE_3 { stack[2] }
+OP_2SWAP OP_ADD OP_2SWAP OP_TOALTSTACK OP_SWAP OP_FROMALTSTACK
+OP_ROT OP_ROT OP_SUB OP_DUP OP_0 OP_LESSTHAN OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_ADD OP_ENDIF
+OP_DUP OP_TOALTSTACK
+ASSUME_7 { (altstack[0] == ((limbs0[1] + (if (limbs0[1] < (limbs1[1] + i3)) then 536870912 else 0)) - (limbs1[1] + i3))) }
+OP_2SWAP OP_SWAP OP_PUSHBYTES_4 b6600401 OP_ADD OP_SWAP
+OP_ROT OP_ROT OP_ADD OP_2DUP OP_LESSTHANOREQUAL OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_SUB OP_ENDIF
+OP_TOALTSTACK
+ASSUME_8 { (altstack[0] == ((((limbs0[1] + (if (limbs0[1] < (limbs1[1] + i3)) then 536870912 else 0)) - (limbs1[1] + i3)) + (i2 + 17064118)) - (if ((((limbs0[1] + (if (limbs0[1] < (limbs1[1] + i3)) then 536870912 else 0)) - (limbs1[1] + i3)) + (i2 + 17064118)) >= 536870912) then 536870912 else 0))) }
+ASSUME_9 { (stack[0] == (if ((((limbs0[1] + (if (limbs0[1] < (limbs1[1] + i3)) then 536870912 else 0)) - (limbs1[1] + i3)) + (i2 + 17064118)) >= 536870912) then 1 else 0)) }
+ASSUME_10 { (stack[2] == (if (limbs0[1] < (limbs1[1] + i3)) then 1 else 0)) }
+DEFINE_4 { stack[0] }
+DEFINE_5 { stack[2] }
+OP_2SWAP OP_ADD OP_2SWAP OP_TOALTSTACK OP_SWAP OP_FROMALTSTACK
+OP_ROT OP_ROT OP_SUB OP_DUP OP_0 OP_LESSTHAN OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_ADD OP_ENDIF
+OP_DUP OP_TOALTSTACK
+ASSUME_11 { (altstack[0] == ((limbs0[2] + (if (limbs0[2] < (limbs1[2] + i5)) then 536870912 else 0)) - (limbs1[2] + i5))) }
+OP_2SWAP OP_SWAP OP_PUSHBYTES_4 4fa3721c OP_ADD OP_SWAP
+OP_ROT OP_ROT OP_ADD OP_2DUP OP_LESSTHANOREQUAL OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_SUB OP_ENDIF
+OP_TOALTSTACK
+ASSUME_12 { (altstack[0] == ((((limbs0[2] + (if (limbs0[2] < (limbs1[2] + i5)) then 536870912 else 0)) - (limbs1[2] + i5)) + (i4 + 477274959)) - (if ((((limbs0[2] + (if (limbs0[2] < (limbs1[2] + i5)) then 536870912 else 0)) - (limbs1[2] + i5)) + (i4 + 477274959)) >= 536870912) then 536870912 else 0))) }
+ASSUME_13 { (stack[0] == (if ((((limbs0[2] + (if (limbs0[2] < (limbs1[2] + i5)) then 536870912 else 0)) - (limbs1[2] + i5)) + (i4 + 477274959)) >= 536870912) then 1 else 0)) }
+ASSUME_14 { (stack[2] == (if (limbs0[2] < (limbs1[2] + i5)) then 1 else 0)) }
+DEFINE_6 { stack[0] }
+DEFINE_7 { stack[2] }
+OP_2SWAP OP_ADD OP_2SWAP OP_TOALTSTACK OP_SWAP OP_FROMALTSTACK
+OP_ROT OP_ROT OP_SUB OP_DUP OP_0 OP_LESSTHAN OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_ADD OP_ENDIF
+OP_DUP OP_TOALTSTACK
+ASSUME_15 { (altstack[0] == ((limbs0[3] + (if (limbs0[3] < (limbs1[3] + i7)) then 536870912 else 0)) - (limbs1[3] + i7))) }
+OP_2SWAP OP_SWAP OP_PUSHBYTES_4 d022d502 OP_ADD OP_SWAP
+OP_ROT OP_ROT OP_ADD OP_2DUP OP_LESSTHANOREQUAL OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_SUB OP_ENDIF
+OP_TOALTSTACK
+ASSUME_16 { (altstack[0] == ((((limbs0[3] + (if (limbs0[3] < (limbs1[3] + i7)) then 536870912 else 0)) - (limbs1[3] + i7)) + (i6 + 47522512)) - (if ((((limbs0[3] + (if (limbs0[3] < (limbs1[3] + i7)) then 536870912 else 0)) - (limbs1[3] + i7)) + (i6 + 47522512)) >= 536870912) then 536870912 else 0))) }
+ASSUME_17 { (stack[0] == (if ((((limbs0[3] + (if (limbs0[3] < (limbs1[3] + i7)) then 536870912 else 0)) - (limbs1[3] + i7)) + (i6 + 47522512)) >= 536870912) then 1 else 0)) }
+ASSUME_18 { (stack[2] == (if (limbs0[3] < (limbs1[3] + i7)) then 1 else 0)) }
+DEFINE_8 { stack[0] }
+DEFINE_9 { stack[2] }
+OP_2SWAP OP_ADD OP_2SWAP OP_TOALTSTACK OP_SWAP OP_FROMALTSTACK
+OP_ROT OP_ROT OP_SUB OP_DUP OP_0 OP_LESSTHAN OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_ADD OP_ENDIF
+OP_DUP OP_TOALTSTACK
+ASSUME_19 { (altstack[0] == ((limbs0[4] + (if (limbs0[4] < (limbs1[4] + i9)) then 536870912 else 0)) - (limbs1[4] + i9))) }
+OP_2SWAP OP_SWAP OP_PUSHBYTES_4 78d98515 OP_ADD OP_SWAP
+OP_ROT OP_ROT OP_ADD OP_2DUP OP_LESSTHANOREQUAL OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_SUB OP_ENDIF
+OP_TOALTSTACK
+ASSUME_20 { (altstack[0] == ((((limbs0[4] + (if (limbs0[4] < (limbs1[4] + i9)) then 536870912 else 0)) - (limbs1[4] + i9)) + (i8 + 361093496)) - (if ((((limbs0[4] + (if (limbs0[4] < (limbs1[4] + i9)) then 536870912 else 0)) - (limbs1[4] + i9)) + (i8 + 361093496)) >= 536870912) then 536870912 else 0))) }
+ASSUME_21 { (stack[0] == (if ((((limbs0[4] + (if (limbs0[4] < (limbs1[4] + i9)) then 536870912 else 0)) - (limbs1[4] + i9)) + (i8 + 361093496)) >= 536870912) then 1 else 0)) }
+ASSUME_22 { (stack[2] == (if (limbs0[4] < (limbs1[4] + i9)) then 1 else 0)) }
+DEFINE_10 { stack[0] }
+DEFINE_11 { stack[2] }
+OP_2SWAP OP_ADD OP_2SWAP OP_TOALTSTACK OP_SWAP OP_FROMALTSTACK
+OP_ROT OP_ROT OP_SUB OP_DUP OP_0 OP_LESSTHAN OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_ADD OP_ENDIF
+OP_DUP OP_TOALTSTACK
+ASSUME_23 { (altstack[0] == ((limbs0[5] + (if (limbs0[5] < (limbs1[5] + i11)) then 536870912 else 0)) - (limbs1[5] + i11))) }
+OP_2SWAP OP_SWAP OP_PUSHBYTES_4 c040db02 OP_ADD OP_SWAP
+OP_ROT OP_ROT OP_ADD OP_2DUP OP_LESSTHANOREQUAL OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_SUB OP_ENDIF
+OP_TOALTSTACK
+ASSUME_24 { (altstack[0] == ((((limbs0[5] + (if (limbs0[5] < (limbs1[5] + i11)) then 536870912 else 0)) - (limbs1[5] + i11)) + (i10 + 47923392)) - (if ((((limbs0[5] + (if (limbs0[5] < (limbs1[5] + i11)) then 536870912 else 0)) - (limbs1[5] + i11)) + (i10 + 47923392)) >= 536870912) then 536870912 else 0))) }
+ASSUME_25 { (stack[0] == (if ((((limbs0[5] + (if (limbs0[5] < (limbs1[5] + i11)) then 536870912 else 0)) - (limbs1[5] + i11)) + (i10 + 47923392)) >= 536870912) then 1 else 0)) }
+ASSUME_26 { (stack[2] == (if (limbs0[5] < (limbs1[5] + i11)) then 1 else 0)) }
+DEFINE_12 { stack[0] }
+DEFINE_13 { stack[2] }
+OP_2SWAP OP_ADD OP_2SWAP OP_TOALTSTACK OP_SWAP OP_FROMALTSTACK
+OP_ROT OP_ROT OP_SUB OP_DUP OP_0 OP_LESSTHAN OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_ADD OP_ENDIF
+OP_DUP OP_TOALTSTACK
+ASSUME_27 { (altstack[0] == ((limbs0[6] + (if (limbs0[6] < (limbs1[6] + i13)) then 536870912 else 0)) - (limbs1[6] + i13))) }
+OP_2SWAP OP_SWAP OP_PUSHBYTES_4 41e1a600 OP_ADD OP_SWAP
+OP_ROT OP_ROT OP_ADD OP_2DUP OP_LESSTHANOREQUAL OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_SUB OP_ENDIF
+OP_TOALTSTACK
+ASSUME_28 { (altstack[0] == ((((limbs0[6] + (if (limbs0[6] < (limbs1[6] + i13)) then 536870912 else 0)) - (limbs1[6] + i13)) + (i12 + 10936641)) - (if ((((limbs0[6] + (if (limbs0[6] < (limbs1[6] + i13)) then 536870912 else 0)) - (limbs1[6] + i13)) + (i12 + 10936641)) >= 536870912) then 536870912 else 0))) }
+ASSUME_29 { (stack[0] == (if ((((limbs0[6] + (if (limbs0[6] < (limbs1[6] + i13)) then 536870912 else 0)) - (limbs1[6] + i13)) + (i12 + 10936641)) >= 536870912) then 1 else 0)) }
+ASSUME_30 { (stack[2] == (if (limbs0[6] < (limbs1[6] + i13)) then 1 else 0)) }
+DEFINE_14 { stack[0] }
+DEFINE_15 { stack[2] }
+OP_2SWAP OP_ADD OP_2SWAP OP_TOALTSTACK OP_SWAP OP_FROMALTSTACK
+OP_ROT OP_ROT OP_SUB OP_DUP OP_0 OP_LESSTHAN OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_ADD OP_ENDIF
+OP_DUP OP_TOALTSTACK
+ASSUME_31 { (altstack[0] == ((limbs0[7] + (if (limbs0[7] < (limbs1[7] + i15)) then 536870912 else 0)) - (limbs1[7] + i15))) }
+OP_2SWAP OP_SWAP OP_PUSHBYTES_4 34265c0e OP_ADD OP_SWAP
+OP_ROT OP_ROT OP_ADD OP_2DUP OP_LESSTHANOREQUAL OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_SUB OP_ENDIF
+OP_TOALTSTACK
+ASSUME_32 { (altstack[0] == ((((limbs0[7] + (if (limbs0[7] < (limbs1[7] + i15)) then 536870912 else 0)) - (limbs1[7] + i15)) + (i14 + 240920116)) - (if ((((limbs0[7] + (if (limbs0[7] < (limbs1[7] + i15)) then 536870912 else 0)) - (limbs1[7] + i15)) + (i14 + 240920116)) >= 536870912) then 536870912 else 0))) }
+ASSUME_33 { (stack[0] == (if ((((limbs0[7] + (if (limbs0[7] < (limbs1[7] + i15)) then 536870912 else 0)) - (limbs1[7] + i15)) + (i14 + 240920116)) >= 536870912) then 1 else 0)) }
+ASSUME_34 { (stack[2] == (if (limbs0[7] < (limbs1[7] + i15)) then 1 else 0)) }
+DEFINE_16 { stack[0] }
+DEFINE_17 { stack[2] }
+OP_2SWAP OP_ADD OP_2SWAP OP_TOALTSTACK OP_SWAP OP_FROMALTSTACK
+OP_ROT OP_ROT OP_SUB OP_DUP OP_0 OP_LESSTHAN OP_TUCK OP_IF OP_PUSHNUM_2 OP_PICK OP_ADD OP_ENDIF
+OP_DUP OP_TOALTSTACK
+ASSUME_35 { (altstack[0] == ((limbs0[8] + (if (limbs0[8] < (limbs1[8] + i17)) then 536870912 else 0)) - (limbs1[8] + i17))) }
+OP_ROT OP_TOALTSTACK OP_ROT OP_PUSHBYTES_3 4e6430 OP_ADD OP_ADD OP_FROMALTSTACK OP_2DUP OP_GREATERTHANOREQUAL OP_IF OP_SUB OP_ELSE OP_DROP OP_ENDIF OP_TOALTSTACK
+ASSUME_36 { (altstack[0] == ((((limbs0[8] + (if (limbs0[8] < (limbs1[8] + i17)) then 536870912 else 0)) - (limbs1[8] + i17)) + (i16 + 3171406)) - (if ((((limbs0[8] + (if (limbs0[8] < (limbs1[8] + i17)) then 536870912 else 0)) - (limbs1[8] + i17)) + (i16 + 3171406)) >= 536870912) then 536870912 else 0))) }
+OP_DUP
+OP_NOTIF OP_FROMALTSTACK OP_DROP OP_ENDIF OP_FROMALTSTACK
+OP_FROMALTSTACK OP_DROP OP_FROMALTSTACK
+OP_FROMALTSTACK OP_DROP OP_FROMALTSTACK
+OP_FROMALTSTACK OP_DROP OP_FROMALTSTACK
+OP_FROMALTSTACK OP_DROP OP_FROMALTSTACK
+OP_FROMALTSTACK OP_DROP OP_FROMALTSTACK
+OP_FROMALTSTACK OP_DROP OP_FROMALTSTACK
+OP_FROMALTSTACK OP_DROP OP_FROMALTSTACK
+OP_FROMALTSTACK OP_DROP OP_FROMALTSTACK
+OP_PUSHNUM_9 OP_ROLL OP_IF OP_FROMALTSTACK OP_DROP OP_ENDIF
+ASSERT_0 { (((v0 + (if (v0 < v1) then 21888242871839275222246405745257275088696311157297823662689037894645226208583 else 0)) - v1) == ((((((((stack[0] + (stack[1] * 536870912)) + (stack[2] * 288230376151711744)) + (stack[3] * 154742504910672534362390528)) + (stack[4] * 83076749736557242056487941267521536)) + (stack[5] * 44601490397061246283071436545296723011960832)) + (stack[6] * 23945242826029513411849172299223580994042798784118784)) + (stack[7] * 12855504354071922204335696738729300820177623950262342682411008)) + (stack[8] * 6901746346790563787434755862277025452451108972170386555162524223799296))) }

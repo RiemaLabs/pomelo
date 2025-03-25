@@ -10,7 +10,7 @@ compiled/
 \#*
 .\#*
 res.out
-*/test.bs
+test.bs
 *.csv
 test_*
 summary_*

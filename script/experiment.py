@@ -246,7 +246,7 @@ if __name__ == '__main__':
 
     # Set up argument parser
     parser = argparse.ArgumentParser(description='Run tests on .bs files')
-    parser.add_argument('--directory', type=str, default='benchmark',
+    parser.add_argument('--directory', type=str, default='benchmark/oopsla',
                         help='Specify the directory to search for .bs files')
     args = parser.parse_args()
 
