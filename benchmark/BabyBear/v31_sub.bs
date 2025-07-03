@@ -1,0 +1,8 @@
+PUSH_SYMINT_0
+PUSH_SYMINT_1
+OP_SUB
+OP_DUP OP_0 OP_GREATERTHANOREQUAL OP_IF OP_PUSHBYTES_4 01000078 OP_SUB OP_ENDIF
+ASSUME_0 { ((v0 >= (0 - 2013265921)) && (v0 < 0)) }
+ASSUME_1 { ((v1 >= (0 - 2013265921)) && (v1 < 0)) }
+ASSERT_2 { (stack[0] == (if ((v0 - v1) >= 0) then ((v0 - v1) - 2013265921) else (v0 - v1))) }
+ASSERT_3 { ((stack[0] >= (0 - 2013265921)) && (stack[0] < 0)) }

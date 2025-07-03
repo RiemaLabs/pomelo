@@ -1,0 +1,5 @@
+PUSH_SYMINT_0
+OP_PUSHBYTES_4 ffffffff OP_SWAP OP_SUB
+ASSUME_0 { ((v0 >= (0 - 2147483647)) && (v0 < 0)) }
+ASSERT_1 { (stack[0] == (if (v0 == (0 - 2147483647)) then (0 - 2147483647) else ((0 - 2147483647) - v0))) }
+ASSERT_2 { ((stack[0] >= (0 - 2147483647)) && (stack[0] < 0)) }
