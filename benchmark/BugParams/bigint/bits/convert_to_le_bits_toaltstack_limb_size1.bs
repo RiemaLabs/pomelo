@@ -1,0 +1,3 @@
+PUSH_SYMINT_0
+ASSUME_0 { ((v0 < 2) && (v0 >= 0)) }
+ASSERT_0 { (altstack[0] == ((v0 >> 0) - ((v0 >> 1) << 1))) }
